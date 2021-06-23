@@ -1,0 +1,13 @@
+---
+title: "EDA"
+author: "Austin Stephen"
+date: "6/23/2021"
+output: html_document
+---
+
+```{r setup, }
+nba_data <- 
+  
+  
+```
+
