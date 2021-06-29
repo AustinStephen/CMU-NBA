@@ -107,8 +107,7 @@ hustle <- get_hustle(21800001)
 
 ## cannot get the function get_shooting() to work 
 
-traditional <- map(c(21800001), ~get_boxscore(.,boxscore_type = 'traditional')) %>% 
-                  compact() %>%  bind_rows()
+traditional <- map(c(21800001), ~get_boxscore(.,boxscore_type = 'traditional')) %>% compact() %>%  bind_rows()
 
 ## getting the tracking data for 2018 
 tracking_players <- get_tracking(season = c(2018), 
