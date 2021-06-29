@@ -1,13 +1,121 @@
 ---
-title: "EDA"
+title: "Clean Presentation of EDA NBA"
 author: "Austin Stephen"
 date: "6/23/2021"
 output: html_document
 ---
+```{r setup, include=FALSE, }
+library(tidyverse)
+library(dplyr)
+library(nbastatR)
+library(NBAr)
+knitr::opts_chunk$set(
+  cache = FALSE,
+  echo = FALSE,
+  message = FALSE, 
+  warning = FALSE
+)
+tracking_players <- read.csv(".//data//player_tracking_distance.csv")
+tracking_teams <- read.csv(".//data//team_tracking_distance.csv")
+summary(tracking_teams)
+summary(tracking_players)
+```
+## Distance Traveled in Game 
+Take Aways
+* The distribution of distance on offense is very similar to defense.
+#### CDF plots
+```{r, fig.height=3}
+## Game Distance Empirical CDFs
+ggplot(tracking_players,aes(x = dist_miles)) + 
+  stat_ecdf() + 
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  geom_abline( intercept = 0.5, slope = 0, color = "red",)+
+  labs(title = "CDF Distance Traveled in Game By Player",
+       x = "Distance(miles")
 
-```{r setup, }
-nba_data <- 
-  
-  
+ggplot(tracking_players,aes(x = dist_miles_off)) + 
+  stat_ecdf() + 
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  geom_abline( intercept = 0.5, slope = 0, color = "red",)+
+  labs(title = "CDF Distance Traveled in Game By Player Offense",
+       x = "Distance(miles")
+
+ggplot(tracking_players,aes(x = dist_miles_def)) + 
+  stat_ecdf() + 
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  geom_abline( intercept = 0.5, slope = 0, color = "red",)+
+  labs(title = "CDF Distance Traveled in Game By Player Deffense",
+       x = "Distance(miles")
+
+```
+
+#### Summary Stats  
+
+Entire Game: min is 0.020, max is 2.760, and mean is 1.461  
+Offense: min is 0.020, max is 2.760, and mean is 1.461  
+Defense: min is .010, max is 1.29, and mean is .6713  
+
+#### CDF's By Position
+```{r}
+ggplot(tracking_players,aes(x = dist_miles)) + 
+  stat_ecdf() + 
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  facet_wrap(~position)+
+  geom_abline( intercept = 0.5, slope = 0, color = "red",)+
+  labs(title = "CDF Distance Traveled in Game By Player Offense",
+       x = "Distance(miles")
+
+ggplot(tracking_players,aes(x = dist_miles_off)) + 
+  stat_ecdf() + 
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  facet_wrap(~position)+
+  geom_abline( intercept = 0.5, slope = 0, color = "red",)+
+  labs(title = "CDF Distance Traveled in Game By Player Offense",
+       x = "Distance(miles")
+
+ggplot(tracking_players,aes(x = dist_miles_def)) + 
+  stat_ecdf() + 
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  facet_wrap(~position)+
+  geom_abline( intercept = 0.5, slope = 0, color = "red",)+
+  labs(title = "CDF Distance Traveled in Game By Player Offense",
+       x = "Distance(miles")
+```
+
+## CDF for Speed in Game 
+```{r}
+tracking_players %>%
+  filter(avg_speed >.25 & avg_speed < 6) %>%
+ggplot(aes(x = avg_speed)) + 
+  stat_ecdf() + 
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  geom_abline( intercept = 0.5, slope = 0, color = "red")+
+  labs(title = "CDF for seaons average speed over a season", caption = "**removed outlier players")
+
+```
+
+```{r}
+
+ggplot(tracking_teams, aes(x = dist_miles, y= w)) +
+    geom_point()+
+    theme_bw()
+```
+
+```{r}
+## grouped by position 
+## does more points per minute occur with more distance?
+## Might need to isolate by positon 
+## are the best players at a position moving more?
+## does shooting percentage go down as distacne increases?
+## Need to find quarter or minute distance data. 
+## is distance covered on defense a predictor of rebounds?
+
 ```
 
