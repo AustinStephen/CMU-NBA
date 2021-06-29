@@ -1,3 +1,3 @@
 # CMU-NBA
 NBA 
-Austin Stephen, Mattew Yep, Grace Fain 
+Austin Stephen, Matthew Yep, Grace Fain 
