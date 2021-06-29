@@ -10,13 +10,11 @@ library(ballr)
 library(NBAr)
 library(lubridate)
 
-
 # Info about flight distance, time, direction, coordinates
 travel1617 <- nba_travel(start_season = 2017,
                               end_season = 2017,
                               return_home = 3,
                               phase = "RS") #airball
-
 
 # Data about back to back, first or second leg etc. 
 density1617 <- nba_density(travel1617) #airball
@@ -34,7 +32,9 @@ travel_and_density <- merge(x = travel1617, y = density1617,
   select_at(vars(-ends_with(".y"))) %>%
   select_at(vars(-starts_with("d."))) %>%
   mutate(Visitor = (Location == "Away")) %>%
+  mutate("Date" = as.character(Date)) %>%
   filter(Rest != 15)
+
 
 regseason1617_a <- mutate(travel_and_density, Win = (travel_and_density$"W/L" == "W")) %>%
   select(c("Season", "Month", "Week", "Date", "Team", "Opponent", "Visitor", "City", "Win", 
@@ -94,6 +94,10 @@ init_lm <- lm(score_diff ~ Distance + flight_duration + B2B_2nd  + Visitor ,
 #suffers from OVB rn
 
 summary(init_lm)
+
+
+
+
 
 
 
