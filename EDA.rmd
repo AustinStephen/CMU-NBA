@@ -101,11 +101,13 @@ ggplot(aes(x = avg_speed)) +
 
 ```
 
+## scatter plots looking for relationship with distance
 ```{r}
 
 ggplot(tracking_teams, aes(x = dist_miles, y= w)) +
     geom_point()+
-    theme_bw()
+    theme_bw()+
+    labs(title = "Teams wins and average per distance per game", caption = "**removed outlier players")
 ```
 
 ```{r}
