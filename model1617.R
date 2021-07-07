@@ -12,7 +12,6 @@ library(lubridate)
 library(ballr)
 
 
-
 # Info about flight distance, time, direction, coordinates
 travel1617 <- nba_travel(start_season = 2017,
                               end_season = 2017,
@@ -30,14 +29,14 @@ schedule1617 <- get_schedule(2016) %>%
 
 #Merge travel1617 and density1617 with one another. 
 #Remove first games of the season because there were 15 days of rest prior
-travel_and_density <- merge(x = travel1617, y = density1617,
+travel_and_density1617 <- merge(x = travel1617, y = density1617,
                        by = c("Date", "Team"), suffix = c("", ".y")) %>%
   select_at(vars(-ends_with(".y"))) %>%
   select_at(vars(-starts_with("d."))) %>%
   mutate(Visitor = (Location == "Away")) %>%
   filter(Rest != 15)
 
-regseason1617_a <- mutate(travel_and_density, Win = (travel_and_density$"W/L" == "W")) %>%
+regseason1617 <- mutate(travel_and_density1617, Win = (travel_and_density1617$"W/L" == "W")) %>%
   select(c("Season", "Month", "Week", "Date", "Team", "Opponent", "Visitor", "City", "Win", 
            "Distance", "Route", "Rest", "TZ", "Shift (hrs)", "Flight Time", "Direction (E/W)", 
            "Latitude", "Longitude", "B2B", "B2B-1st", "B2B-2nd", "3in4", "4in5", "5in7")) %>%
@@ -50,32 +49,33 @@ regseason1617_a <- mutate(travel_and_density, Win = (travel_and_density$"W/L" ==
   rename(five_in_seven = "5in7")
 
 #The given flight durations are funky and have strings but I just wanna extra the time
-flight_durations = c()
-for (d in regseason1617_a$"Flight Time") {
+flight_durations1617 = c()
+
+for (d in regseason1617$"Flight Time") {
   second_to_last = substr(d, nchar(d) - 1, nchar(d)-1)
   if (second_to_last == "e") { #"~55 minutes"
-    flight_durations = c(flight_durations, 1) 
+    flight_durations1617 = c(flight_durations1617, 1) 
   }
   else if (second_to_last == "r") {
     hours = as.double(substr(d, 2, 5))
-    flight_durations = c(flight_durations, hours)
+    flight_durations1617 = c(flight_durations1617, hours)
   }
   else {
-    flight_durations = c(flight_durations, 0)
+    flight_durations1617 = c(flight_durations1617, 0)
   }
 }
 
-regseason1617_b <- mutate(regseason1617_a, flight_duration = flight_durations) %>%
+regseason1617 <- mutate(regseason1617, flight_duration = flight_durations1617) %>%
   select(- "Flight Time")
   
 team_boxscores1617 <- get_team_boxscore(2016) %>%
   subset(select = season_year:plus_minus) %>%
   mutate(Date = substr(game_date, 0, 10)) %>%
-  rename(Team = team_name) #%>%
-  #select(c(Date, game_id,Team, matchup, plus_minus))
+  rename(Team = team_name) %>%
+  select(c(Date, game_id,Team, matchup, plus_minus)) 
 
 
-regseason1617_c <- merge(x = regseason1617_b, y = team_boxscores1617,
+regseason1617 <- merge(x = regseason1617, y = team_boxscores1617,
                        by = c("Date", "Team")) %>%
   rename(score_diff = plus_minus) %>%
   mutate(traveling_west = (direction == "West")) %>% 
@@ -87,41 +87,42 @@ regseason1617_c <- merge(x = regseason1617_b, y = team_boxscores1617,
   mutate(four_in_five = (four_in_five == "Yes")) %>%
   mutate(five_in_seven = (five_in_seven == "Yes"))
 
-avg_score_diffs_home <- regseason1617_c %>%
+avg_score_diffs_home1617 <- regseason1617 %>%
   filter(Visitor == FALSE) %>%
   group_by(Team) %>%
   summarise_at(vars(score_diff),
               list(avg_score_diff_home = mean))
 
-avg_score_diffs_away <- regseason1617_c %>%
+avg_score_diffs_away1617 <- regseason1617 %>%
   filter(Visitor == TRUE) %>%
   group_by(Team) %>%
   summarise_at(vars(score_diff),
                list(avg_score_diff_away = mean))
 
-regseason1617_d <- merge(x = regseason1617_c, y = avg_score_diffs_home, 
+regseason1617 <- merge(x = regseason1617, y = avg_score_diffs_home1617, 
                            by = "Team")
 
-regseason1617_e <- merge(x = regseason1617_d, y = avg_score_diffs_away, 
+regseason1617 <- merge(x = regseason1617, y = avg_score_diffs_away1617, 
                        by = "Team") %>%
   arrange(Date)
 
 
 #Adjusted_score_diffs accounts for if the team was home or away
-adj_score_diffs = c()
-for (i in c(1:nrow(regseason1617_e))) {
-  if (regseason1617_e$Visitor[i] == TRUE) { #if they are visitor
-    adj_score_diffs = c(adj_score_diffs, 
-                        regseason1617_e$score_diff[i] - regseason1617_e$avg_score_diff_away[i])
+adj_score_diffs1617 = c()
+
+for (i in c(1:nrow(regseason1617))) {
+  if (regseason1617$Visitor[i] == TRUE) { #if they are visitor
+    adj_score_diffs1617 = c(adj_score_diffs1617, 
+                        regseason1617$score_diff[i] - regseason1617$avg_score_diff_away[i])
   }
   else { #if they are home
-    adj_score_diffs = c(adj_score_diffs, 
-                        regseason1617_e$score_diff[i] - regseason1617_e$avg_score_diff_home[i])
+    adj_score_diffs1617 = c(adj_score_diffs1617, 
+                        regseason1617$score_diff[i] - regseason1617$avg_score_diff_home[i])
   }
 }
 
-regseason1617_f <- regseason1617_e %>%
-  mutate(adjusted_score_diff = adj_score_diffs)
+regseason1617 <- regseason1617 %>%
+  mutate(adjusted_score_diff = adj_score_diffs1617)
 
 dtd_records1617 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/record_by_day_2016_17_season.csv")
 
@@ -130,31 +131,31 @@ dtd_records1617$Team <- stringr::str_replace(dtd_records1617$team, '\\*', '')
 dtd_records1617 <- select(dtd_records1617, c(date, Team, w, l, w_lpercent, ps_g, pa_g)) %>%
   rename(Date = date)
 
-regseason1617 <- merge(x= regseason1617_f, y = dtd_records1617,
+regseason1617 <- merge(x= regseason1617, y = dtd_records1617,
                        by = c("Date", "Team")) %>%
   filter(Rest <= 3)
-  
+
+opp_win_records1617 <- c()
+for (i in c(1:nrow(regseason1617))) {
+  opp <- regseason1617$Opponent[i]
+  day <- regseason1617$Date[i]
+  opp_record <- filter(dtd_records1617, 
+                       (Team == opp & Date == day))$w_lpercent[1]
+  opp_win_records1617 <- c(opp_win_records1617, opp_record)
+}
+
+regseason1617 <- regseason1617 %>%
+  mutate(opp_win_percent = opp_win_records1617)
+
+regseason1617 <- regseason1617 %>%
+  mutate(win_percent_diff = w_lpercent - opp_win_percent)
+
 write_csv(regseason1617, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1617.csv")
 
 data1617 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1617.csv")
 
-colnames(data1617)
-colnames(regseason1617)
-
-
 
 #keep track of cumulative travel 
-
-
-# Distance flight_duration  Rest 
-# shift   b2b_2nd   three_in_four   Visitor
-# traveling_west  traveling_east
-
-#to do: need to add home team current record, opponent current record
-
-#could also try doing a logistic regression model with win probability as response
-
-#suffers from OVB rn
 
 visitors <- filter(data1617, Visitor == TRUE)
 
@@ -162,20 +163,47 @@ test_rest_visitors <- select(visitors, c(Rest, adjusted_score_diff)) %>%
   group_by(Rest) %>%
   summarise_at(vars(adjusted_score_diff),
                list(avg_adj_score_diff = mean))
-#interesting to see that teams do well with 2-3 days rest but poor after more than that
+#interesting to see that teams do well with 1-2 days rest but poor after more than that
 # huge dip after 7 days rest. Likely due to small sample size
 
 test_shift_visitors <- select(visitors, c(shift, adjusted_score_diff)) %>%
   group_by(shift) %>%
   summarise_at(vars(adjusted_score_diff),
                list(avg_adj_score_diff = mean))
+#Nothing convincing here. Might need more seasons of data
 
+test_b2b_visitors <- select(visitors, c(three_in_four, adjusted_score_diff)) %>%
+  group_by(three_in_four) %>%
+  summarise_at(vars(adjusted_score_diff),
+               list(avg_adj_score_diff = mean))
+
+visitors_lm <- lm(adjusted_score_diff ~ w_lpercent + opp_win_percent + three_in_four + traveling_west, 
+                  data = visitors)
+
+summary(visitors_lm)
+
+# Distance flight_duration  Rest 
+# shift   b2b_2nd   three_in_four   Visitor
+# traveling_west  traveling_east
+# w_lpercent opp_win_percent
+
+#to do: opponent current record
+
+library(ggfortify)
+autoplot(visitors_lm) +
+  theme_bw()
+
+ggplot(visitors, aes(x = win_percent_diff, y= adjusted_score_diff)) +
+  geom_point(alpha = 0.5)
+
+
+#Travelling west (east coast teams flying west) has a negative influence on adj_score_diff
 test_west_visitor <- select(visitors, c(traveling_west, adjusted_score_diff)) %>%
   group_by(traveling_west) %>%
   summarise_at(vars(adjusted_score_diff),
                list(avg_adj_score_diff = mean))
 
-
+#In contrast, travelling east is not that bad for west coast teams
 test_east_visitor <- select(visitors, c(traveling_east, adjusted_score_diff)) %>%
   group_by(traveling_east) %>%
   summarise_at(vars(adjusted_score_diff),
@@ -183,7 +211,6 @@ test_east_visitor <- select(visitors, c(traveling_east, adjusted_score_diff)) %>
 
 #ask ron at OH how we can test the significance of these results
 #east vs west is really interesting
-
 
 #other things to add ot model
 #opponent days rest
@@ -203,23 +230,6 @@ test2 <- merge(test, avg_score_diffs_home,
 
 #the goal is to take difference in both teams avg_score_diffs and use that as predictor of win or loss
 #we expect a positive difference to help them win the game
-
-
-
-
-
-
-visitors_lm <- lm(adjusted_score_diff ~  Rest, 
-              data = visitors)
-
-summary(visitors_lm)
-
-library(ggfortify)
-autoplot(visitors_lm) +
-  theme_bw()
-
-ggplot(visitors, aes(x = w_lpercent, y= adjusted_score_diff)) +
-  geom_point(alpha = 0.5)
 
 tmp <- NBAStandingsByDate("2017-04-12")
 east <- tmp[["East"]]
@@ -244,8 +254,6 @@ together <- merge(x = fr, y = average_score_diff,
                   by.x = "team", by.y = "Team")  
 
 
-ggplot(together, aes(x = avg_score_diff, y= w_lpercent)) +
-  geom_point(alpha = 0.5)
 
 
 
