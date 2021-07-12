@@ -5,8 +5,6 @@ library(tidyverse)
 library(ggplot2)
 library(echarts4r)
 library(echarts4r.assets) 
-library(nbastatR)
-library(ballr)
 library(NBAr)
 library(lubridate)
 library(ballr)
@@ -72,7 +70,7 @@ team_boxscores1617 <- get_team_boxscore(2016) %>%
   subset(select = season_year:plus_minus) %>%
   mutate(Date = substr(game_date, 0, 10)) %>%
   rename(Team = team_name) %>%
-  select(c(Date, game_id,Team, matchup, plus_minus)) 
+  select(c(Date, game_id,Team, matchup, plus_minus)) #Patrick Chodowski
 
 
 regseason1617 <- merge(x = regseason1617, y = team_boxscores1617,
@@ -106,7 +104,6 @@ regseason1617 <- merge(x = regseason1617, y = avg_score_diffs_away1617,
                        by = "Team") %>%
   arrange(Date)
 
-
 #Adjusted_score_diffs accounts for if the team was home or away
 adj_score_diffs1617 = c()
 
@@ -128,8 +125,13 @@ dtd_records1617 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/d
 
 dtd_records1617$Team <- stringr::str_replace(dtd_records1617$team, '\\*', '') 
 
+
+
 dtd_records1617 <- select(dtd_records1617, c(date, Team, w, l, w_lpercent, ps_g, pa_g)) %>%
   rename(Date = date)
+
+typeof(regseason1617$Date[1])
+typeof(dtd_records1617$Date[1])
 
 regseason1617 <- merge(x= regseason1617, y = dtd_records1617,
                        by = c("Date", "Team")) %>%
@@ -150,6 +152,46 @@ regseason1617 <- regseason1617 %>%
 regseason1617 <- regseason1617 %>%
   mutate(win_percent_diff = w_lpercent - opp_win_percent)
 
+ratings1617 <- get_general(
+  season = 2016,
+  type = "Team",
+  measure_type = "Advanced",
+  per_mode = "Totals",
+  season_type = "Regular+Season",
+  season_segment = "",
+  game_segment = "",
+  date_from = "",
+  date_to = "",
+  outcome = "",
+  period = "0",
+  opponent_team_id = "0",
+  team_id = "0",
+  verbose = TRUE
+) %>%  
+  select(c("team_name", "off_rating", "def_rating", "net_rating", "pace")) %>%
+  rename(Team = team_name)
+
+regseason1617 <- merge(x = regseason1617, y = ratings1617,
+                       by = "Team")
+
+regseason1617 <- merge(x = regseason1617, y = ratings1617,
+                       by.x = "Opponent", by.y = "Team")
+
+regseason1617 <- regseason1617 %>%
+  rename(off_rating = "off_rating.x") %>%
+  rename(def_rating = "def_rating.x") %>%
+  rename(net_rating = "net_rating.x") %>%
+  rename(pace = "pace.x") %>%
+  rename(opp_off_rating = "off_rating.y") %>%
+  rename(opp_def_rating = "def_rating.y") %>%
+  rename(opp_net_rating = "net_rating.y") %>%
+  rename(opp_pace = "pace.y") 
+
+regseason1617 <- regseason1617 %>%
+  mutate(net_rating_diff = net_rating - opp_net_rating) %>%
+  mutate(pace_diff = pace - opp_pace)
+  
+
 write_csv(regseason1617, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1617.csv")
 
 data1617 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1617.csv")
@@ -159,22 +201,22 @@ data1617 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/reg
 
 visitors <- filter(data1617, Visitor == TRUE)
 
-test_rest_visitors <- select(visitors, c(Rest, adjusted_score_diff)) %>%
+test_rest_visitors <- select(visitors, c(Rest, net_rating_diff)) %>%
   group_by(Rest) %>%
-  summarise_at(vars(adjusted_score_diff),
+  summarise_at(vars(net_rating_diff),
                list(avg_adj_score_diff = mean))
 #interesting to see that teams do well with 1-2 days rest but poor after more than that
 # huge dip after 7 days rest. Likely due to small sample size
 
-test_shift_visitors <- select(visitors, c(shift, adjusted_score_diff)) %>%
+test_shift_visitors <- select(visitors, c(shift, net_rating_diff)) %>%
   group_by(shift) %>%
-  summarise_at(vars(adjusted_score_diff),
+  summarise_at(vars(net_rating_diff),
                list(avg_adj_score_diff = mean))
 #Nothing convincing here. Might need more seasons of data
 
-test_b2b_visitors <- select(visitors, c(three_in_four, adjusted_score_diff)) %>%
+test_b2b_visitors <- select(visitors, c(three_in_four, net_rating_diff)) %>%
   group_by(three_in_four) %>%
-  summarise_at(vars(adjusted_score_diff),
+  summarise_at(vars(net_rating_diff),
                list(avg_adj_score_diff = mean))
 
 visitors_lm <- lm(adjusted_score_diff ~ w_lpercent + opp_win_percent + three_in_four + traveling_west, 
@@ -197,13 +239,13 @@ ggplot(visitors, aes(x = win_percent_diff, y= adjusted_score_diff)) +
   geom_point(alpha = 0.5)
 
 
-#Travelling west (east coast teams flying west) has a negative influence on adj_score_diff
+#Traveling west (east coast teams flying west) has a negative influence on adj_score_diff
 test_west_visitor <- select(visitors, c(traveling_west, adjusted_score_diff)) %>%
   group_by(traveling_west) %>%
   summarise_at(vars(adjusted_score_diff),
                list(avg_adj_score_diff = mean))
 
-#In contrast, travelling east is not that bad for west coast teams
+#In contrast, traveling east is not that bad for west coast teams
 test_east_visitor <- select(visitors, c(traveling_east, adjusted_score_diff)) %>%
   group_by(traveling_east) %>%
   summarise_at(vars(adjusted_score_diff),
@@ -217,54 +259,6 @@ test_east_visitor <- select(visitors, c(traveling_east, adjusted_score_diff)) %>
 #opponent record
 #opponent avg score diff
 #expected outcome T or F
-
-test <- merge(data1617, avg_score_diffs_away,
-              by.x = "Opponent", by.y = "Team") %>%
-  rename("opp_avg_score_diff_away" = avg_score_diff_away.y) %>%
-  arrange(Date)
-
-test2 <- merge(test, avg_score_diffs_home,
-               by.x = "Opponent", by.y = "Team") %>% 
-  rename("opp_avg_score_diff_home" = avg_score_diff_home.y) %>%
-  arrange(Date)
-
-#the goal is to take difference in both teams avg_score_diffs and use that as predictor of win or loss
-#we expect a positive difference to help them win the game
-
-tmp <- NBAStandingsByDate("2017-04-12")
-east <- tmp[["East"]]
-west <- tmp[["West"]]
-
-west <- west %>% 
-  rename("team" = western_conference)
-
-east <- east %>% 
-  rename("team" = eastern_conference)
-
-fr <- rbind(east,west)
-
-fr$team <- stringr::str_replace(fr$team, '\\*', '') 
-
-average_score_diff <- data1617 %>%
-  group_by(Team) %>%
-  summarise_at(vars(score_diff),
-               list(avg_score_diff = mean))
-
-together <- merge(x = fr, y = average_score_diff,
-                  by.x = "team", by.y = "Team")  
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -138,6 +138,46 @@ regseason1819 <- regseason1819 %>%
 regseason1819 <- regseason1819 %>%
   mutate(win_percent_diff = w_lpercent - opp_win_percent)
 
+ratings1819 <- get_general(
+  season = 2018,
+  type = "Team",
+  measure_type = "Advanced",
+  per_mode = "Totals",
+  season_type = "Regular+Season",
+  season_segment = "",
+  game_segment = "",
+  date_from = "",
+  date_to = "",
+  outcome = "",
+  period = "0",
+  opponent_team_id = "0",
+  team_id = "0",
+  verbose = TRUE
+) %>%  
+  select(c("team_name", "off_rating", "def_rating", "net_rating", "pace")) %>%
+  rename(Team = team_name)
+
+regseason1819 <- merge(x = regseason1819, y = ratings1819,
+                       by = "Team")
+
+regseason1819 <- merge(x = regseason1819, y = ratings1819,
+                       by.x = "Opponent", by.y = "Team")
+
+regseason1819 <- regseason1819 %>%
+  rename(off_rating = "off_rating.x") %>%
+  rename(def_rating = "def_rating.x") %>%
+  rename(net_rating = "net_rating.x") %>%
+  rename(pace = "pace.x") %>%
+  rename(opp_off_rating = "off_rating.y") %>%
+  rename(opp_def_rating = "def_rating.y") %>%
+  rename(opp_net_rating = "net_rating.y") %>%
+  rename(opp_pace = "pace.y") 
+
+regseason1819 <- regseason1819 %>%
+  mutate(net_rating_diff = net_rating - opp_net_rating) %>%
+  mutate(pace_diff = pace - opp_pace)
+
+
 write_csv(regseason1819, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1819.csv")
 
 

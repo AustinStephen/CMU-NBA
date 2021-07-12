@@ -12,10 +12,10 @@ density1718 <- nba_density(travel1718) #airball
 #this data has tipoff time
 schedule1718 <- get_schedule(2017) %>%
   filter(season_type == "REG") #NBAr
-#main useful variable from schedule1617 is game_time_utc. Havent actually merged schedule1617 with anything yet
+#main useful variable from schedule1718 is game_time_utc. Havent actually merged schedule1718 with anything yet
 
 
-#Merge travel1617 and density1617 with one another. 
+#Merge travel1718 and density1718 with one another. 
 #Remove first games of the season because there were 15 days of rest prior
 travel_and_density1718 <- merge(x = travel1718, y = density1718,
                             by = c("Date", "Team"), suffix = c("", ".y")) %>%
@@ -138,9 +138,49 @@ regseason1718 <- regseason1718 %>%
 regseason1718 <- regseason1718 %>%
   mutate(win_percent_diff = w_lpercent - opp_win_percent)
 
+ratings1718 <- get_general(
+  season = 2017,
+  type = "Team",
+  measure_type = "Advanced",
+  per_mode = "Totals",
+  season_type = "Regular+Season",
+  season_segment = "",
+  game_segment = "",
+  date_from = "",
+  date_to = "",
+  outcome = "",
+  period = "0",
+  opponent_team_id = "0",
+  team_id = "0",
+  verbose = TRUE
+) %>%  
+  select(c("team_name", "off_rating", "def_rating", "net_rating", "pace")) %>%
+  rename(Team = team_name)
+
+regseason1718 <- merge(x = regseason1718, y = ratings1718,
+                       by = "Team")
+
+regseason1718 <- merge(x = regseason1718, y = ratings1718,
+                       by.x = "Opponent", by.y = "Team")
+
+regseason1718 <- regseason1718 %>%
+  rename(off_rating = "off_rating.x") %>%
+  rename(def_rating = "def_rating.x") %>%
+  rename(net_rating = "net_rating.x") %>%
+  rename(pace = "pace.x") %>%
+  rename(opp_off_rating = "off_rating.y") %>%
+  rename(opp_def_rating = "def_rating.y") %>%
+  rename(opp_net_rating = "net_rating.y") %>%
+  rename(opp_pace = "pace.y") 
+
+regseason1718 <- regseason1718 %>%
+  mutate(net_rating_diff = net_rating - opp_net_rating) %>%
+  mutate(pace_diff = pace - opp_pace)
+
 write_csv(regseason1718, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1718.csv")
 
 data1718 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1718.csv")
+
 
 
 
