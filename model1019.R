@@ -1,3 +1,14 @@
+library(devtools)
+library(airball)
+library(nbastatR)
+library(tidyverse)
+library(ggplot2)
+library(echarts4r)
+library(echarts4r.assets) 
+library(NBAr)
+library(lubridate)
+library(ballr)
+
 data1011 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1011.csv")
 data1112 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1112.csv")
 data1213 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1213.csv")
@@ -30,18 +41,75 @@ for (i in c(1:nrow(together))) {
 }
 
 together <- together %>%
-  mutate(capped_score_diff = capped_score_diffs)
+  mutate(capped_score_diff = capped_score_diffs) %>%
+  mutate(hours_shift = as.factor(shift))
 
+together$hours_shift <-relevel(together$hours_shift, ref= "0")
+
+together <- together %>%
+  select(-c(gp, "w.y", "l.y", min, w_pct, plus_minus:cfparams))
+
+together <- together %>% 
+  mutate(off_rating_diff = off_rating - opp_off_rating) %>%
+  mutate(def_rating_diff = def_rating - opp_def_rating) %>%
+  mutate(fg_pct_diff = fg_pct - opp_fg_pct) %>%
+  mutate(fg3m_diff = fg3m - opp_fg3m) %>%
+  mutate(fg3_pct_diff = fg3_pct - opp_fg3_pct) %>%
+  mutate(ftm_diff = ftm - opp_ftm) %>%
+  mutate(ft_pct_diff = ft_pct - opp_ft_pct) %>%
+  mutate(reb_diff = reb - opp_reb) %>%
+  mutate(ast_diff = ast- opp_ast) %>%
+  mutate(tov_diff = tov - opp_tov) %>%
+  mutate(stl_diff = stl - opp_stl) %>%
+  mutate(blk_diff = blk - opp_blk) %>%
+  mutate(win_percent_diff = win_percent_diff *100)
+  
 write_csv(together, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/together.csv")
 
+# Constructing a Linear Model ---------------------------------------------
+performance_lm <- lm(score_diff ~ net_rating_diff + fg_pct_diff,
+                     data = together) 
 
+summary(performance_lm)
+
+rows <- sample(nrow(together))
+temp <- together[rows, ]
+together_sample <- temp[!duplicated(temp$game_id),]
+
+test <- together[!duplicated(together$game_id),]
+
+sample_lm <- lm(score_diff ~ win_percent_diff + Visitor + Rest + hours_shift, 
+                data = test)
+
+summary(sample_lm)
+
+# Visitors Model ----------------------------------------------------------
 visitors <- filter(together, Visitor == TRUE)
 
-visitors_lm <- lm(adjusted_score_diff ~ net_rating_diff, 
+visitors_lm <- lm(score_diff ~ win_percent_diff + net_rating_diff + Rest + hours_shift + three_in_four + b2b_2nd, 
                   data = visitors)
 
 summary(visitors_lm)
 
+# Together Model ----------------------------------------------------------
+together_lm <- lm(score_diff ~ win_percent_diff + net_rating_diff + Visitor + Rest + hours_shift, 
+                  data = together)
+
+summary(together_lm)
+
+
+# EDA --------------------------------------------------------------------
+ggplot(together, aes(x = as.factor(Rest), y= score_diff)) +
+  geom_violin() +
+  geom_boxplot(width = 0.2)
+
+ggplot(together, aes(x = flight_duration, y = score_diff)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm")
+
+check <- lm(score_diff ~ hours_shift, data = together)
+
+summary(check)
 
 test_rest_visitors <- select(visitors, c(Rest, net_rating_diff)) %>%
   group_by(Rest) %>%
@@ -88,10 +156,11 @@ test_east_visitor <- select(visitors, c(traveling_east, net_rating_diff)) %>%
                list(avg_net_rating_diff = mean))
 
 
-test_rest_visitors_score_diff <- select(visitors, c(Rest, adjusted_score_diff)) %>%
+# Score Diff --------------------------------------------------------------
+test_rest_visitors_score_diff <- select(visitors, c(Rest, score_diff)) %>%
   group_by(Rest) %>%
-  summarise_at(vars(adjusted_score_diff),
-               list(avg_net_rating_diff = mean))
+  summarise_at(vars(score_diff),
+               list(avg_score_diff = mean))
 #interesting to see that teams do well with 1 days rest but poor after more than that
 
 test_shift_visitors_score_diff <- select(visitors, c(shift, adjusted_score_diff)) %>%
@@ -121,21 +190,17 @@ test_57_visitors_score_diff <- select(visitors, c(five_in_seven, adjusted_score_
                list(avg_score_diff = mean))
 
 #the numbers here are super tiny
-test_west_visitor_score_diff <- select(visitors, c(traveling_west, adjusted_score_diff)) %>%
+test_west_visitor_score_diff <- select(visitors, c(traveling_west, score_diff)) %>%
   group_by(traveling_west) %>%
-  summarise_at(vars(adjusted_score_diff),
+  summarise_at(vars(score_diff),
                list(avg_score_diff = mean))
 
 #In contrast, traveling east is bad for west teams. Still small numbers
-test_east_visitor_score_diff <- select(visitors, c(traveling_east, adjusted_score_diff)) %>%
+test_east_visitor_score_diff <- select(visitors, c(traveling_east, score_diff)) %>%
   group_by(traveling_east) %>%
-  summarise_at(vars(adjusted_score_diff),
+  summarise_at(vars(score_diff),
                list(avg_score_diff = mean))
 
-# Distance flight_duration  Rest 
-# shift   b2b_2nd   three_in_four   Visitor
-# traveling_west  traveling_east
-# w_lpercent opp_win_percent
 
 library(ggfortify)
 autoplot(visitors_lm) +
@@ -150,14 +215,6 @@ ggplot(visitors, aes(x = off_rating - opp_off_rating, y = score_diff)) +
 
 ggplot(visitors, aes(y = adjusted_score_diff, x = win_percent_diff)) +
   geom_point(alpha = 0.3)
-
-nuggets1314 <- together %>%
-  filter(Team %in% c("Denver Nuggets", "Miami Heat", "Cleveland Cavaliers", "Utah Jazz", "Golden State Warriors")) %>%
-  filter(Season == "2015-16") 
-
-ggplot(nuggets1314, aes(x = Date, y = w_lpercent)) +
-  geom_point(alpha = 0.3, aes(color = Team)) +
-  geom_smooth(aes(color = Team))
 
 ggplot(visitors, aes(x = pace_diff, y = score_diff)) +
   geom_point(alpha = 0.3)
@@ -174,12 +231,6 @@ ggplot(visitors, aes(x = Distance, y = net_rating_diff)) +
 ggplot(visitors, aes(x = flight_duration, y = score_diff)) +
   geom_point(alpha = 0.3)
 
-#Notable relationships
-#win_percent_diff and adjusted_score_diff
-#three in four and adjusted_score_diff
-#four in five and adjusted_score_diff
-#five in seven and adjusted score_diff
-
 # expected_point_diff = home_team_season_average - away_team_season_average
 # actual_point_diff = score_diff  
 # deviation_from_expected_diff = actual_point_diff - expected_point_diff
@@ -187,7 +238,6 @@ ggplot(visitors, aes(x = flight_duration, y = score_diff)) +
 #adj = actual_score_diff - season_avg_score_diff_at_home_or-away
 
 #facet by season, have teams gotten smarter over the years such that travel, shift, rest is less of a problem
-
 
 
 

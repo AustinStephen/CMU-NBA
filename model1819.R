@@ -21,8 +21,7 @@ travel_and_density1819 <- merge(x = travel1819, y = density1819,
                                 by = c("Date", "Team"), suffix = c("", ".y")) %>%
   select_at(vars(-ends_with(".y"))) %>%
   select_at(vars(-starts_with("d."))) %>%
-  mutate(Visitor = (Location == "Away")) %>%
-  filter(Rest != 15)
+  mutate(Visitor = (Location == "Away"))
 
 regseason1819 <- mutate(travel_and_density1819, Win = (travel_and_density1819$"W/L" == "W")) %>%
   select(c("Season", "Month", "Week", "Date", "Team", "Opponent", "Visitor", "City", "Win", 
@@ -120,8 +119,7 @@ dtd_records1819 <- select(dtd_records1819, c(date, Team, w, l, w_lpercent, ps_g,
   rename(Date = date)
 
 regseason1819 <- merge(x= regseason1819, y = dtd_records1819,
-                       by = c("Date", "Team")) %>%
-  filter(Rest <= 3)
+                       by = c("Date", "Team"))
 
 opp_win_records1819 <- c()
 for (i in c(1:nrow(regseason1819))) {
@@ -178,8 +176,55 @@ regseason1819 <- regseason1819 %>%
   mutate(pace_diff = pace - opp_pace)
 
 
-write_csv(regseason1819, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1819.csv")
+performance1819 <- get_general(
+  season = 2013,
+  type = "Team",
+  measure_type = "Base",
+  per_mode = "PerGame",
+  season_type = "Regular+Season",
+  season_segment = "",
+  game_segment = "",
+  date_from = "",
+  date_to = "",
+  outcome = "",
+  period = "0",
+  opponent_team_id = "0",
+  team_id = "0",
+  verbose = TRUE) %>%
+  rename(Team = team_name)
 
+regseason1819 <- merge(regseason1819, performance1819,
+                       by = "Team")
+
+opp_performance1819 <- performance1819 %>%
+  select(c(Team, fg_pct, fg3m, fg3_pct, ftm, ft_pct, reb, ast, tov, stl, blk))
+
+regseason1819 <- merge(x = regseason1819, y = opp_performance1819,
+                       by.x = "Opponent", by.y = "Team")
+
+regseason1819 <- regseason1819 %>%
+  rename(fg_pct = "fg_pct.x") %>%
+  rename(fg3m = "fg3m.x") %>%
+  rename(fg3_pct = "fg3_pct.x") %>%
+  rename(ftm = "ftm.x") %>%
+  rename(ft_pct = "ft_pct.x") %>%
+  rename(reb = "reb.x") %>%
+  rename(ast = "ast.x") %>%
+  rename(tov = "tov.x")  %>%
+  rename(stl = "stl.x") %>%
+  rename(blk = "blk.x")  %>%
+  rename(opp_fg_pct = "fg_pct.y") %>%
+  rename(opp_fg3m = "fg3m.y") %>%
+  rename(opp_fg3_pct = "fg3_pct.y") %>%
+  rename(opp_ftm = "ftm.y") %>%
+  rename(opp_ft_pct = "ft_pct.y") %>%
+  rename(opp_reb = "reb.y") %>%
+  rename(opp_ast = "ast.y") %>%
+  rename(opp_tov = "tov.y") %>%
+  rename(opp_stl = "stl.y") %>%
+  rename(opp_blk = "blk.y")
+
+write_csv(regseason1819, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1819.csv")
 
 
 
