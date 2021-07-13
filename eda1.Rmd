@@ -1,0 +1,431 @@
+---
+title: "eda1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r load packages}
+library(tidyverse)
+library(dplyr)
+library(nbastatR)
+library(NBAr)
+library(tidyr)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r load packages, echo=FALSE}
+density_drives_2014_15 %>%
+  ggplot(aes(x = dist_miles, y = drives)) +
+  geom_point(alpha = .3) +
+  theme_bw()
+
+
+```
+
+```{r drives, echo=FALSE}
+
+#avgDrives <- mean(density_drives_2014_15$drives, na.rm = TRUE)
+#avg_drivesYes <- mean(b2b$drives, na.rm = TRUE)
+#avg_drivesNo <- mean(b2bNO$drives, na.rm = TRUE)
+
+#avg_drives <- tibble(avg_drivesNo, avg_drivesYes)
+
+density_drives_2014_15 %>%
+  ggplot(aes(y = drives)) +
+  geom_bar(aes(x = `B2B-2nd`), stat = "Identity") +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  ggplot(aes(y = mean(drives))) +
+  geom_bar(aes(x = `B2B-1st`), stat = "Identity") +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  ggplot(aes(y = drives)) +
+  geom_bar(aes(x = `B2B`), stat = "Identity") +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  ggplot(aes(y = drives)) +
+  geom_bar(aes(x = `3in4`), stat = "Identity") +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  ggplot(aes(y = drives)) +
+  geom_bar(aes(x = `4in5`), stat = "Identity") +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  ggplot(aes(y = drives)) +
+  geom_bar(aes(x = `5in7`), stat = "Identity") +
+  theme_bw()
+
+```
+
+```{r distance, echo=FALSE}
+
+
+density_drives_2014_15 %>%
+  ggplot(aes(y = dist_miles)) +
+  geom_bar(aes(x = `B2B-2nd`), stat = "Identity") +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  ggplot(aes(y = dist_miles)) +
+  geom_bar(aes(x = `B2B-1st`), stat = "Identity") +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  ggplot(aes(y = dist_miles)) +
+  geom_bar(aes(x = `B2B`), stat = "Identity") +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  ggplot(aes(y = dist_miles)) +
+  geom_bar(aes(x = `3in4`), stat = "Identity") +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  ggplot(aes(y = dist_miles)) +
+  geom_bar(aes(x = `4in5`), stat = "Identity") +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  ggplot(aes(y = dist_miles)) +
+  geom_bar(aes(x = `5in7`), stat = "Identity") +
+  theme_bw()
+
+```
+
+
+```{r diance and drives, echo = FALSE}
+b2b <- density_drives_2014_15 %>%
+  filter(`B2B-2nd` == "Yes")
+
+density_drives_2014_15 %>%
+  select(-density_drives_2014_15$b2b) %>%
+  ggplot(aes(x = dist_miles)) +
+  geom_density() +
+  geom_density(data = b2b, aes(x = dist_miles),
+               color = "red") +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  select(-density_drives_2014_15$b2b) %>%
+  ggplot(aes(x = dist_miles)) +
+  geom_density() +
+  geom_density(data = b2b, aes(x = dist_miles),
+               color = "red") +
+  facet_wrap(~team_abbreviation) +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  select(-density_drives_2014_15$b2b) %>%
+  ggplot(aes(x = drives)) +
+  geom_density() +
+  geom_density(data = b2b, aes(x = drives),
+               color = "red") +
+  theme_bw()
+
+density_drives_2014_15 %>%
+  
+  ggplot(aes(x = drives)) +
+  geom_density() +
+  geom_density(data = b2b, aes(x = drives),
+               color = "red") +
+  facet_wrap(~team_abbreviation) +
+  theme_bw()
+  
+```
+
+```{r back to back, echo = false}
+
+baseline <- aggregate(density_drives_2014_15$dist_miles, list(density_drives_2014_15$team_abbreviation), FUN=mean, na.rm =TRUE) 
+b2b2 <- aggregate(b2b$dist_miles, list(b2b$team_abbreviation), FUN=mean, na.rm =TRUE) 
+
+baseline %>%
+  ggplot(aes(x = Group.1, y = x)) +
+  geom_bar(stat = "Identity") +
+  geom_bar(data = b2b2, aes(x = Group.1, y = x), stat = "Identity", color = "red", position = "dodge2") +
+  theme_bw()
+
+dist_table <- merge(baseline,b2b2, by = "Group.1")
+
+dist_table %>%
+  rename("B2B-2nd" = x.y, "Baseline" = "x.x")
+
+
+
+```
+
+```{r team distance b2b, echo = false}
+
+
+b2b_2019 <- team_density_distance_2019_20 %>%
+  filter(`B2B-2nd` == "Yes")
+
+other_2019 <- team_density_distance_2019_20 %>%
+  filter(`B2B-2nd` == "No")
+
+baseline_2019 <- aggregate(other_2019$dist_miles, list(other_2019$team_abbreviation), FUN=mean, na.rm =TRUE)
+
+b2b2_2019 <- aggregate(b2b_2019$dist_miles, list(b2b_2019$team_abbreviation), FUN=mean, na.rm =TRUE)
+
+dist_table_2019 <- merge(baseline_2019,b2b2_2019, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.y, "not_2nd_B2B" = x.x)
+
+
+dist_table_long_2019 <- dist_table_2019 %>%
+  gather("Stat", "Value", -Group.1)
+
+ggplot(dist_table_long_2019, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw()
+
+#2018-2019
+b2b_2018 <- team_density_distance_2018_19 %>%
+  filter(`B2B-2nd` == "Yes")
+
+other_2018 <- team_density_distance_2018_19 %>%
+  filter(`B2B-2nd` == "No")
+
+baseline_2018 <- aggregate(other_2018$dist_miles, list(other_2018$team_abbreviation), FUN=mean, na.rm =TRUE)
+
+b2b2_2018 <- aggregate(b2b_2018$dist_miles, list(b2b_2018$team_abbreviation), FUN=mean, na.rm =TRUE)
+
+dist_table_2018 <- merge(baseline_2018,b2b2_2018, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.y, "not_2nd_B2B" = x.x)
+
+
+dist_table_long_2018 <- dist_table_2018 %>%
+  gather("Stat", "Value", -Group.1)
+
+ggplot(dist_table_long_2018, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw()
+
+#2017-2018
+b2b_2017 <- team_density_distance_2017_18 %>%
+  filter(`B2B-2nd` == "Yes")
+
+other_2017 <- team_density_distance_2017_18 %>%
+  filter(`B2B-2nd` == "No")
+
+baseline_2017 <- aggregate(other_2017$dist_miles, list(other_2017$team_abbreviation), FUN=mean, na.rm =TRUE)
+
+b2b2_2017 <- aggregate(b2b_2017$dist_miles, list(b2b_2017$team_abbreviation), FUN=mean, na.rm =TRUE)
+
+dist_table_2017 <- merge(baseline_2017,b2b2_2017, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.y, "not_2nd_B2B" = x.x)
+
+
+dist_table_long_2017 <- dist_table_2017 %>%
+  gather("Stat", "Value", -Group.1)
+
+ggplot(dist_table_long_2017, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw()
+
+#2016-2017
+b2b_2016 <- team_density_distance_2016_17 %>%
+  filter(`B2B-2nd` == "Yes")
+
+other_2016 <- team_density_distance_2016_17 %>%
+  filter(`B2B-2nd` == "No")
+
+baseline_2016 <- aggregate(other_2016$dist_miles, list(other_2016$team_abbreviation), FUN=mean, na.rm =TRUE)
+
+b2b2_2016 <- aggregate(b2b_2016$dist_miles, list(b2b_2016$team_abbreviation), FUN=mean, na.rm =TRUE)
+
+dist_table_2016 <- merge(baseline_2016,b2b2_2016, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.y, "not_2nd_B2B" = x.x)
+
+
+dist_table_long_2016 <- dist_table_2016 %>%
+  gather("Stat", "Value", -Group.1)
+
+ggplot(dist_table_long_2016, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw()
+
+#2015-2016
+b2b_2015 <- team_density_distance_2015_16 %>%
+  filter(`B2B-2nd` == "Yes")
+
+other_2015 <- team_density_distance_2015_16 %>%
+  filter(`B2B-2nd` == "No")
+
+baseline_2015 <- aggregate(other_2015$dist_miles, list(other_2015$team_abbreviation), FUN=mean, na.rm =TRUE)
+
+b2b2_2015 <- aggregate(b2b_2015$dist_miles, list(b2b_2015$team_abbreviation), FUN=mean, na.rm =TRUE)
+
+dist_table_2015 <- merge(baseline_2015,b2b2_2015, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.y, "not_2nd_B2B" = x.x)
+
+
+dist_table_long_2015 <- dist_table_2015 %>%
+  gather("Stat", "Value", -Group.1)
+
+ggplot(dist_table_long_2015, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw()
+
+#2014-2015
+b2b_2014 <- team_density_distance_2014_15 %>%
+  filter(`B2B-2nd` == "Yes")
+
+other_2014 <- team_density_distance_2014_15 %>%
+  filter(`B2B-2nd` == "No")
+
+baseline_2014 <- aggregate(other_2014$dist_miles, list(other_2014$team_abbreviation), FUN=mean, na.rm =TRUE)
+
+b2b2_2014 <- aggregate(b2b_2014$dist_miles, list(b2b_2014$team_abbreviation), FUN=mean, na.rm =TRUE)
+
+dist_table_2014 <- merge(baseline_2014,b2b2_2014, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.y, "not_2nd_B2B" = x.x)
+
+
+dist_table_long_2014 <- dist_table_2014 %>%
+  gather("Stat", "Value", -Group.1)
+
+ggplot(dist_table_long_2014, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw()
+```
+```{r drive to, echo = false}
+
+b2b_2014 <- density_drives_2014_15 %>%
+  filter(`B2B-2nd` == "Yes")
+
+other_2014 <- density_drives_2014_15 %>%
+  filter(`B2B-2nd` == "No")
+
+baseline_2014 <- aggregate(other_2014$drive_tov_pct, list(other_2014$player_name), FUN=mean, na.rm =TRUE)
+
+b2b2_2014 <- aggregate(b2b_2014$drive_tov_pct, list(b2b_2014$player_name), FUN=mean, na.rm =TRUE)
+
+dist_table_2014 <- merge(baseline_2014,b2b2_2014, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.y, "not_2nd_B2B" = x.x)
+
+
+dist_table_long_2014 <- dist_table_2014 %>%
+  gather("Stat", "Value", -Group.1)
+
+ggplot(dist_table_long_2014, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw()
+
+
+
+sum(other_2014$drive_tov) / nrow(other_2014)
+
+
+sum(b2b_2014$drive_tov) / nrow(b2b_2014)
+
+sum(other_2014$drive_passes) / nrow(other_2014)
+
+
+sum(b2b_2014$drive_passes) / nrow(b2b_2014)
+
+
+b2b_2014_DAL <- density_drives_2014_15 %>%
+  filter(`B2B-2nd` == "Yes") %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "DAL")
+         
+other_2014 %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "DAL") %>%
+  ggplot(aes(x = player_name, y = (drive_pts_pct))) +
+  geom_bar(stat = "Identity") +
+  geom_bar(data = b2b_2014_DAL, aes(x = player_name, y = (drive_pts_pct)), 
+           stat = "Identity", color = "red") +
+  theme_bw()
+
+b2b_2014_LAC <- density_drives_2014_15 %>%
+  filter(`B2B-2nd` == "Yes") %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "LAC")
+
+other_2014 %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "LAC") %>%
+  ggplot(aes(x = player_name, y = (drive_pts_pct))) +
+  geom_bar(stat = "Identity") +
+  geom_bar(data = b2b_2014_LAC, aes(x = player_name, y = (drive_pts_pct)), 
+           stat = "Identity", color = "red") +
+  theme_bw()
+
+b2b_2014_ATL <- density_drives_2014_15 %>%
+  filter(`B2B-2nd` == "Yes") %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "ATL")
+
+other_2014 %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "ATL") %>%
+  ggplot(aes(x = player_name, y = (drive_pts_pct))) +
+  geom_bar(stat = "Identity") +
+  geom_bar(data = b2b_2014_ATL, aes(x = player_name, y = (drive_pts_pct)), 
+           stat = "Identity", color = "red") +
+  theme_bw()
+
+b2b_2014_GSW <- density_drives_2014_15 %>%
+  filter(`B2B-2nd` == "Yes") %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "GSW")
+
+other_2014 %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "GSW") %>%
+  ggplot(aes(x = player_name, y = (drive_pts_pct))) +
+  geom_bar(stat = "Identity") +
+  geom_bar(data = b2b_2014_GSW, aes(x = player_name, y = (drive_pts_pct)), 
+           stat = "Identity", color = "red") +
+  theme_bw()
+
+b2b_2014 %>%
+  filter(drives > 0) %>%
+  filter(player_name == "Dirk Nowitzki") %>%
+  pull(drive_pts_pct) %>%
+  sum()
+
+other_2014 %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "GSW") %>%
+  ggplot(aes(x = player_name, y = (drive_pts_pct))) +
+  geom_bar(stat = "Identity") +
+  geom_bar(data = b2b_2014_GSW, aes(x = player_name, y = (drive_pts_pct)), 
+           stat = "Identity", color = "red") +
+  theme_bw()
+
+b2b_2014 %>%
+  filter(drives > 0) %>%
+  filter(player_name == "Dirk Nowitzki") %>%
+  pull(drive_pts_pct) %>%
+  sum()
+
+  
+
+```
