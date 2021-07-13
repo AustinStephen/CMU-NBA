@@ -1,0 +1,179 @@
+---
+title: "EDA for NBA"
+author: "Austin Stephen"
+date: "6/23/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+```{r setup, include=FALSE }
+library(tidyverse)
+library(dplyr)
+library(nbastatR)
+library(NBAr)
+knitr::opts_chunk$set(
+  cache = TRUE,
+  echo = FALSE,
+  message = FALSE, 
+  warning = FALSE,
+  fig.height=3
+)
+
+## Setting up the importing datasets 
+tracking_players <- read.csv(
+  "./data/tracking_by_player_season_summaries_2013_to_20.csv")
+
+tracking_teams <- read.csv(
+  "./data/tracking_by_team_season_summaries_2013_to_20.csv")
+
+players_dictonary <- read.csv("./data/player_table_reduced_2010_to_21.csv")
+
+player_stats <- read.csv("./data/tracking_by_player_season_summaries_2013_to_20.csv")
+
+## adding player position to tracking players
+tracking_players <-  left_join(tracking_players,
+                               players_dictonary,
+                               by= c("player_id" = "idPlayer"))
+
+```
+## Distance Traveled in Game 
+
+Take Aways:   
+
+* Players cover more distance on offense than defense.This makes sense, running plays requires more movement than defending them. 
+* Over the last 7 seasons distance is roughly similar  
+* Guards move the most, forwards the second most, and centers the least. This
+spread between positions is approximately the same across offense and defense
+*  There may be an inverse correlation between distance a team travels per game and wins.
+Are they more efficient? Is this not the opposite of what we expect?
+
+#### Distribution of Distance  
+
+```{r, fig.height=3}
+## Game Distance Empirical CDFs
+ggplot(tracking_players,aes(x = dist_miles)) + 
+  stat_ecdf() + 
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  geom_abline( intercept = 0.5, slope = 0, color = "red")+
+  labs(title = "Distance Traveled in Game for Players CDF",
+       x = "Distance (miles)")
+
+ggplot(tracking_players) + 
+  stat_ecdf(aes(x = dist_miles_off, color = "offense")) + 
+  stat_ecdf(aes(x = dist_miles_def, color = "defense"))+
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  geom_abline( intercept = 0.5, slope = 0, color = "red",)+
+  labs(title = "Distance Offense v. Defense CDF",
+       x = "Distance (miles)", colour = "Type")+
+  theme(legend.position = "right")
+
+
+```
+
+__Entire Game:__ min is 0.020, max is 2.990, and mean is 1.425 miles  
+__Offense:__ min is 0.020, max is 1.560, and mean is .765 miles  
+__Defense:__ min is .010, max is 1.29, and mean is .671 miles  
+
+### Season to Season  
+
+```{r}
+year_2013 <- tracking_players %>% filter(season  == 2013) 
+year_2014 <- tracking_players %>% filter(season  == 2014)
+year_2015 <- tracking_players %>% filter(season  == 2015)
+year_2016 <- tracking_players %>% filter(season  == 2016)
+year_2017 <- tracking_players %>% filter(season  == 2017)
+year_2018 <- tracking_players %>% filter(season  == 2018)
+
+ggplot(tracking_players, size = .1, aes(x = dist_miles), alpha = .5) + 
+  stat_ecdf(data = year_2013, aes(color = "2013")) + 
+  stat_ecdf(data = year_2014, aes(color = "2014")) +
+  stat_ecdf(data = year_2015, aes(color = "2015")) +
+  stat_ecdf(data = year_2016, aes(color = "2016")) +
+  stat_ecdf(data = year_2017, aes(color = "2017")) +
+  stat_ecdf(data = year_2018, aes(color = "2018")) +
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  geom_abline( intercept = 0.5, slope = 0, color = "red",)+
+  labs(title = "Player Distance by year CDF",
+       x = "Distance(miles) ", color = "Year")
+```
+```{r}
+
+```
+
+
+
+
+
+### Player Position  
+
+```{r}
+guards <- tracking_players %>% filter(PlayerPosition == "G")
+forwards <- tracking_players %>% filter(PlayerPosition == "F")
+centers <- tracking_players %>% filter(PlayerPosition == "C")
+
+ggplot(tracking_players, aes(x = dist_miles), color = PlayerPosition) +
+  stat_ecdf(data = guards,aes( color = "Guard")) +
+  stat_ecdf(data = forwards,aes( color = "Forward")) +
+  stat_ecdf(data = centers, aes(color = "Center")) +
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  geom_abline( intercept = 0.5, slope = 0, color = "red",)+
+  labs(title = "Distance Traveled in Game By Position CDF",
+       x = "Distance(miles)", color = "Position")
+
+ggplot(tracking_players, aes(x = dist_miles_off), color = PlayerPosition) +
+  stat_ecdf(data = guards,aes( color = "Guard")) +
+  stat_ecdf(data = forwards,aes( color = "Forward")) +
+  stat_ecdf(data = centers, aes(color = "Center")) +
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  geom_abline( intercept = 0.5, slope = 0, color = "darkred",)+
+  labs(title = "Distance on Offense By Position CDF",
+       x = "Distance(miles)", color = "Position")
+
+ggplot(tracking_players, aes(x = dist_miles_def), color = PlayerPosition) +
+  stat_ecdf(data = guards,aes( color = "Guard")) +
+  stat_ecdf(data = forwards,aes( color = "Forward")) +
+  stat_ecdf(data = centers, aes(color = "Center")) +
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  geom_abline( intercept = 0.5, slope = 0, color = "darkred",)+
+  labs(title = "Distance Defense By Position CDF",
+       x = "Distance(miles)", color = "Position")
+```
+
+### Speed in Game 
+```{r}
+tracking_players %>%
+  filter(avg_speed >3 & avg_speed < 5.5) %>%
+ggplot(aes(x = avg_speed)) + 
+  stat_ecdf() + 
+  theme_bw() +
+  geom_rug(alpha = .005)+
+  geom_abline( intercept = 0.5, slope = 0, color = "red")+
+  labs(title = "Player Average Speed CDF")
+
+```
+
+### Scatter plots looking for relationship with distance
+```{r}
+ggplot(tracking_teams, aes(x = dist_miles, y= w)) +
+    geom_point(size=.5, alpha = .75)+
+    theme_bw()+
+  facet_wrap(~season) +
+    labs(title = "Teams wins and average per distance per game",
+         x = " distance (miles)",
+         caption= "**distance is the sum of players on the team per game averaged")
+```
+
+```{r}
+## are the best players at a position moving more?
+## does shooting percentage go down as distance increases?
+## Need to find quarter or minute distance data. 
+## is distance covered on defense a predictor of rebounds?
+
+```
+

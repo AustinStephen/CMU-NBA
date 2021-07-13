@@ -1,11 +1,63 @@
 ## PURPOSE: generate team records by the day
 ## AUTHOR: Austin
-install.packages("remotes")
-remotes::install_github("rtelmore/ballr")
 library(ballr)
+library(nbastatR)
+library(NBAr)
 library(tidyverse)
+library(dplyr)
+devtools::install_github("PatrickChodowski/NBAr",force = TRUE)
 
 ## enter season as c(2016,2017) for season that starts in 2016 and ends in 2017
+
+record_2010 <- get_record_by_game(c(2010,2011)) %>% 
+  subset(!(team %in% 
+           c("Southeast Division","Northwest Division","Atlantic Division",
+             "Central Division","Pacific Division","Southwest Division")))
+
+write.csv(record_2010, 
+          "./data/record_by_day/record_by_day_2010_11_season.csv",
+          row.names = FALSE)
+
+record_2011 <- get_record_by_game(c(2011,2012)) %>% 
+  subset(!(team %in% 
+             c("Southeast Division","Northwest Division","Atlantic Division",
+               "Central Division","Pacific Division","Southwest Division")))
+
+write.csv(record_2011,
+          "./data/record_by_day/record_by_day_2011_12_season.csv",
+          row.names = FALSE)
+
+record_2012 <- get_record_by_game(c(2012,2013)) %>% 
+  subset(!(team %in% 
+             c("Southeast Division","Northwest Division","Atlantic Division",
+               "Central Division","Pacific Division","Southwest Division")))
+
+write.csv(record_2012, 
+          "./data/record_by_day/record_by_day_2012_13_season.csv",
+          row.names = FALSE)
+
+record_2013 <- get_record_by_game(c(2013,2014)) %>% 
+  subset(!(team %in% 
+             c("Southeast Division","Northwest Division","Atlantic Division",
+               "Central Division","Pacific Division","Southwest Division")))
+
+write.csv(record_2013,
+          "./data/record_by_day/record_by_day_2013_14_season.csv",
+          row.names = FALSE)
+
+record_2014 <- get_record_by_game(c(2014,2015)) %>% 
+  subset(!(team %in% 
+             c("Southeast Division","Northwest Division","Atlantic Division",
+               "Central Division","Pacific Division","Southwest Division")))
+
+write.csv(record_2014,
+          "./data/record_by_day/record_by_day_2014_15_season.csv",
+          row.names = FALSE)
+
+record_2015 <- get_record_by_game(c(2015,2016))
+
+write.csv(record_2015,
+          "./data/record_by_day/record_by_day_2015_16_season.csv")
 
 record_2016 <- get_record_by_game(c(2016,2017))
 
@@ -13,17 +65,19 @@ write.csv(record_2016, "./data/record_by_day_2016_17_season.csv")
 
 record_2017 <- get_record_by_game(c(2017,2018))
 
-write.csv(record_2017, "./data/record_by_day_2017_18_season.csv")
+write.csv(record_2017, "./data/record_by_day/record_by_day_2017_18_season.csv")
 
 record_2018 <- get_record_by_game(c(2018,2019))
 
-write.csv(record_2018, "./data/record_by_day_2018_19_season.csv")
-          
+write.csv(record_2018, "./data/record_by_day/record_by_day_2018_19_season.csv")
+   
+record_2019 <- get_record_by_game(c(2019,2020))
+
+write.csv(record_2019, "./data/record_by_day/record_by_day_2019_20_season.csv")       
           
 
 # function definition ------------------------------------------------------
 
-          
 get_record_by_game <- function(season)
 {
 
@@ -73,7 +127,7 @@ for(month in c(10,11,12)){
 }
 
 ## 2017 binding the results from each day 
-for(month in 1:6){
+for(month in 1:8){
   
   for(day in 1:31)
   {

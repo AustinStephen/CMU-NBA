@@ -1,0 +1,156 @@
+---
+html_document: default
+author: "Austin Stephen"
+date: "7/1/2021"
+output:
+  html_document: default
+title: "EDA for NBA"
+---
+  
+```{r setup, include=FALSE }
+library(nbastatR)
+library(NBAr)
+library(ballr)
+library(tidyverse)
+library(dplyr)
+knitr::opts_chunk$set(
+  cache = TRUE,
+  echo = FALSE,
+  message = FALSE, 
+  warning = FALSE,
+  fig.height=3
+)
+
+## 2013-2020 schedule data 
+schedules_2013 <- read.csv("../data/schedules/season_2013_2014.csv")
+schedules_2014 <- read.csv("../data/schedules/season_2014_2015.csv")
+schedules_2015 <- read.csv("../data/schedules/season_2015_2016.csv")
+schedules_2016 <- read.csv("../data/schedules/season_2016_2017.csv")
+schedules_2017 <- read.csv("../data/schedules/season_2017_2018.csv")
+schedules_2018 <- read.csv("../data/schedules/season_2018_2019.csv")
+schedules_2019 <- read.csv("../data/schedules/season_2019_2020.csv")
+schedules_2020 <- read.csv("../data/schedules/season_2020_2021.csv")
+
+schedules_2013_20 <- rbind(schedules_2013, schedules_2014, schedules_2015, 
+                           schedules_2016, schedules_2017, schedules_2018, 
+                           schedules_2019, schedules_2020)
+
+## clutter the environment
+rm(schedules_2013, schedules_2014, schedules_2015, 
+                           schedules_2016, schedules_2017, schedules_2018, 
+                           schedules_2019, schedules_2020)
+
+## player game by game distance 14/15 season
+tracking_by_player_season_daily_2014_15 <- read.csv(
+  "../data/in_game_distance_data/tracking_by_player_season_daily_2014_15.csv")
+
+
+## player game by game box scores 14/15 season
+box_game_by_game_player_2014_15 <- read.csv(
+  "../data/box_scores/box_scores_game_by_game_player_2014_15.csv")
+
+
+## Player id and position map table 
+player_table <- read.csv("../data/player_tables/player_table_all_2010_to_21.csv")
+  
+## player tracking distance 
+player_tracking <- read.csv(
+  "../data/in_game_distance_data/tracking_by_player_season_summaries_2013_to_20.csv")
+
+## team tracking distance 
+team_tracking <- read.csv(
+  "../data/in_game_distance_data/tracking_by_team_season_summaries_2013_to_20.csv")
+
+## Player season box scores
+season_box_scores_player_2010_20 <- read.csv(
+  "../data/box_scores/season_box_scores_player_2010_20.csv")
+
+## Team season box scores
+season_box_scores_team_2010_20 <- read.csv(
+  "../data/box_scores/season_box_scores_team_2010_20.csv")
+
+
+## Joining team box scores to season distance data 
+team_tracking_w_box_scsores <- merge(team_tracking,
+                                    season_box_scores_team_2010_20,
+                                    by.x = c("team_id","season"), 
+                                    by.y = c("team_id","season")) %>%
+  select(-c("team_name.y","gp.y","w.y","l.y", "min1")) %>%
+  rename( "w" = w.x, "gp" = "gp.x", "l" = l.x)
+
+## Joining game by game box scores with distance
+# fixing date format
+
+schedules_2013_20 <- schedules_2013_20 %>% select(c(idGame, dateGame))
+
+tracking_by_player_season_daily_2014_15$date <- as.Date(
+  tracking_by_player_season_daily_2014_15$date, "%m/%d/%Y")
+
+# joining with schedules for game id
+box_game_by_game_player_2014_15 <- merge(
+    schedules_2013_20,
+    box_game_by_game_player_2014_15,
+    by= "idGame",
+)
+
+# joining with distance on game id
+
+gbg_player_w_distance <- merge(
+    tracking_by_player_season_daily_2014_15,
+    box_game_by_game_player_2014_15,
+    by.x= c("player_id","date"),
+    by.y= c("idPlayer","dateGame")
+        
+) %>%
+  select(-c("gp","namePlayer","slugTeam","idTeam","teamName","cityTeam","min1"))
+
+## adding baseline distance column 
+
+gbg_player_w_distance <- gbg_player_w_distance %>%
+  group_by(player_id) %>%
+  mutate(sn_avg_dist_miles = mean(dist_miles)) %>%
+  mutate(sn_avg_dist_miles_off = mean(dist_miles_off)) %>%
+  mutate(sn_avg_speed = mean(dist_miles_off)) %>%
+  mutate(diff_from_sn_avg = dist_miles - sn_avg_dist_miles) %>%
+  mutate(diff_from_sn_avg_off = dist_miles_off - sn_avg_dist_miles_off) %>%
+  mutate
+  
+
+
+## Cross with Matthew's distance data to see if there is a correlation between the distance 
+#  outside of a game and distance in game.
+
+## See if teams adapt their styles to their opponents. So if defense distance is 
+# correlated with opponent offense by season average and game.
+
+## See if average score differential is correlated with distance traveled outside game. 
+
+## see if speed or distance differential is related to score score differential 
+
+## Scatter plot by team that includes player name showing if having 1 outlier player 
+#  leads to a decrease in the overall distance traveled.
+
+## Add a column to the game by game distance data that is deviation from t
+#  players season average and see if it is correlated with both game outcomes 
+#  and influence factors.
+```
+
+## Takeaways:
+ 
+## How does distance relate when 2 teams play
+
+```{r}
+## Curry distance over the season
+gbg_player_w_distance %>% 
+  #filter(player_id == 201939) %>%
+  filter(team_id == 1610612744) %>%
+  ggplot(aes(x=diff_from_sn_avg, y=plusminus, color=)) +
+  facet_wrap(~player_name)+
+  geom_point(alpha = .1)
+
+```
+
+
+
+
+
