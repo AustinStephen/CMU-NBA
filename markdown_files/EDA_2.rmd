@@ -104,16 +104,16 @@ gbg_player_w_distance <- merge(
 ) %>%
   select(-c("gp","namePlayer","slugTeam","idTeam","teamName","cityTeam","min1"))
 
-## adding baseline distance column 
+## adding baselines and deviations columns
 
 gbg_player_w_distance <- gbg_player_w_distance %>%
   group_by(player_id) %>%
   mutate(sn_avg_dist_miles = mean(dist_miles)) %>%
   mutate(sn_avg_dist_miles_off = mean(dist_miles_off)) %>%
-  mutate(sn_avg_speed = mean(dist_miles_off)) %>%
-  mutate(diff_from_sn_avg = dist_miles - sn_avg_dist_miles) %>%
+  mutate(sn_avg_speed = mean(avg_speed)) %>%
+  mutate(diff_from_sn_avg_dist = dist_miles - sn_avg_dist_miles) %>%
   mutate(diff_from_sn_avg_off = dist_miles_off - sn_avg_dist_miles_off) %>%
-  mutate
+  mutate(diff_from_sn_avg_speed = avg_speed - sn_avg_speed)
   
 
 
@@ -130,9 +130,6 @@ gbg_player_w_distance <- gbg_player_w_distance %>%
 ## Scatter plot by team that includes player name showing if having 1 outlier player 
 #  leads to a decrease in the overall distance traveled.
 
-## Add a column to the game by game distance data that is deviation from t
-#  players season average and see if it is correlated with both game outcomes 
-#  and influence factors.
 ```
 
 ## Takeaways:
@@ -143,10 +140,11 @@ gbg_player_w_distance <- gbg_player_w_distance %>%
 ## Curry distance over the season
 gbg_player_w_distance %>% 
   #filter(player_id == 201939) %>%
-  filter(team_id == 1610612744) %>%
-  ggplot(aes(x=diff_from_sn_avg, y=plusminus, color=)) +
-  facet_wrap(~player_name)+
-  geom_point(alpha = .1)
+  #filter(team_id == 1610612744 & min > 15 & groupStartPosition == 'G') %>%
+  filter(min > 20 & groupStartPosition == 'G') %>%
+  ggplot(aes(x=diff_from_sn_avg_speed, y=plusminus))+
+  geom_smooth(method = "lm")+
+  geom_point()
 
 ```
 
