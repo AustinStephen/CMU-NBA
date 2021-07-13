@@ -1,0 +1,109 @@
+---
+title: "Measuring and Predicting Player Fatigue in the NBA"
+author: "<span style='font-size: 40px'>Austin Stephen, Matthew Yep and Grace Fain </style>"
+date: "<span style='font-size: 36px'> 7/13/2021 </style>"
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    
+---
+<style type="text/css">
+
+h1.title {
+  font-size: 10px;
+}
+
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+ 
+```
+
+```{r xaringan-themer, include=FALSE, warning=FALSE }
+library(xaringanthemer)
+style_mono_accent(base_color = "#cc002c",
+  white_color = "#e6e6e6",
+  background_color = "#b3b3b3",
+  base_font_size = "28px"
+  )
+```
+
+## Why fatigue?
+- Optimized Performance  
+
+- Injury Prevention   
+
+???
+Add source that found as players get more tired performance worsens in basketball.
+Add source that talks about injury links to fatigue 
+Add a source that 
+
+---
+
+## The Plan
+
+1. Measure player fatigue  
+  
+2. Build a model that can be used to predict the impact of fatigue on a given game or
+multi-game sequence.
+
+
+???
+Identify a proxy for fatigue and link it to in game performance.
+This model can used by teams to examine their roster and match-ups and gain insights into 
+how differnt factors are influencing their teams performance
+
+---
+
+## Measuring player fatigue
+- Cannot use direct measures
+  
+- Identify a proxy
+
+???
+NBA players cannot wear heart rate monitors or tracking equipment in games 
+
+---
+
+## Proxy for Fatigue
+- In game distance
+- Between game distance
+
+???
+We are examining two major sources for player fatigue.
+1. The distance and speed at which they travel in game. 
+2. The characteristics of their travel between games including days of rest,
+distance traveled and time zone changes.
+
+---
+
+## The in-game data
+
+???
+Insert table showing how it is structured
+
+---
+
+## Progress with in-game data 
+
+???
+Go through progress with in game data
+
+---
+
+## Progress with in-game data 2
+
+???
+Go through progress with in game data
+
+---
+# GRACE ADD HERE 
+
+Grace add your progress with in-game data
+
+---
+# MATTHEW ADD HERE
+Grace add your progress with between game data
+
