@@ -62,7 +62,7 @@ for(year in 2015){
 
 ## write to csv
 write.csv(accumlating_players_box,
-          "../data/box_scores/box_scores_game_by_game_player_2014.csv",
+          "../data/box_scores/box_scores_game_by_game_player_2014_15.csv",
           row.names = FALSE)
 
 
