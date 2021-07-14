@@ -70,12 +70,9 @@ together <- together %>%
 write_csv(together, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/together.csv")
 
 
-# Data manipulations above. Load below ------------------------------------
-together <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/together.csv")
-
+# data manipulations above. Load below ------------------------------------
 visitors <- filter(together, Visitor == TRUE)
 write_csv(visitors, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/visitors.csv")
-
 
 #STRONGEST MODEL SO FAR
 # Visitors Model ----------------------------------------------------------
