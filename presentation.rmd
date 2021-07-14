@@ -7,13 +7,7 @@ output:
     css: xaringan-themer.css
     
 ---
-<style type="text/css">
 
-h1.title {
-  font-size: 10px;
-}
-
-</style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -43,8 +37,8 @@ library(airball)
 
 ```{r xaringan-themer, include=FALSE, warning=FALSE }
 
-visitors <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/matthew_data/visitors.csv")
-data1415 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/matthew_data/regseason1415.csv")
+visitors <- read_csv("./matthew_data/visitors.csv")
+data1415 <- read_csv("./matthew_data/regseason1415.csv")
 style_mono_accent(base_color = "#cc002c",
   white_color = "#e6e6e6",
   background_color = "#b3b3b3",
@@ -394,7 +388,7 @@ nba_travel_plot(data = datos,
 
 # The Travel Data
 ```{r Matthew Data, echo= FALSE, fig.height = 6, fig.width=12}
-data_example <- together %>%
+data_example <- visitors %>%
   select(c(Date, Team, Opponent, Visitor, Distance, Rest, shift, b2b_2nd, traveling_west))
 
 knitr::kable(head(data_example), format = 'html')
