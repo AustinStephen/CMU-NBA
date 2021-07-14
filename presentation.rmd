@@ -43,8 +43,8 @@ library(airball)
 
 ```{r xaringan-themer, include=FALSE, warning=FALSE }
 
-visitors <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/visitors.csv")
-data1415 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1415.csv")
+visitors <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/matthew_data/visitors.csv")
+data1415 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/matthew_data/regseason1415.csv")
 style_mono_accent(base_color = "#cc002c",
   white_color = "#e6e6e6",
   background_color = "#b3b3b3",
