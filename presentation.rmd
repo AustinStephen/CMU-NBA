@@ -192,12 +192,6 @@ Go through progress with in game data
 # GRACE ADD HERE 
 
 ```{r load in data, include=FALSE}
-library(tidyverse)
-library(dplyr)
-library(nbastatR)
-library(NBAr)
-library(tidyr)
-library(knitr)
 density_drives_2014_15 <- read.csv("./data1/density_distance_drives_tracking/_density_drives_distance_daily_2014_15.csv")
 ```
 
