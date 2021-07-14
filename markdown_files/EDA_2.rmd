@@ -100,7 +100,6 @@ gbg_player_w_distance <- merge(
     box_game_by_game_player_2014_15,
     by.x= c("player_id","date"),
     by.y= c("idPlayer","dateGame")
-        
 ) %>%
   select(-c("gp","namePlayer","slugTeam","idTeam","teamName","cityTeam","min1"))
 
@@ -110,12 +109,31 @@ gbg_player_w_distance <- gbg_player_w_distance %>%
   group_by(player_id) %>%
   mutate(sn_avg_dist_miles = mean(dist_miles)) %>%
   mutate(sn_avg_dist_miles_off = mean(dist_miles_off)) %>%
+  mutate(sn_avg_dist_miles_def = mean(dist_miles_def)) %>%
   mutate(sn_avg_speed = mean(avg_speed)) %>%
+  mutate(sn_avg_speed_off = mean(avg_speed_off)) %>%
+  mutate(sn_avg_speed_def = mean(avg_speed_def)) %>%
   mutate(diff_from_sn_avg_dist = dist_miles - sn_avg_dist_miles) %>%
   mutate(diff_from_sn_avg_off = dist_miles_off - sn_avg_dist_miles_off) %>%
-  mutate(diff_from_sn_avg_speed = avg_speed - sn_avg_speed)
-  
+  mutate(diff_from_sn_avg_def = dist_miles_def - sn_avg_dist_miles_def) %>%
+  mutate(diff_from_sn_avg_speed = avg_speed - sn_avg_speed) %>%
+  mutate(diff_from_sn_avg_speed_def = avg_speed_def - sn_avg_speed_def) %>%
+  mutate(diff_from_sn_avg_speed_off = avg_speed_off - sn_avg_speed_off)
 
+## adding season summaries column 
+merge_sn <-  season_box_scores_player_2010_20 %>%
+  filter(season == 2014) %>%
+  select(c("player_id","w","w_pct","fg_pct","fg3_pct"))
+
+gbg_player_w_distance <- merge(
+    gbg_player_w_distance,
+    merge_sn,
+    by = "player_id") %>%
+  rename("player_wins_sn" = w.y, "w_pct_team_sn" = w_pct, "fg_pct_sn" = fg_pct,
+         "fg3_pct_sn" = fg3_pct)
+
+
+## adding sum of distance up to this
 
 ## Cross with Matthew's distance data to see if there is a correlation between the distance 
 #  outside of a game and distance in game.
@@ -133,20 +151,66 @@ gbg_player_w_distance <- gbg_player_w_distance %>%
 ```
 
 ## Takeaways:
- 
-## How does distance relate when 2 teams play
 
+## Assumption: teams are an abstraction of players. 
+The relationship should extend to the player level.
+It very much does.
+
+## The inverse correlation
+The relationship is also present at the player level
 ```{r}
-## Curry distance over the season
-gbg_player_w_distance %>% 
-  #filter(player_id == 201939) %>%
-  #filter(team_id == 1610612744 & min > 15 & groupStartPosition == 'G') %>%
-  filter(min > 20 & groupStartPosition == 'G') %>%
-  ggplot(aes(x=diff_from_sn_avg_speed, y=plusminus))+
-  geom_smooth(method = "lm")+
-  geom_point()
+players_5_plus_min <- gbg_player_w_distance %>% filter(min >5)
+
+players_5_10_min <- gbg_player_w_distance %>% filter(min >5 & min <10)
+
+players_40_plus_min <- gbg_player_w_distance %>% filter(min >40)
+
+players_5_plus_min %>% 
+  ggplot(aes(x=avg_speed,y =plusminus ))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+
+  labs(title = "all players with 5+ min played",
+       caption = "plusminus is for the whole team")+
+  xlim(3,5.5)+
+  ylim(-30,30)
+
+players_5_10_min %>% 
+  ggplot(aes(x = avg_speed,y = plusminus ))+
+  geom_point(alpha = .5)+
+  geom_smooth(method="lm")+
+  labs(title = "Players with 5-10 min in the game")+
+  xlim(2.75,5.5)+
+  ylim(-40,40)
+
+players_40_plus_min %>% 
+  ggplot(aes(x=avg_speed,y =plusminus ))+
+  geom_point(alpha = .75)+
+  geom_smooth(method="lm")+
+  labs(title = "players with 40+ minutes in the game")+
+  xlim(2.75, 5.5)+
+  ylim(-40,40)
+
+
+## model 
+model0 <- lm(plusminus ~ avg_speed, data = players_5_plus)
+#summary(model0)
+
+model1 <-  lm(plusminus ~ avg_speed, data = players_5_10_min)
+#summary(model1)
+
+model2 <-  lm(plusminus ~ avg_speed, data = players_40_plus_min)
+#summary(model2)
 
 ```
+The relationship of plusminus ~ avg_speed for all players with 5 or more minutes 
+in the game is: plusminus = 11.429 -2.33(avg_speed)  
+p-value: <2e-16
+
+
+
+
+
+
 
 
 
