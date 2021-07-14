@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Measuring and Predicting Player Fatigue in the NBA</title>
+    <title>presentation.knit</title>
     <meta charset="utf-8" />
     <script src="presentation_files/header-attrs-2.8/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
@@ -10,10 +10,11 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Measuring and Predicting Player Fatigue in the NBA
-### <span style='font-size: 40px'>Austin Stephen, Matthew Yep and Grace Fain
+# <span style='font-size: 70px'>Measuring and Predicting Player Fatigue in the NBA
 </style>
-### <span style='font-size: 36px'> 7/13/2021
+### <span style='font-size: 35px'>Austin Stephen, Matthew Yep and Grace Fain
+</style>
+### <span style='font-size: 35px'> 7/13/2021
 </style>
 
 ---
@@ -31,11 +32,14 @@ h1.title {
 
 
 ## Why fatigue?
+
 - Optimized Performance  
 
 - Injury Prevention   
+
+
 ???
-Add source that found as players get more tired performance worsens in basketball.
+1. Add source that found as players get more tired performance worsens in basketball.
 Add source that talks about injury links to fatigue 
 Add a source that 
 
@@ -45,8 +49,7 @@ Add a source that
 
 1. Measure player fatigue  
   
-2. Build a model that can be used to predict the impact of fatigue on a given game or
-multi-game sequence.
+2. Build a model that can be used to predict the impact of fatigue on a given game or multi-game sequence.  
 
 
 ???
@@ -57,29 +60,466 @@ how differnt factors are influencing their teams performance
 ---
 
 ## Measuring player fatigue
-- Cannot use direct measures
+
+- Cannot use direct measures  
   
 - Identify a proxy
 
 ???
-NBA players cannot wear heart rate monitors or tracking equipment in games 
+To be more concrete on what we mean by fatigue: 
+"the decline in objective performance measures derived from the capacity 
+of the nervous system and contractile properties of muscles over time"
+
+In a perfect world we would directly measure an NBA players internal homeostasis
+either with hematological or with sensors that measure heart rate. Howoever, 
+players cannot wear heart rate monitors or tracking equipment in games and we 
+certainly don't have data about in/post-game blood samples so we need a proxy 
+to measure how fatigued a player was by in game events.
+
 
 ---
 
 ## Proxy for Fatigue
-- In game distance
+
+- In game distance  
+
 - Between game distance
 
 ???
 We are examining two major sources for player fatigue.
 1. The distance and speed at which they travel in game. 
+We started by looking to validate this as proxy for player exertion in a given game.
+
 2. The characteristics of their travel between games including days of rest,
 distance traveled and time zone changes.
 
+
 ---
 
-## The in-game data
+## In-Game Distance Data  
 
+&lt;img src="presentation_files/figure-html/unnamed-chunk-1-1.png" width="100%" height="100%" /&gt;
+
+
+---
+
+## In-Game Distance Data
+
+<div id="xcvzrytirq" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#xcvzrytirq .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 5px;
+  border-top-color: darkgrey;
+  border-right-style: solid;
+  border-right-width: 5px;
+  border-right-color: darkgrey;
+  border-bottom-style: solid;
+  border-bottom-width: 5px;
+  border-bottom-color: darkgrey;
+  border-left-style: solid;
+  border-left-width: 5px;
+  border-left-color: darkgrey;
+}
+
+#xcvzrytirq .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#xcvzrytirq .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#xcvzrytirq .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#xcvzrytirq .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#xcvzrytirq .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#xcvzrytirq .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#xcvzrytirq .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#xcvzrytirq .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#xcvzrytirq .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#xcvzrytirq .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#xcvzrytirq .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#xcvzrytirq .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#xcvzrytirq .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#xcvzrytirq .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#xcvzrytirq .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#xcvzrytirq .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#xcvzrytirq .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xcvzrytirq .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#xcvzrytirq .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xcvzrytirq .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#xcvzrytirq .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#xcvzrytirq .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#xcvzrytirq .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#xcvzrytirq .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#xcvzrytirq .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#xcvzrytirq .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#xcvzrytirq .gt_left {
+  text-align: left;
+}
+
+#xcvzrytirq .gt_center {
+  text-align: center;
+}
+
+#xcvzrytirq .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#xcvzrytirq .gt_font_normal {
+  font-weight: normal;
+}
+
+#xcvzrytirq .gt_font_bold {
+  font-weight: bold;
+}
+
+#xcvzrytirq .gt_font_italic {
+  font-style: italic;
+}
+
+#xcvzrytirq .gt_super {
+  font-size: 65%;
+}
+
+#xcvzrytirq .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="9" class="gt_heading gt_title gt_font_normal gt_bottom_border" style><strong>Season Distance By Team</strong></th>
+    </tr>
+    
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Team</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">w</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">l</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Distance (mi)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Distance Offense</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Distance Defense</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Average Speed (mph)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Average Speed Offense</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Average Speed Defense</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left">Atlanta Hawks</td>
+<td class="gt_row gt_right">38</td>
+<td class="gt_row gt_right">43</td>
+<td class="gt_row gt_right">16.86</td>
+<td class="gt_row gt_right">8.99</td>
+<td class="gt_row gt_right">7.88</td>
+<td class="gt_row gt_right">4.20</td>
+<td class="gt_row gt_right">4.55</td>
+<td class="gt_row gt_right">3.85</td></tr>
+    <tr><td class="gt_row gt_left">Boston Celtics</td>
+<td class="gt_row gt_right">25</td>
+<td class="gt_row gt_right">57</td>
+<td class="gt_row gt_right">16.63</td>
+<td class="gt_row gt_right">8.92</td>
+<td class="gt_row gt_right">7.71</td>
+<td class="gt_row gt_right">4.15</td>
+<td class="gt_row gt_right">4.41</td>
+<td class="gt_row gt_right">3.89</td></tr>
+    <tr><td class="gt_row gt_left">Brooklyn Nets</td>
+<td class="gt_row gt_right">43</td>
+<td class="gt_row gt_right">38</td>
+<td class="gt_row gt_right">16.37</td>
+<td class="gt_row gt_right">8.69</td>
+<td class="gt_row gt_right">7.69</td>
+<td class="gt_row gt_right">4.07</td>
+<td class="gt_row gt_right">4.29</td>
+<td class="gt_row gt_right">3.85</td></tr>
+    <tr><td class="gt_row gt_left">Charlotte Bobcats</td>
+<td class="gt_row gt_right">42</td>
+<td class="gt_row gt_right">39</td>
+<td class="gt_row gt_right">17.20</td>
+<td class="gt_row gt_right">9.51</td>
+<td class="gt_row gt_right">7.69</td>
+<td class="gt_row gt_right">4.26</td>
+<td class="gt_row gt_right">4.61</td>
+<td class="gt_row gt_right">3.89</td></tr>
+    <tr><td class="gt_row gt_left">Chicago Bulls</td>
+<td class="gt_row gt_right">48</td>
+<td class="gt_row gt_right">34</td>
+<td class="gt_row gt_right">17.00</td>
+<td class="gt_row gt_right">9.33</td>
+<td class="gt_row gt_right">7.67</td>
+<td class="gt_row gt_right">4.21</td>
+<td class="gt_row gt_right">4.47</td>
+<td class="gt_row gt_right">3.93</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="9">data courtesy of nba.com and Second Spectrum</td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+
+---
 ???
 Insert table showing how it is structured
 
