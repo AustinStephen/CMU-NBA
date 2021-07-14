@@ -196,12 +196,11 @@ density_drives_2014_15 <- read.csv("./data1/density_distance_drives_tracking/_de
 ```
 
 ```{r table, echo = FALSE}
-density_drives_2014_15 %>%
-  kable()
+
 knitr::kable(head(density_drives_2014_15), format = 'html', table.attr = "style='height:20%;'")
 
 ```
-
+---
 ```{r drives_pts_pct, echo=FALSE}
 ##ATL
 b2b_2014_ATL <- density_drives_2014_15 %>%
