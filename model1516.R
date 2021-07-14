@@ -131,6 +131,10 @@ regseason1516 <- regseason1516 %>%
 regseason1516 <- regseason1516 %>%
   mutate(win_percent_diff = w_lpercent - opp_win_percent)
 
+write_csv(regseason1516, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1516.csv")
+
+regseason1516 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1516.csv")
+
 ratings1516 <- get_general(
   season = 2015,
   type = "Team",
@@ -170,8 +174,6 @@ regseason1516 <- regseason1516 %>%
   mutate(net_rating_diff = net_rating - opp_net_rating) %>%
   mutate(pace_diff = pace - opp_pace)
 
-regseason1516 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1516.csv")
-
 performance1516 <- get_general(
   season = 2015,
   type = "Team",
@@ -193,12 +195,13 @@ regseason1516 <- merge(regseason1516, performance1516,
                        by = "Team")
 
 opp_performance1516 <- performance1516 %>%
-  select(c(Team, fg_pct, fg3m, fg3_pct, ftm, ft_pct, reb, ast, tov, stl, blk))
+  select(c(Team, fgm,fg_pct, fg3m, fg3_pct, ftm, ft_pct, reb, ast, tov, stl, blk))
 
 regseason1516 <- merge(x = regseason1516, y = opp_performance1516,
                        by.x = "Opponent", by.y = "Team")
 
 regseason1516 <- regseason1516 %>%
+  rename(fgm = "fgm.x") %>%
   rename(fg_pct = "fg_pct.x") %>%
   rename(fg3m = "fg3m.x") %>%
   rename(fg3_pct = "fg3_pct.x") %>%
@@ -209,6 +212,7 @@ regseason1516 <- regseason1516 %>%
   rename(tov = "tov.x")  %>%
   rename(stl = "stl.x") %>%
   rename(blk = "blk.x")  %>%
+  rename(opp_fgm = "fgm.y") %>%
   rename(opp_fg_pct = "fg_pct.y") %>%
   rename(opp_fg3m = "fg3m.y") %>%
   rename(opp_fg3_pct = "fg3_pct.y") %>%

@@ -52,6 +52,7 @@ together <- together %>%
 together <- together %>% 
   mutate(off_rating_diff = off_rating - opp_off_rating) %>%
   mutate(def_rating_diff = def_rating - opp_def_rating) %>%
+  mutate(fgm_diff = fgm - opp_fgm) %>%
   mutate(fg_pct_diff = fg_pct - opp_fg_pct) %>%
   mutate(fg3m_diff = fg3m - opp_fg3m) %>%
   mutate(fg3_pct_diff = fg3_pct - opp_fg3_pct) %>%
@@ -66,32 +67,51 @@ together <- together %>%
   
 write_csv(together, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/together.csv")
 
+
+# Data manipulations above. Load below ------------------------------------
+together <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/together.csv")
+
+visitors <- filter(together, Visitor == TRUE)
+
 # Constructing a Linear Model ---------------------------------------------
-performance_lm <- lm(score_diff ~ net_rating_diff + fg_pct_diff,
-                     data = together) 
-
-summary(performance_lm)
-
 rows <- sample(nrow(together))
 temp <- together[rows, ]
 together_sample <- temp[!duplicated(temp$game_id),]
 
-test <- together[!duplicated(together$game_id),]
+no_duplicates <- together[!duplicated(together$game_id),]
 
-sample_lm <- lm(score_diff ~ win_percent_diff + Visitor + Rest + hours_shift, 
-                data = test)
+init_lm <- lm(score_diff ~ win_percent_diff + net_rating_diff + Visitor + Rest + hours_shift, 
+              data = no_duplicates )
 
-summary(sample_lm)
+summary(init_lm)
 
+# This model does not use duplicates --------------------------------------
+performance_lm <- lm(score_diff ~ win_percent_diff + net_rating_diff + fg_pct_diff + 
+                       fg3m_diff + ftm_diff  + 
+                       reb_diff + ast_diff + stl_diff + blk_diff + tov_diff,
+                     data = no_duplicates)  
+
+summary(performance_lm)
+
+performance_visitors_lm <- lm(score_diff ~ win_percent_diff + fg_pct_diff + 
+                                fg3m_diff + ftm_diff + 
+                                 reb_diff + tov_diff + stl_diff + blk_diff,
+                              data = visitors) 
+
+summary(performance_visitors_lm)
+
+#STRONGEST MODEL SO FAR
 # Visitors Model ----------------------------------------------------------
-visitors <- filter(together, Visitor == TRUE)
-
-visitors_lm <- lm(score_diff ~ win_percent_diff + net_rating_diff + Rest + hours_shift + three_in_four + b2b_2nd, 
+travel_visitors_lm <- lm(score_diff ~ win_percent_diff + Distance + Rest
+                         + hours_shift + three_in_four + b2b_2nd, 
                   data = visitors)
 
-summary(visitors_lm)
+summary(travel_visitors_lm)
+
 
 # Together Model ----------------------------------------------------------
+#Likely do not use this model becuase double counting games potentially leads to wacky results
+#Ask Max about this
 together_lm <- lm(score_diff ~ win_percent_diff + net_rating_diff + Visitor + Rest + hours_shift, 
                   data = together)
 
@@ -115,13 +135,11 @@ test_rest_visitors <- select(visitors, c(Rest, net_rating_diff)) %>%
   group_by(Rest) %>%
   summarise_at(vars(net_rating_diff),
                list(avg_net_rating_diff = mean))
-#interesting to see that teams do well with 1 days rest but poor after more than that
 
 test_shift_visitors <- select(visitors, c(shift, net_rating_diff)) %>%
   group_by(shift) %>%
   summarise_at(vars(net_rating_diff),
                list(avg_net_rating_diff = mean))
-#Nothing convincing here. Might need more seasons of data
 
 test_b2b_visitors <- select(visitors, c(b2b_2nd, net_rating_diff)) %>%
   group_by(b2b_2nd) %>%
@@ -143,7 +161,6 @@ test_57_visitors <- select(visitors, c(five_in_seven, net_rating_diff)) %>%
   summarise_at(vars(net_rating_diff),
                list(avg_net_rating_diff = mean))
 
-#the numbers here are super tiny
 test_west_visitor <- select(visitors, c(traveling_west, net_rating_diff)) %>%
   group_by(traveling_west) %>%
   summarise_at(vars(net_rating_diff),
@@ -154,7 +171,6 @@ test_east_visitor <- select(visitors, c(traveling_east, net_rating_diff)) %>%
   group_by(traveling_east) %>%
   summarise_at(vars(net_rating_diff),
                list(avg_net_rating_diff = mean))
-
 
 # Score Diff --------------------------------------------------------------
 test_rest_visitors_score_diff <- select(visitors, c(Rest, score_diff)) %>%
@@ -200,11 +216,6 @@ test_east_visitor_score_diff <- select(visitors, c(traveling_east, score_diff)) 
   group_by(traveling_east) %>%
   summarise_at(vars(score_diff),
                list(avg_score_diff = mean))
-
-
-library(ggfortify)
-autoplot(visitors_lm) +
-  theme_bw()
 
 ggplot(visitors, aes(x = as.factor(three_in_four), y= score_diff)) +
   geom_violin() +

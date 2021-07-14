@@ -8,20 +8,20 @@ library(dplyr)
 library(tidyverse)
 
 
-data1617 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1617.csv")
+data1415 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1415.csv")
 
 
-cumulative_distance1617 <- data1617 %>%
+cumulative_distance1415 <- data1415 %>%
   group_by(Team) %>%
   summarise_at(vars(Distance),
                list(total_distance_traveled = sum))
 
-home_stadium_coords <- data1617 %>%
+home_stadium_coords <- data1415 %>%
   filter(Visitor == FALSE) %>%
   select(Team, Latitude, Longitude) %>%
   distinct()
 
-coords_and_distance <- merge(x = cumulative_distance1617,  y= home_stadium_coords,
+coords_and_distance <- merge(x = cumulative_distance1415,  y= home_stadium_coords,
                              by = "Team")
 
 
@@ -39,6 +39,7 @@ ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group
         panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
         panel.grid.minor=element_blank(),plot.background=element_blank(),
         legend.position = "bottom")
+
   
   #color = Team,
                                              #fill = Team)) + 
