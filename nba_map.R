@@ -30,7 +30,7 @@ states <- map_data("state")
 ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group = group), fill = "azure2", color = "gray") + 
   coord_fixed(1.3) +
   geom_point(data = coords_and_distance, aes(x=Longitude, y=Latitude,  
-                                             size = total_distance_traveled),
+                                             size = sqrt(total_distance_traveled)),
              alpha = 0.8) + 
   theme(axis.line=element_blank(),axis.text.x=element_blank(),
         axis.text.y=element_blank(),axis.ticks=element_blank(),
@@ -63,15 +63,17 @@ test <- teamcolors %>%
   )
 
 
+# Flight Maps -------------------------------------------------------------
+library(airball)
 
-  
-  
-
-
-
+datos <- nba_travel(start_season = 2015, end_season = 2015)
 
 
-
-
-#every away team, distribution of score differential, bracketed by the time zone shift
-
+nba_travel_plot(data = datos,
+                season = 2015,
+                team = c("Portland Trail Blazers","Denver Nuggets", "Cleveland Cavaliers", "Boston Celtics"),
+                city_color = "white",
+                plot_background_fill = "black",
+                land_color = "gray",
+                caption_color = "lightblue",
+                ncolumns = 2)

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Measuring and Predicting Player Fatigue in the NBA</title>
+    <meta charset="utf-8" />
+    <script src="matthew_slides_files/header-attrs-2.8/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Measuring and Predicting Player Fatigue in the NBA
+### <span style='font-size: 40px'>Austin Stephen, Matthew Yep and Grace Fain
+</style>
+### <span style='font-size: 36px'> 7/13/2021
+</style>
+
+---
+
+&lt;style type="text/css"&gt;
+
+h1.title {
+  font-size: 10px;
+}
+
+&lt;/style&gt;
+
+
+
+
+
+## Why fatigue?
+- Optimized Performance  
+
+- Injury Prevention   
+
+???
+Add source that found as players get more tired performance worsens in basketball.
+Add source that talks about injury links to fatigue 
+Add a source that 
+
+---
+
+## The Plan
+
+1. Measure player fatigue  
+  
+2. Build a model that can be used to predict the impact of fatigue on a given game or
+multi-game sequence.
+
+
+???
+Identify a proxy for fatigue and link it to in game performance.
+This model can used by teams to examine their roster and match-ups and gain insights into 
+how differnt factors are influencing their teams performance
+
+---
+
+## Measuring player fatigue
+- Cannot use direct measures
+  
+- Identify a proxy
+
+???
+NBA players cannot wear heart rate monitors or tracking equipment in games 
+
+---
+
+## Proxy for Fatigue
+- In game distance
+- Between game distance
+
+???
+We are examining two major sources for player fatigue.
+1. The distance and speed at which they travel in game. 
+2. The characteristics of their travel between games including days of rest,
+distance traveled and time zone changes.
+
+---
+
+## The in-game data
+
+???
+Insert table showing how it is structured
+
+---
+
+## Progress with in-game data 
+
+???
+Go through progress with in game data
+
+---
+
+## Progress with in-game data 2
+
+???
+Go through progress with in game data
+
+---
+# GRACE ADD HERE 
+
+Grace add your progress with in-game data
+
+---
+
+### How does travel between games affect team performance?
+![](matthew_slides_files/figure-html/Map-1.png)&lt;!-- --&gt;
+
+---
+
+### The Cavaliers cross much less timezones than the coastal teams
+![](matthew_slides_files/figure-html/Flight Paths-1.png)&lt;!-- --&gt;
+
+---
+
+# The Travel Data
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Date &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Team &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Opponent &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Visitor &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Distance &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Rest &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; shift &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; b2b_2nd &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; traveling_west &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2011-01-29 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Dallas Mavericks &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Atlanta Hawks &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2011-03-27 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Cleveland Cavaliers &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Atlanta Hawks &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2011-03-18 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Miami Heat &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Atlanta Hawks &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; TRUE &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 607 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; TRUE &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2011-02-02 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Toronto Raptors &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Atlanta Hawks &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; TRUE &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 427 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2011-02-28 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Denver Nuggets &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Atlanta Hawks &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 986 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2011-02-05 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Washington Wizards &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Atlanta Hawks &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; FALSE &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+### Distance does not have a significant effect on the score difference
+
+```
+## 
+## Call:
+## lm(formula = score_diff ~ win_percent_diff + Distance + Rest + 
+##     hours_shift + three_in_four + b2b_2nd, data = visitors)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -49.528  -7.253   0.139   7.506  49.810 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)       -2.4054607  0.2784196  -8.640  &lt; 2e-16 ***
+## win_percent_diff   0.2217051  0.0042038  52.739  &lt; 2e-16 ***
+## Distance          -0.0001869  0.0002625  -0.712   0.4765    
+## Rest               0.4381551  0.0713273   6.143 8.43e-10 ***
+## hours_shift        0.0633069  0.1303609   0.486   0.6272    
+## three_in_fourTRUE -1.1271428  0.2791859  -4.037 5.45e-05 ***
+## b2b_2ndTRUE       -0.4947023  0.2827652  -1.750   0.0802 .  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 11.81 on 9581 degrees of freedom
+## Multiple R-squared:  0.227,	Adjusted R-squared:  0.2266 
+## F-statistic:   469 on 6 and 9581 DF,  p-value: &lt; 2.2e-16
+```
+
+---
+
+#Next Steps
+- Find stronger proxies to account for difference in team vs opponent strength
+- Logistic regression predicting win or loss instead of score difference
+- Test the models on Bubble and 2021 data (where there was none of significantly less travel)
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create();
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

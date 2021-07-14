@@ -8,6 +8,8 @@ library(echarts4r.assets)
 library(NBAr)
 library(lubridate)
 library(ballr)
+library(dplyr)
+library(tidyverse)
 
 data1011 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1011.csv")
 data1112 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1112.csv")
@@ -72,6 +74,35 @@ write_csv(together, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/toge
 together <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/together.csv")
 
 visitors <- filter(together, Visitor == TRUE)
+write_csv(visitors, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/visitors.csv")
+
+
+#STRONGEST MODEL SO FAR
+# Visitors Model ----------------------------------------------------------
+travel_visitors_lm <- lm(score_diff ~ win_percent_diff + Distance + Rest
+                         + hours_shift + three_in_four + b2b_2nd, 
+                         data = visitors)
+
+summary(travel_visitors_lm)
+
+library(vip)
+vip(travel_visitors_lm, geom = "point")
+
+cor(visitors$score_diff, visitors$win_percent_diff)
+
+visitors %>%
+  mutate(init_preds = predict(travel_visitors_lm)) %>%
+  ggplot(aes(x = init_preds, y = score_diff)) +
+  geom_point(alpha = 0.75) +
+  geom_abline(slope = 1, intercept = 0,
+              linetype = "dashed", color = "red") +
+  theme_bw() +
+  labs(x = "Predictions", y = "Observed Score Diff")
+
+library(car)
+vif(travel_visitors_lm)
+
+
 
 # Constructing a Linear Model ---------------------------------------------
 rows <- sample(nrow(together))
@@ -99,14 +130,6 @@ performance_visitors_lm <- lm(score_diff ~ win_percent_diff + fg_pct_diff +
                               data = visitors) 
 
 summary(performance_visitors_lm)
-
-#STRONGEST MODEL SO FAR
-# Visitors Model ----------------------------------------------------------
-travel_visitors_lm <- lm(score_diff ~ win_percent_diff + Distance + Rest
-                         + hours_shift + three_in_four + b2b_2nd, 
-                  data = visitors)
-
-summary(travel_visitors_lm)
 
 
 # Together Model ----------------------------------------------------------
