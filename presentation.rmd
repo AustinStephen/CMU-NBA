@@ -1,7 +1,7 @@
 ---
-title: "Measuring and Predicting Player Fatigue in the NBA"
-author: "<span style='font-size: 40px'>Austin Stephen, Matthew Yep and Grace Fain </style>"
-date: "<span style='font-size: 36px'> 7/13/2021 </style>"
+title: "<span style='font-size: 70px'>Measuring and Predicting Player Fatigue in the NBA </style>"
+author: "<span style='font-size: 35px'>Austin Stephen, Matthew Yep and Grace Fain </style>"
+date: "<span style='font-size: 35px'> 7/13/2021 </style>"
 output:
   xaringan::moon_reader:
     css: xaringan-themer.css
@@ -16,8 +16,21 @@ h1.title {
 </style>
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-
+knitr::opts_chunk$set(
+  echo = FALSE,
+  cache = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.show = TRUE,
+  fig.width = 9, 
+  fig.height=3.5,
+  fig.retina = 3,
+  out.width = "100%"
+                      )
+library(readr)
+library(dplyr)
+library(tidyverse)
+library(gt)
  
 ```
 
@@ -31,12 +44,13 @@ style_mono_accent(base_color = "#cc002c",
 ```
 
 ## Why fatigue?
+
 - Optimized Performance  
 
 - Injury Prevention   
 
 ???
-Add source that found as players get more tired performance worsens in basketball.
+1. Add source that found as players get more tired performance worsens in basketball.
 Add source that talks about injury links to fatigue 
 Add a source that 
 
@@ -46,8 +60,7 @@ Add a source that
 
 1. Measure player fatigue  
   
-2. Build a model that can be used to predict the impact of fatigue on a given game or
-multi-game sequence.
+2. Build a model that can be used to predict the impact of fatigue on a given game or multi-game sequence.  
 
 
 ???
@@ -58,29 +71,103 @@ how differnt factors are influencing their teams performance
 ---
 
 ## Measuring player fatigue
-- Cannot use direct measures
+
+- Cannot use direct measures  
   
 - Identify a proxy
 
 ???
-NBA players cannot wear heart rate monitors or tracking equipment in games 
+To be more concrete on what we mean by fatigue: 
+"the decline in objective performance measures derived from the capacity 
+of the nervous system and contractile properties of muscles over time"
+
+In a perfect world we would directly measure an NBA players internal homeostasis
+either with hematological or with sensors that measure heart rate. Howoever, 
+players cannot wear heart rate monitors or tracking equipment in games and we 
+certainly don't have data about in/post-game blood samples so we need a proxy 
+to measure how fatigued a player was by in game events.
+
 
 ---
 
 ## Proxy for Fatigue
-- In game distance
+
+- In game distance  
+
 - Between game distance
 
 ???
 We are examining two major sources for player fatigue.
 1. The distance and speed at which they travel in game. 
+We started by looking to validate this as proxy for player exertion in a given game.
+
 2. The characteristics of their travel between games including days of rest,
 distance traveled and time zone changes.
 
+
 ---
 
-## The in-game data
+## In-Game Distance Data  
 
+```{r, out.height= "100%"}
+ tracking_player <- read_csv(
+   "data/in_game_distance_data/tracking_by_player_season_daily_2018_19.csv")
+
+tracking_player %>%
+  ggplot(aes(x=dist_miles, y=avg_speed)) +
+  geom_point()
+
+ # tracking_player %>%
+ #   select(c("player_name","date","min", "dist_miles","dist_miles_off", "dist_miles_def",
+ #            "avg_speed","avg_speed_off","avg_speed_def")) %>%
+ #   rename("Name" = player_name,
+ #          "Distance (mi)" = dist_miles,
+ #          "Distance Offense"  = dist_miles_off,
+ #          "Distance Defense" = dist_miles_def,
+ #          "Average Speed (mph)" = avg_speed,
+ #          "Average Speed Offense" = avg_speed_off,
+ #          "Average Speed Defense" = avg_speed_def,
+ #          "Date" = date,
+ #          "Min" = min) %>%
+ #   slice(1:5) %>%
+ #   gt() %>%
+ #   tab_header(
+ #    title = md("**Distance By Player Individual Games**")
+ #  ) %>%
+ #  tab_source_note(md("data courtesy of nba.com and Second Spectrum")) %>%
+ #  opt_table_outline( style = "solid", width = px(5), color = "darkgrey")
+
+```
+
+
+---
+
+## In-Game Distance Data
+
+```{r}
+tracking_team <- read_csv(
+  "data/in_game_distance_data/tracking_by_team_season_summaries_2013_to_20.csv")
+
+ tracking_team %>%
+   select(c("team_name","w","l", "dist_miles","dist_miles_off", "dist_miles_def",
+            "avg_speed","avg_speed_off","avg_speed_def")) %>%
+   rename("Team" = team_name,
+          "Distance (mi)" = dist_miles,
+          "Distance Offense"  = dist_miles_off,
+          "Distance Defense" = dist_miles_def,
+          "Average Speed (mph)" = avg_speed,
+          "Average Speed Offense" = avg_speed_off,
+          "Average Speed Defense" = avg_speed_def) %>%
+   slice(1:5) %>%
+   gt() %>%
+   tab_header(
+    title = md("**Season Distance By Team**")
+  ) %>%
+  tab_source_note(md("data courtesy of nba.com and Second Spectrum")) %>%
+  opt_table_outline( style = "solid", width = px(5), color = "darkgrey")
+```
+
+---
 ???
 Insert table showing how it is structured
 
