@@ -38,6 +38,8 @@ library(grid)
 
 visitors <- read_csv("./matthew_data/visitors.csv")
 data1415 <- read_csv("./matthew_data/regseason1415.csv")
+datos <- read_csv("./matthew_data/map1415data.csv")
+
 style_mono_accent(base_color = "#cc002c",
   white_color = "#e6e6e6",
   background_color = "#b3b3b3",
@@ -824,11 +826,8 @@ ggplot(drive_2014_ALL_long_tov, aes(x = Group.1, y = Value, fill = Stat)) +
 ```
 
 ---
-# MATTHEW ADD HERE
-Grace add your progress with between game data
-
 ### How does travel between games affect team performance?
-```{r Map, echo=FALSE, fig.height= 7, fig.width=11}
+```{r Map, echo = FALSE, fig.height= 6.5, fig.width=12}
 cumulative_distance1415 <- data1415 %>%
   group_by(Team) %>%
   summarise_at(vars(Distance),
@@ -842,12 +841,16 @@ home_stadium_coords <- data1415 %>%
 coords_and_distance <- merge(x = cumulative_distance1415,  y= home_stadium_coords,
                              by = "Team")
 
+highlight <- coords_and_distance %>%
+  filter(Team %in% c("Portland Trail Blazers","Denver Nuggets", 
+                     "Cleveland Cavaliers", "Boston Celtics"))
+
 usa <- map_data("usa")
 states <- map_data("state")
 ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group = group), fill = "azure2", color = "gray") + 
   coord_fixed(1.3) +
   geom_point(data = coords_and_distance, aes(x=Longitude, y=Latitude,  
-                                             size = total_distance_traveled),
+                                             size = sqrt(total_distance_traveled)),
              alpha = 0.8) + 
   theme(axis.line=element_blank(),axis.text.x=element_blank(),
         axis.text.y=element_blank(),axis.ticks=element_blank(),
@@ -855,54 +858,51 @@ ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group
         axis.title.y=element_blank(),
         panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
         panel.grid.minor=element_blank(),plot.background=element_blank(),
-        legend.position = "top")
+        legend.position = "top") +
+  geom_point(data = highlight, aes(x=Longitude, y=Latitude,colour = "red", size = sqrt(total_distance_traveled))) +
+  geom_text(data = coords_and_distance, aes(x=Longitude, y=Latitude, 
+                                            label=ifelse(Team %in% c("Portland Trail Blazers","Denver Nuggets", 
+                                         "Cleveland Cavaliers", "Boston Celtics"),
+                             as.character(Team),'')), hjust= 0,vjust=0)
 ```
 
 ---
 
-### The Cavaliers cross far less timezones than the coastal teams
-```{r Flight Paths, echo=FALSE, fig.height = 6, fig.width=12}
-
-datos <- nba_travel(start_season = 2015, end_season = 2015)
-
-
+### The Cavaliers also cross far less timezones than the coastal teams
+```{r Flight Paths, echo = FALSE, fig.height = 7, fig.width=12}
 nba_travel_plot(data = datos,
                 season = 2015,
                 team = c("Portland Trail Blazers","Denver Nuggets", "Cleveland Cavaliers", "Boston Celtics"),
-                city_color = "white",
+                city_color = "yellow",
                 plot_background_fill = "black",
                 land_color = "gray",
                 caption_color = "lightblue",
                 ncolumns = 2)
-
 ```
 
 ---
 
-# The Travel Data
-```{r Matthew Data, echo= FALSE, fig.height = 6, fig.width=12}
-data_example <- visitors %>%
-  select(c(Date, Team, Opponent, Visitor, Distance, Rest, shift, b2b_2nd, traveling_west))
+### Travel, Schedule and Density Data
 
-knitr::kable(head(data_example), format = 'html')
+```{r Matthew data, echo=FALSE, fig.align = "center", fig.height = 16,fig.width = 40}
+img <- readPNG("./images/example_data.png") 
+grid.raster(img)
 ```
-
+- **Granularity:** Each row represents a game. The stats are relative to the visiting team in the *Team* column
 ---
 
-### Distance doesn't have a significant effect on the score difference
-```{r Linear Model, echo=FALSE, fig.align='center', out.width='30%'}
-travel_visitors_lm <- lm(score_diff ~ win_percent_diff + Distance + Rest
-                         + hours_shift + three_in_four + b2b_2nd, 
-                  data = visitors)
+### Linear Model: Distance doesn't have a significant effect on the score diff
+score_diff = $\beta_0$ + $\beta_1$ win_percent_diff + $\beta_2$distance + $\beta_3$rest + 
+$\beta_4$shift + $\beta_5$b2b_2nd + $\beta_6$three_in_four
 
-summary(travel_visitors_lm)
-
+```{r Linear Model, echo=FALSE, fig.align = "center", fig.height = 4.5, fig.width = 6}
+img2 <- readPNG("./images/summary_visitors_model.png") 
+grid.raster(img2)
 ```
-
 ---
 
-#Next Steps
+#What's on deck
 - Find stronger proxies to account for difference in team vs opponent strength
-- Logistic regression predicting win or loss instead of score difference
-- Test the models on Bubble and 2021 data (where there was none of significantly less travel)
+- Logistic regression model predicting win or loss instead of score difference
+- Test the models on Bubble and 2021 data (where there was none of significantly less travel/shift between timezones)
 
