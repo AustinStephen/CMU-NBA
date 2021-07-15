@@ -416,7 +416,7 @@ density_drives_2014_15 %>%
 
 ---
 ### Average Points Per Drive and Back-To-Back Games
-```{r drives_pts_pct, echo=FALSE}
+```{r drives_pts_pct, echo=FALSE, fig.height = 5}
 ##ATL
 b2b_2014_ATL <- density_drives_2014_15 %>%
   filter(B2B.2nd == "Yes") %>%
@@ -552,7 +552,7 @@ grid.arrange(p2, p3, p1, p4, nrow = 2, ncol = 2)
 
 ---
 ### Over half of the NBA teams score less points per drive in the second game of a back-to-back
-```{r team pts pct, echo = FALSE}
+```{r team pts pct, echo = FALSE, fig.height =5}
 
 ##ALL
 b2b_2014_ALL <- density_drives_2014_15 %>%
@@ -590,7 +590,7 @@ ggplot(drive_2014_ALL_long_pts, aes(x = Group.1, y = Value, fill = Stat)) +
 ---
 
 ### Average number of passes out of drives and back-to-back games
-```{r drive and pass, echo = FALSE}
+```{r drive and pass, echo = FALSE, fig.height = 5}
 ##ATL
 b2b_2014_ATL <- density_drives_2014_15 %>%
   filter(B2B.2nd == "Yes") %>%
@@ -726,7 +726,7 @@ grid.arrange(p2, p3, p1, p4, nrow = 2, ncol = 2)
 
 ---
 ### Over half of the NBA teams pass out of drives more in the second game of a back-to-back
-```{r 2018-2019 season, echo = FALSE}
+```{r 2018-2019 season, echo = FALSE, fig.height =5}
 
 ##ALL
 b2b_2014_ALL <- density_drives_2014_15 %>%
@@ -763,7 +763,7 @@ ggplot(drive_2014_ALL_long_pass, aes(x = Group.1, y = Value, fill = Stat)) +
 
 ---
 ### Less than half of the NBA teams turnover the ball on drives more in the second game of a back-to-back game
-```{r drives tov, echo = FALSE}
+```{r drives tov, echo = FALSE, fig.height = 4}
 ##ALL
 b2b_2014_ALL <- density_drives_2014_15 %>%
   filter(B2B.2nd == "Yes") %>%
