@@ -169,8 +169,7 @@ players_5_plus_min %>%
   ggplot(aes(x=avg_speed,y =plusminus ))+
   geom_point(alpha = .05)+
   geom_smooth(method="lm")+
-  labs(title = "all players with 5+ min played",
-       caption = "plusminus is for the whole team")+
+  labs(title = "all players with 5+ min played")+
   xlim(3,5.5)+
   ylim(-30,30)
 
@@ -192,7 +191,7 @@ players_40_plus_min %>%
 
 
 ## model 
-model0 <- lm(plusminus ~ avg_speed, data = players_5_plus)
+model0 <- lm(plusminus ~ avg_speed, data = players_5_plus_min)
 #summary(model0)
 
 model1 <-  lm(plusminus ~ avg_speed, data = players_5_10_min)
@@ -202,12 +201,16 @@ model2 <-  lm(plusminus ~ avg_speed, data = players_40_plus_min)
 #summary(model2)
 
 ```
+
 The relationship of plusminus ~ avg_speed for all players with 5 or more minutes 
 in the game is: plusminus = 11.429 -2.33(avg_speed)  
 p-value: <2e-16
 
 
+## player stats and distance check
+```{r}
 
+```
 
 
 
