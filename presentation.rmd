@@ -32,6 +32,7 @@ library(ggplot2)
 library(maps)
 library(mapdata)
 library(airball)
+library(gridExtra)
  
 ```
 
@@ -189,18 +190,38 @@ Go through progress with in game data
 Go through progress with in game data
 
 ---
-# GRACE ADD HERE 
+### Drives and schedule density data 
 
 ```{r load in data, include=FALSE}
 density_drives_2014_15 <- read.csv("./data1/density_distance_drives_tracking/_density_drives_distance_daily_2014_15.csv")
+
+density_drives_2018_19 <- read.csv("./data1/density_distance_drives_tracking/_density_drives_distance_daily_2018_19.csv")
 ```
 
-```{r table, echo = FALSE}
+```{r table}
 
-knitr::kable(head(density_drives_2014_15), format = 'html', table.attr = "style='height:20%;'")
+density_drives_2014_15 %>%
+   select(c("team_abbreviation","player_name","w","l", "drives", "drive_pts", "drive_pts_pct", "drive_passes_pct", "drive_tov_pct", "dist_miles", "B2B.2nd")) %>%
+   rename("Team" = team_abbreviation,
+          "Player" = player_name,
+          "Distance (mi)" = dist_miles,
+          "# of Drives" = drives,
+          "2nd of a B2B" = B2B.2nd,
+          "points per drive" = drive_pts_pct,
+          "passes per drive" = drive_passes_pct,
+          "turnovers per drive" = drive_tov_pct) %>%
+   slice(5:10) %>%
+   gt() %>%
+   tab_header(
+    title = md("**Drives, Distance, and Schedule Density by Player**")
+  ) %>%
+  tab_source_note(md("data courtesy of nba.com, Second Spectrum, and the airball r package")) %>%
+  opt_table_outline( style = "solid", width = px(5), color = "darkgrey")
 
 ```
+
 ---
+### Average Points Per Drive and Back-To-Back Games
 ```{r drives_pts_pct, echo=FALSE}
 ##ATL
 b2b_2014_ATL <- density_drives_2014_15 %>%
@@ -225,12 +246,14 @@ drive_pct_2014_ATL <- merge(B2b_2014_ATL, notB2b_2014_ATL, by = "Group.1") %>%
 drive_2014_ATL_long <- drive_pct_2014_ATL %>%
   gather("Stat", "Value", -Group.1)
 
-ggplot(drive_2014_ATL_long, aes(x = Group.1, y = Value, fill = Stat)) +
+p1 <- ggplot(drive_2014_ATL_long, aes(x = Group.1, y = Value, fill = Stat)) +
   geom_bar(stat = "Identity", position = "dodge") +
   theme_bw() +
   ggtitle("Atlanta Hawks") +
   xlab("Players") +
-  ylab("avg drive_pts_percent")
+  ylab("avg pts per drive") +
+  scale_fill_manual("Stat", values = c("not_2nd_B2B" = "black", "2nd_B2B_game" = "skyblue")) +
+  theme(axis.text.x = element_text(size=5, angle=45, hjust = 1))
 
 ## GSW
 b2b_2014_GSW <- density_drives_2014_15 %>%
@@ -255,74 +278,329 @@ drive_pct_2014_GSW <- merge(b2b_2014_GSW, notB2b_2014_GSW, by = "Group.1") %>%
 drive_2014_GSW_long <- drive_pct_2014_GSW %>%
   gather("Stat", "Value", -Group.1)
 
-ggplot(drive_2014_GSW_long, aes(x = Group.1, y = Value, fill = Stat)) +
+p2 <- ggplot(drive_2014_GSW_long, aes(x = Group.1, y = Value, fill = Stat)) +
   geom_bar(stat = "Identity", position = "dodge") +
   theme_bw() +
   ggtitle("Golden State Warriors") +
   xlab("Players") +
-  ylab("avg drive_pts_percent")
+  ylab("avg pts per drive") +
+  scale_fill_manual("Stat", values = c("not_2nd_B2B" = "black", "2nd_B2B_game" = "skyblue")) +
+  theme(axis.text.x = element_text(size=5, angle=45, hjust = 1))
 
-##DAL
-b2b_2014_DAL <- density_drives_2014_15 %>%
+##MIN
+b2b_2014_MIN <- density_drives_2014_15 %>%
   filter(B2B.2nd == "Yes") %>%
   filter(drives > 0) %>%
   group_by(player_id) %>%
-  filter(team_abbreviation == "DAL")
+  filter(team_abbreviation == "MIN")
 
-other_2014_DAL <- density_drives_2014_15 %>%
+other_2014_MIN <- density_drives_2014_15 %>%
   filter(B2B.2nd == "No") %>%
   filter(drives > 0) %>%
   group_by(player_id) %>%
-  filter(team_abbreviation == "DAL")
+  filter(team_abbreviation == "MIN")
 
-notB2b_2014_DAL <- aggregate(other_2014_DAL$drive_pts_pct / nrow(other_2014_DAL), list(other_2014_DAL$player_name), FUN=sum, na.rm = TRUE)
+notB2b_2014_MIN <- aggregate(other_2014_MIN$drive_pts_pct / nrow(other_2014_MIN), list(other_2014_MIN$player_name), FUN=sum, na.rm = TRUE)
 
-b2b_2014_DAL <-aggregate(b2b_2014_DAL$drive_pts_pct / nrow(b2b_2014_DAL), list(b2b_2014_DAL$player_name), FUN=sum, na.rm = TRUE)
+b2b_2014_MIN <-aggregate(b2b_2014_MIN$drive_pts_pct / nrow(b2b_2014_MIN), list(b2b_2014_MIN$player_name), FUN=sum, na.rm = TRUE)
 
-drive_pct_2014_DAL <- merge(b2b_2014_DAL, notB2b_2014_DAL, by = "Group.1") %>%
+drive_pct_2014_MIN <- merge(b2b_2014_MIN, notB2b_2014_MIN, by = "Group.1") %>%
   rename("2nd_B2B_game" = x.x, "not_2nd_B2B" = x.y)
 
-drive_2014_DAL_long <- drive_pct_2014_DAL %>%
+drive_2014_MIN_long <- drive_pct_2014_MIN %>%
   gather("Stat", "Value", -Group.1)
 
-ggplot(drive_2014_DAL_long, aes(x = Group.1, y = Value, fill = Stat)) +
+p3 <- ggplot(drive_2014_MIN_long, aes(x = Group.1, y = Value, fill = Stat)) +
   geom_bar(stat = "Identity", position = "dodge") +
   theme_bw() +
-  ggtitle("Dallas Mavericks") +
+  ggtitle("Minnesota Timberwolves") +
   xlab("Players") +
-  ylab("avg drive_pts_percent")
+  ylab("avg pts per drive") +
+  scale_fill_manual("Stat", values = c("not_2nd_B2B" = "black", "2nd_B2B_game" = "skyblue")) +
+  theme(axis.text.x = element_text(size=5, angle=45, hjust = 1))
 
-## CHI
-b2b_2014_CHI <- density_drives_2014_15 %>%
+## NYK
+b2b_2014_NYK <- density_drives_2014_15 %>%
   filter(B2B.2nd == "Yes") %>%
   filter(drives > 0) %>%
   group_by(player_id) %>%
-  filter(team_abbreviation == "CHI")
+  filter(team_abbreviation == "NYK") %>%
+  arrange(drive_pts_pct)
 
-other_2014_CHI <- density_drives_2014_15 %>%
+other_2014_NYK <- density_drives_2014_15 %>%
   filter(B2B.2nd == "No") %>%
   filter(drives > 0) %>%
   group_by(player_id) %>%
-  filter(team_abbreviation == "CHI")
+  filter(team_abbreviation == "NYK") %>%
+  arrange(drive_pts_pct)
 
-notB2b_2014_CHI <- aggregate(other_2014_CHI$drive_pts_pct / nrow(other_2014_CHI), list(other_2014_CHI$player_name), FUN=sum, na.rm = TRUE)
+notB2b_2014_NYK <- aggregate(other_2014_NYK$drive_pts_pct / nrow(other_2014_NYK), list(other_2014_NYK$player_name), FUN=sum, na.rm = TRUE)
 
-b2b_2014_CHI <-aggregate(b2b_2014_CHI$drive_pts_pct / nrow(b2b_2014_CHI), list(b2b_2014_CHI$player_name), FUN=sum, na.rm = TRUE)
+b2b_2014_NYK <-aggregate(b2b_2014_NYK$drive_pts_pct / nrow(b2b_2014_NYK), list(b2b_2014_NYK$player_name), FUN=sum, na.rm = TRUE)
 
-drive_pct_2014_CHI <- merge(b2b_2014_CHI, notB2b_2014_CHI, by = "Group.1") %>%
+drive_pct_2014_NYK <- merge(b2b_2014_NYK, notB2b_2014_NYK, by = "Group.1") %>%
   rename("2nd_B2B_game" = x.x, "not_2nd_B2B" = x.y)
 
-drive_2014_CHI_long <- drive_pct_2014_CHI %>%
+drive_2014_NYK_long <- drive_pct_2014_NYK %>%
   gather("Stat", "Value", -Group.1)
-
-ggplot(drive_2014_CHI_long, aes(x = Group.1, y = Value, fill = Stat)) +
+  
+p4 <- ggplot(drive_2014_NYK_long, aes(x = Group.1, y = Value, fill = Stat)) +
   geom_bar(stat = "Identity", position = "dodge") +
   theme_bw()  +
-  ggtitle("Chicago Bulls") +
+  ggtitle("New York Knicks") +
   xlab("Players") +
-  ylab("avg drive_pts_percent")
+  ylab("avg pts per drive") +
+  scale_fill_manual("Stat", values = c("not_2nd_B2B" = "black", "2nd_B2B_game" = "skyblue")) +
+  theme(axis.text.x = element_text(size=5, angle=45, hjust = 1))
+
+grid.arrange(p2, p3, p1, p4, nrow = 2, ncol = 2)
+```
+
+---
+### Over half of the NBA teams score less points per drive in the second game of a back-to-back
+```{r team pts pct, echo = FALSE}
+
+##ALL
+b2b_2014_ALL <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "Yes") %>%
+  filter(drives > 0) %>%
+  group_by(team_abbreviation) 
+
+other_2014_ALL <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "No") %>%
+  filter(drives > 0) %>%
+  group_by(team_abbreviation) 
+
+notB2b_2014_ALL_pts <- aggregate(other_2014_ALL$drive_pts_pct / nrow(other_2014_ALL), list(other_2014_ALL$team_abbreviation), FUN=sum, na.rm = TRUE)
+
+B2b_2014_ALL_pts <-aggregate(b2b_2014_ALL$drive_pts_pct / nrow(b2b_2014_ALL), list(b2b_2014_ALL$team_abbreviation), FUN=sum, na.rm = TRUE)
+
+drive_pct_2014_ALL_pts <- merge(B2b_2014_ALL_pts, notB2b_2014_ALL_pts, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.x, "not_2nd_B2B" = x.y)
+
+drive_2014_ALL_long_pts <- drive_pct_2014_ALL_pts %>%
+  gather("Stat", "Value", -Group.1) 
+
+ggplot(drive_2014_ALL_long_pts, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw() +
+  ggtitle("Average points per drive for each NBA team") +
+  xlab("Team") +
+  ylab("avg points per drive") +
+  scale_fill_manual("Stat", values = c("not_2nd_B2B" = "black", "2nd_B2B_game" = "skyblue")) +
+  theme(axis.text.x = element_text(size=7, angle=45, hjust = 1))
+
+
 
 ```
+---
+
+### Average number of passes out of drives and back-to-back games
+```{r drive and pass, echo = FALSE}
+##ATL
+b2b_2014_ATL <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "Yes") %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "ATL")
+
+other_2014_ATL <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "No") %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "ATL")
+
+notB2b_2014_ATL_pass <- aggregate(other_2014_ATL$drive_passes_pct / nrow(other_2014_ATL), list(other_2014_ATL$player_name), FUN=sum, na.rm = TRUE)
+
+B2b_2014_ATL_pass <-aggregate(b2b_2014_ATL$drive_passes_pct / nrow(b2b_2014_ATL), list(b2b_2014_ATL$player_name), FUN=sum, na.rm = TRUE)
+
+drive_pct_2014_ATL_pass <- merge(B2b_2014_ATL_pass, notB2b_2014_ATL_pass, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.x, "not_2nd_B2B" = x.y)
+
+drive_2014_ATL_long_pass <- drive_pct_2014_ATL_pass %>%
+  gather("Stat", "Value", -Group.1)
+
+p1 <- ggplot(drive_2014_ATL_long_pass, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw() +
+  ggtitle("Atlanta Hawks") +
+  xlab("Players") +
+  ylab("avg passes per drive") +
+  scale_fill_manual("Stat", values = c("not_2nd_B2B" = "black", "2nd_B2B_game" = "skyblue")) +
+  theme(axis.text.x = element_text(size=5, angle=45, hjust = 1))
+
+## GSW
+b2b_2014_GSW <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "Yes") %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "GSW")
+
+other_2014_GSW <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "No") %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "GSW")
+
+notB2b_2014_GSW_pass <- aggregate(other_2014_GSW$drive_passes_pct / nrow(other_2014_GSW), list(other_2014_GSW$player_name), FUN=sum, na.rm = TRUE)
+
+b2b_2014_GSW_pass <-aggregate(b2b_2014_GSW$drive_passes_pct/ nrow(b2b_2014_GSW), list(b2b_2014_GSW$player_name), FUN=sum, na.rm = TRUE)
+
+drive_pct_2014_GSW_pass <- merge(b2b_2014_GSW_pass, notB2b_2014_GSW_pass, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.x, "not_2nd_B2B" = x.y)
+
+drive_2014_GSW_long_pass <- drive_pct_2014_GSW_pass %>%
+  gather("Stat", "Value", -Group.1)
+
+p2 <- ggplot(drive_2014_GSW_long_pass, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw() +
+  ggtitle("Golden State Warriors") +
+  xlab("Players") +
+  ylab("avg passes per drive") +
+  scale_fill_manual("Stat", values = c("not_2nd_B2B" = "black", "2nd_B2B_game" = "skyblue")) +
+  theme(axis.text.x = element_text(size=5, angle=45, hjust = 1))
+
+##MIN
+b2b_2014_MIN <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "Yes") %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "MIN")
+
+other_2014_MIN <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "No") %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "MIN")
+
+notB2b_2014_MIN_pass <- aggregate(other_2014_MIN$drive_passes_pct / nrow(other_2014_MIN), list(other_2014_MIN$player_name), FUN=sum, na.rm = TRUE)
+
+b2b_2014_MIN_pass <-aggregate(b2b_2014_MIN$drive_passes_pct / nrow(b2b_2014_MIN), list(b2b_2014_MIN$player_name), FUN=sum, na.rm = TRUE)
+
+drive_pct_2014_MIN_pass <- merge(b2b_2014_MIN_pass, notB2b_2014_MIN_pass, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.x, "not_2nd_B2B" = x.y)
+
+drive_2014_MIN_long_pass <- drive_pct_2014_MIN_pass %>%
+  gather("Stat", "Value", -Group.1)
+
+p3 <- ggplot(drive_2014_MIN_long_pass, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw() +
+  ggtitle("Minnesota Timberwolves") +
+  xlab("Players") +
+  ylab("avg passes per drive") +
+  scale_fill_manual("Stat", values = c("not_2nd_B2B" = "black", "2nd_B2B_game" = "skyblue")) +
+  theme(axis.text.x = element_text(size=5, angle=45, hjust = 1))
+
+## NYK
+b2b_2014_NYK <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "Yes") %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "NYK") 
+
+other_2014_NYK <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "No") %>%
+  filter(drives > 0) %>%
+  group_by(player_id) %>%
+  filter(team_abbreviation == "NYK") 
+
+notB2b_2014_NYK_pass <- aggregate((other_2014_NYK$drive_passes_pct) / nrow(other_2014_NYK), list(other_2014_NYK$player_name), FUN=sum, na.rm = TRUE)
+
+b2b_2014_NYK_pass <-aggregate((b2b_2014_NYK$drive_passes_pct) / nrow(b2b_2014_NYK), list(b2b_2014_NYK$player_name), FUN=sum, na.rm = TRUE)
+
+drive_pct_2014_NYK_pass <- merge(b2b_2014_NYK_pass, notB2b_2014_NYK_pass, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.x, "not_2nd_B2B" = x.y)
+
+drive_2014_NYK_long_pass <- drive_pct_2014_NYK_pass %>%
+  gather("Stat", "Value", -Group.1)
+  
+p4 <- ggplot(drive_2014_NYK_long_pass, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw()  +
+  ggtitle("New York Knicks") +
+  xlab("Players") +
+  ylab("avg passes per drive") +
+  scale_fill_manual("Stat", values = c("not_2nd_B2B" = "black", "2nd_B2B_game" = "skyblue")) +
+  theme(axis.text.x = element_text(size=5, angle=45, hjust = 1))
+
+
+grid.arrange(p2, p3, p1, p4, nrow = 2, ncol = 2)
+
+```
+
+---
+### Over half of the NBA teams pass out of drives more in the second game of a back-to-back
+```{r 2018-2019 season, echo = FALSE}
+
+##ALL
+b2b_2014_ALL <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "Yes") %>%
+  filter(drives > 0) %>%
+  group_by(team_abbreviation) 
+
+other_2014_ALL <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "No") %>%
+  filter(drives > 0) %>%
+  group_by(team_abbreviation) 
+
+notB2b_2014_ALL_pass <- aggregate(other_2014_ALL$drive_passes_pct / nrow(other_2014_ALL), list(other_2014_ALL$team_abbreviation), FUN=sum, na.rm = TRUE)
+
+B2b_2014_ALL_pass <-aggregate(b2b_2014_ALL$drive_passes_pct / nrow(b2b_2014_ALL), list(b2b_2014_ALL$team_abbreviation), FUN=sum, na.rm = TRUE)
+
+drive_pct_2014_ALL_pass <- merge(B2b_2014_ALL_pass, notB2b_2014_ALL_pass, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.x, "not_2nd_B2B" = x.y)
+
+drive_2014_ALL_long_pass <- drive_pct_2014_ALL_pass %>%
+  gather("Stat", "Value", -Group.1) 
+
+ggplot(drive_2014_ALL_long_pass, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw() +
+  ggtitle("Average percent of drives that are passed by each NBA team") +
+  xlab("Team") +
+  ylab("avg # of passes per drive") +
+  scale_fill_manual("Stat", values = c("not_2nd_B2B" = "black", "2nd_B2B_game" = "skyblue")) +
+  theme(axis.text.x = element_text(size=7, angle=45, hjust = 1))
+
+
+```
+
+---
+### Less than half of the NBA teams turnover the ball on drives more in the second game of a back-to-back game
+```{r drives tov, echo = FALSE}
+##ALL
+b2b_2014_ALL <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "Yes") %>%
+  filter(drives > 0) %>%
+  group_by(team_abbreviation) 
+
+other_2014_ALL <- density_drives_2014_15 %>%
+  filter(B2B.2nd == "No") %>%
+  filter(drives > 0) %>%
+  group_by(team_abbreviation) 
+
+notB2b_2014_ALL_tov <- aggregate(other_2014_ALL$drive_tov_pct / nrow(other_2014_ALL), list(other_2014_ALL$team_abbreviation), FUN=sum, na.rm = TRUE)
+
+B2b_2014_ALL_tov <-aggregate(b2b_2014_ALL$drive_tov_pct / nrow(b2b_2014_ALL), list(b2b_2014_ALL$team_abbreviation), FUN=sum, na.rm = TRUE)
+
+drive_pct_2014_ALL_tov <- merge(B2b_2014_ALL_tov, notB2b_2014_ALL_tov, by = "Group.1") %>%
+  rename("2nd_B2B_game" = x.x, "not_2nd_B2B" = x.y)
+
+drive_2014_ALL_long_tov <- drive_pct_2014_ALL_tov %>%
+  gather("Stat", "Value", -Group.1) 
+
+ggplot(drive_2014_ALL_long_tov, aes(x = Group.1, y = Value, fill = Stat)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  theme_bw() +
+  ggtitle("Average percent of drives that are turned-over by each NBA team") +
+  xlab("Team") +
+  ylab("avg percent of turnovers per drive") +
+  scale_fill_manual("Stat", values = c("not_2nd_B2B" = "black", "2nd_B2B_game" = "skyblue")) +
+  theme(axis.text.x = element_text(size=7, angle=45, hjust = 1))
+```
+
 ---
 # MATTHEW ADD HERE
 Grace add your progress with between game data
