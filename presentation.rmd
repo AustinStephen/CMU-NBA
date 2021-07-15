@@ -862,8 +862,7 @@ grid.raster(img)
 ---
 
 ### Linear Model: Distance doesn't have a significant effect on the score diff
-score_diff = $\beta_0$ + $\beta_1$ win_percent_diff + $\beta_2$distance + $\beta_3$rest + 
-$\beta_4$shift + $\beta_5$b2b_2nd + $\beta_6$three_in_four
+score_diff = $\beta_0$ + $\beta_1$ win_percent_diff + $\beta_2$distance + $\beta_3$rest + $\beta_4$b2b_2nd + $\beta_5$three_in_four + $\beta$'s for each shift
 
 ```{r Linear Model, echo=FALSE, fig.align = "center", fig.height = 4.5, fig.width = 6}
 img2 <- readPNG("./images/summary_visitors_model.png") 
