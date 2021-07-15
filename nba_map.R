@@ -24,6 +24,9 @@ home_stadium_coords <- data1415 %>%
 coords_and_distance <- merge(x = cumulative_distance1415,  y= home_stadium_coords,
                              by = "Team")
 
+highlight <- coords_and_distance %>%
+  filter(Team %in% c("Portland Trail Blazers","Denver Nuggets", 
+                     "Cleveland Cavaliers", "Boston Celtics"))
 
 usa <- map_data("usa")
 states <- map_data("state")
@@ -38,7 +41,12 @@ ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group
         axis.title.y=element_blank(),
         panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
         panel.grid.minor=element_blank(),plot.background=element_blank(),
-        legend.position = "bottom")
+        legend.position = "bottom") +
+  geom_point(data = highlight, aes(x=Longitude, y=Latitude,colour = "red", size = sqrt(total_distance_traveled))) +
+  geom_text(data = coords_and_distance, aes(x=Longitude, y=Latitude, 
+                                            label=ifelse(Team %in% c("Portland Trail Blazers","Denver Nuggets", 
+                                         "Cleveland Cavaliers", "Boston Celtics"),
+                             as.character(Team),'')),hjust= 1,vjust=0)
 
   
   #color = Team,
@@ -67,7 +75,6 @@ test <- teamcolors %>%
 library(airball)
 
 datos <- nba_travel(start_season = 2015, end_season = 2015)
-
 
 nba_travel_plot(data = datos,
                 season = 2015,

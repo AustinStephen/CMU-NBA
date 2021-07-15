@@ -11,15 +11,15 @@ library(ballr)
 library(dplyr)
 library(tidyverse)
 
-data1011 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1011.csv")
-data1112 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1112.csv")
-data1213 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1213.csv")
-data1314 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1314.csv")
-data1415 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1415.csv")
-data1516 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1516.csv")
-data1617 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1617.csv")
-data1718 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1718.csv")
-data1819 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1819.csv")
+data1011 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/data/regseason1011.csv")
+data1112 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/data/regseason1112.csv")
+data1213 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/data/regseason1213.csv")
+data1314 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/data/regseason1314.csv")
+data1415 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/data/regseason1415.csv")
+data1516 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/data/regseason1516.csv")
+data1617 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/data/regseason1617.csv")
+data1718 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/data/regseason1718.csv")
+data1819 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/data/regseason1819.csv")
 
 together <- rbind(data1011, data1112)
 together <- rbind(together, data1213)
@@ -67,12 +67,12 @@ together <- together %>%
   mutate(blk_diff = blk - opp_blk) %>%
   mutate(win_percent_diff = win_percent_diff *100)
   
-write_csv(together, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/together.csv")
+write_csv(together, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/data/together.csv")
 
 
 # data manipulations above. Load below ------------------------------------
 visitors <- filter(together, Visitor == TRUE)
-write_csv(visitors, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/visitors.csv")
+write_csv(visitors, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/data/visitors.csv")
 
 #STRONGEST MODEL SO FAR
 # Visitors Model ----------------------------------------------------------
@@ -271,5 +271,7 @@ ggplot(visitors, aes(x = flight_duration, y = score_diff)) +
 #facet by season, have teams gotten smarter over the years such that travel, shift, rest is less of a problem
 
 
+data_example <- visitors %>%
+  select(c(Date, Team, Opponent, Distance, Rest, shift, b2b_2nd, traveling_west, win_percent_diff, net_rating_diff, score_diff))
 
 
