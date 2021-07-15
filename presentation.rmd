@@ -200,36 +200,6 @@ Team level
 
 ---
 
-## Proxy for Fatigue
-
-- Between game distance
-
-```{r}
-together <- read_csv("matthew_data/together.csv")
-
-together %>% 
-  select("Team", "Date", "Distance", "Rest", "Route","shift","b2b_2nd") %>%
-  rename("b2b 2nd" = b2b_2nd ) %>%
-  slice(1:4) %>%
-   gt() %>%
-   tab_header(
-    title = md("**Season Distance By Team**")
-  ) %>%
-  tab_source_note(md("Data courtesy of nba.com")) %>%
-  opt_table_outline( style = "solid", width = px(5), color = "#666666") %>%
-  tab_options(table.width = pct(80))
-
-```
-
-
-???
-3 important things  
-By team and by game
-Not always from their home stadium 
-Have a lot of meta metrics like time zone shift and if it was a back to back game.
-
----
-
 ## Progress with in-game data 
 
 - Inverse correlation between wins and in-game distance
