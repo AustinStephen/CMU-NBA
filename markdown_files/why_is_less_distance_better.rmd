@@ -442,4 +442,17 @@ This is the opposite of what we would expect to see because it means distance
 had to overcome this relationship to get the negative correlation we saw.
 
 
+### Total passes
+```{r}
+team_tracking_w_box_scsores %>% 
+  ggplot(aes(x=dist_miles_off, y= ast)) + 
+  geom_point()+
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw()+ 
+  labs( title = "2013 to 2020 assists per game and offensive distance")
+
+model <- lm(ast ~ dist_miles_off, data = team_tracking_w_box_scsores)
+
+```
+
 

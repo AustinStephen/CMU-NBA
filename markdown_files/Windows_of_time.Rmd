@@ -1,0 +1,126 @@
+---
+title: "WindowsOfTime"
+author: "Austin Stephen"
+date: "7/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE }
+library(nbastatR)
+library(NBAr)
+library(ballr)
+library(tidyverse)
+library(dplyr)
+knitr::opts_chunk$set(
+  cache = TRUE,
+  echo = FALSE,
+  message = FALSE, 
+  warning = FALSE,
+  fig.height=3
+)
+
+## player game by game distance 14/15 season
+tracking_by_player_season_daily_2014_15 <- read.csv(
+  "../data/in_game_distance_data/tracking_by_player_season_daily_2014_15.csv")
+
+
+## player game by game box scores 14/15 season
+box_game_by_game_player_2014_15 <- read.csv(
+  "../data/box_scores/box_scores_game_by_game_player_2014_15.csv")
+
+
+## Player id and position map table 
+player_table <- read.csv(
+  "../data/player_tables/player_table_all_2010_to_21.csv")
+  
+## player tracking distance 
+player_tracking <- read.csv(
+  "../data/in_game_distance_data/tracking_by_player_season_summaries_2013_to_20.csv")
+
+## team tracking distance 
+team_tracking <- read.csv(
+  "../data/in_game_distance_data/tracking_by_team_season_summaries_2013_to_20.csv")
+
+## Player season box scores
+season_box_scores_player_2010_20 <- read.csv(
+  "../data/box_scores/season_box_scores_player_2010_20.csv")
+
+## Team season box scores
+season_box_scores_team_2010_20 <- read.csv(
+  "../data/box_scores/season_box_scores_team_2010_20.csv")
+
+## game by game player distance joined to player box scores.
+gbg_player_w_distance <- read_csv(
+  "../data/in_game_distance_data/in_game_dist_box_join.csv")
+
+## windows of time analysis 
+layer_5dayWindow_dist_daily_2014_15 <- read_csv(
+  "../data/in_game_distance_data/player_5dayWindow_dist_daily_2014_15.csv") %>%
+  rename(wind_5_dist = "5dayWind") %>% select(player_id, date,wind_5_dist)
+
+layer_5dayWindow_dist_daily_2014_15$date <- as.Date(
+  layer_5dayWindow_dist_daily_2014_15$date, "%m/%d/%Y")
+
+## removing all instances where player played less than 15 seconds because 
+## these are just not insightful instances 
+gbg_player_w_distance <- gbg_player_w_distance %>% filter(min > .25)
+
+
+## window
+gbg_player_w_distance_5_day_window <- merge(x = gbg_player_w_distance,
+                               y = layer_5dayWindow_dist_daily_2014_15,
+                               by.x =  c("player_id","date" ),
+                               by.y = c("player_id","date" )) %>%
+  filter(wind_5_dist != 9999) 
+
+## Adding a difference from mean 5 day window
+gbg_player_w_distance_5_day_window <- gbg_player_w_distance_5_day_window %>%
+  group_by(player_id) %>%
+  mutate(sn_avg_wind_5_dist = mean(wind_5_dist) ) %>%
+  mutate(diff_sn_avg_wind_5_dist = wind_5_dist - sn_avg_wind_5_dist )
+
+## Distance differential at a given game
+
+## Cross with Matthew's distance data to see if there is a correlation between the distance 
+#  outside of a game and distance in game.
+
+
+
+## See if teams adapt their styles to their opponents. So if defense distance is 
+# correlated with opponent offense by season average and game.
+
+## see if speed or distance differential is related to score score differential 
+
+## Scatter plot by team that includes player name showing if having 1 outlier player 
+#  leads to a decrease in the overall distance traveled.
+
+```
+
+### 5 day window
+```{r fig.height=2.5}
+## No normalizing 
+# gbg_player_w_distance_5_day_window %>%
+# ggplot(aes(x = wind_5_dist,y = dist_miles))+
+#   geom_point(alpha = .05)+
+#   geom_smooth(method="lm")
+# 
+## Adjusted for player averages
+# gbg_player_w_distance_5_day_window %>%
+# ggplot(aes(x = wind_5_dist,y = diff_from_sn_avg_dist))+
+#   geom_point(alpha = .05)+
+#   geom_smooth(method="lm")
+
+# Adjusted for player average in the window and the for the player
+gbg_player_w_distance_5_day_window %>%
+ggplot(aes(x = diff_sn_avg_wind_5_dist,y = diff_from_sn_avg_dist))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")
+
+
+```
+
+### In-game and between game mix
+```{r}
+
+```
+
