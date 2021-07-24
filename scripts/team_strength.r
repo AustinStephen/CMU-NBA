@@ -118,10 +118,11 @@ together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
   group_by(Team, season) %>%
   mutate(games_played = seq_along(game_id))
 
-## making exclusive win percent diff
+## making exclusive win percent diff NEEDS fixed
 together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
   group_by("Team","season") %>%
-  mutate(win_percent_diff = ifelse(score_diff >0,w.x-1,w.x) /pmax(1,w.x + l.x -1))
+  mutate(win_percent = ifelse(score_diff >0,w.x-1,w.x) /pmax(1,w.x + l.x -1),
+         win_percent_diff  = )
 
 ## writing to csv
 together_net_Rating_allWindows <- together_net_Rating_allWindows %>% ungroup()%>%
