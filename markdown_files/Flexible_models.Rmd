@@ -1,0 +1,18 @@
+---
+title: "Flexible models"
+author: "Austin"
+date: "7/23/2021"
+output: html_document
+---
+
+```{r}
+
+```
+
+
+
+### Random Forest Travel 
+```{r}
+
+```
+

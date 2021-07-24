@@ -1,0 +1,491 @@
+---
+title: "Creating the Best Team Strength Proxy"
+author: "Austin Stephen"
+date: "7/22/2021"
+output: html_document
+---
+```{r include = FALSE}
+library(nbastatR)
+library(NBAr)
+library(ballr)
+library(tidyverse)
+library(dplyr)
+knitr::opts_chunk$set(
+  cache = TRUE,
+  echo = FALSE,
+  message = FALSE, 
+  warning = FALSE,
+  fig.height=3
+)
+
+together_net_Rating_allWindows <- read_csv("../data/proxy_team_strength/clean_team_strength_columns.csv")
+```
+## Two Approachs to Building a Proxy for Team Strength 
+
+1. __Constrained:__ Limited to the information available to a team when they would 
+have played the game.
+    * Model uses the weighted average of the last 40 games outcomes.
+    * This model explains 13.51 percent of the variance in the response.
+2. __Unconstrained:__ All available information about the team not
+incorporated into the response is used to break down what contributed to the outcome of a given game.
+    * The model uses the outcome 30 previous games and 30 games into the future
+temporally weighted, and the season average net rating difference to 
+get a more precise understanding of the teams strength a given game.
+    * This model explains 0.1749 percent of the variation in the response.
+    * This is especially powerful in extracting information from early season 
+games because the constrained model would be only have a few samples to 
+observe the teams
+performance.
+
+A baseline constrained model that just uses the rolling win percentage difference
+between the two teams explains 5.23 percent of the variance in the response. We
+achieve a __155 percent improvement__ over this model.
+
+A baseline unconstrained model that just uses the rolling win 
+percentage difference between the teams and their average rating 
+difference for the end of the season explains 
+10.56 percent of the variance in the response. We achieve a __65 percent improvement__
+over this model.
+
+  
+### Hyperparameter tunning window size
+
+```{r fig.height= 3}
+## Running win percent diff
+# summary(lm(score_diff ~ win_percent_diff, data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ win_percent_diff + net_rating_diff , data = together_net_Rating_allWindows))
+# #Adjusted R-squared:  0.05231 => 0.1099 
+# 
+# ## Window size of 2
+# summary(lm(score_diff ~ wind_2, data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_2 + net_rating_diff , data = together_net_Rating_allWindows))
+# #Adjusted R-squared:  0.04534  =>  0.1106
+# 
+# 
+# ## Window size of 5
+# summary(lm(score_diff ~ wind_5, data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_5 + net_rating_diff , data = together_net_Rating_allWindows))
+# #Adjusted R-squared:  0.084 => 0.1272
+# 
+# ## Window size of 7
+# summary(lm(score_diff ~ wind_7, data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_7 + net_rating_diff , data = together_net_Rating_allWindows))
+# # Adjusted R-squared:  0.1007 => 0.1357
+# 
+# ## Window size of 10
+# summary(lm(score_diff ~ wind_10, data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_10 + net_rating_diff , data = together_net_Rating_allWindows))
+# # Adjusted R-squared: 0.1143 => 0.1426
+# 
+# 
+# ## Window size of 15
+# summary(lm(score_diff ~ wind_15, data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_15 + net_rating_diff , data = together_net_Rating_allWindows))
+# # Adjusted R-squared: 0.1267  => 0.1486 
+# 
+# ## Window size of 20
+# summary(lm(score_diff ~ wind_20, data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_20 + net_rating_diff , data =
+# together_net_Rating_allWindows))
+# # Adjusted R-squared: 0.1314  => 0.1501 
+# 
+# ## Window size of 25
+# summary(lm(score_diff ~ wind_25, data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_25 + net_rating_diff , data =
+# together_net_Rating_allWindows))
+# # Adjusted R-squared: 0.1336  => 0.1506
+# 
+# # # ## Window size of 30
+# summary(lm(score_diff ~ wind_30, data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_30 + net_rating_diff , data =
+# together_net_Rating_allWindows))
+# #Adjusted R-squared: 0.1351  =>  0.1511
+# # 
+# # # ## Window size of 35
+# summary(lm(score_diff ~ wind_35, data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_35 + net_rating_diff , data =
+# together_net_Rating_allWindows))
+# #  Adjusted R-squared: 0.1353   =>  0.1508
+# # 
+# # # ## Window size of 40
+# summary(lm(score_diff ~ wind_40, data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_40 + net_rating_diff , data =
+# together_net_Rating_allWindows))
+# # # # Adjusted R-squared: 0.1339  =>  0.1494 
+
+r_squared_window <- c(0.05231, 0.04534, 0.0840, 0.1007, 0.1143, 0.1267, 0.1314,
+                      0.1336, 0.1351, 0.1353, 0.1339)
+
+r_squared_window_plus_sn_avg <- c(0.1099, 0.1106, 0.1272, 0.1357, 0.1426, 0.1486,
+                                  0.1501, 0.1506, .1511, 0.1508, 0.1494)
+
+diff <- r_squared_window_plus_sn_avg - r_squared_window
+
+window_size <- c("win_pct" , "2" , "5" , "7" ,"10", "15", "20", "25", "30",
+                 "35", "40")
+window_size <- ordered(window_size, levels = c("win_pct" , "2" , "5" , "7" ,
+                                      "10", "15", "20", "25", "30", "35", "40"))
+
+plot_data <- data.frame(r_squared_window,r_squared_window_plus_sn_avg, window_size, diff)
+
+plot_data %>% ggplot()+
+  geom_point(y=r_squared_window, x=window_size, aes(color = "window"))+
+  geom_point(y=r_squared_window_plus_sn_avg, x= window_size, aes(color = "window & season_avg"))+
+  geom_point(y=diff, x= window_size, aes(color = "additional varriance"))+
+  geom_line(aes(y=r_squared_window,x=window_size ), group = 1, color = "green")+
+  geom_line(aes(y=r_squared_window_plus_sn_avg, x= window_size), group = 1, color = "darkturquoise")+
+  geom_line(aes(y=diff, x= window_size), group = 1, color = "red")+
+  labs(color = "Predictor",
+       y= "r-squared",
+       x ="Window size",
+       caption= "* each subset of prior games got its own coeff",
+       title = "Variance removed from entire dataset")+
+  theme_bw()
+
+
+```
+
+The optimal window size appears to be 30. This makes sense because too large
+of a window and you obscure the entire point of having the window.
+
+### Temporal Weighting
+Larger windows can be improved by allowing them to assign different weights to 
+depending on how close it is to the current game of interest.
+
+```{r}
+
+# ## Window size 10 hollow
+# summary(lm(score_diff ~ wind_2 + wind_5_hollow + wind_7_hollow + wind_10_hollow,
+#            data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_2 + wind_5_hollow + wind_7_hollow + wind_10_hollow
+#            + net_rating_diff ,
+#            data = together_net_Rating_allWindows))
+# # Adjusted R-squared: 0.1145 => 0.1427
+# 
+# 
+# ## Window size of 30 hollow
+# summary(lm(score_diff ~ wind_5 + wind_10_hollow_5 + wind_15_hollow +
+#             wind_20_hollow + wind_25_hollow + wind_30_hollow, data =
+#         together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_5 + wind_10_hollow_5 + wind_15_hollow +
+#           wind_20_hollow + wind_25_hollow + wind_30_hollow +
+#           net_rating_diff , data = together_net_Rating_allWindows))
+# #Adjusted R-squared:  0.140  =>  0.1552
+# 
+# ## Window size of 35 hollow
+#  summary(lm(score_diff ~ wind_5 + wind_10_hollow_5 + wind_15_hollow +
+#  wind_20_hollow + wind_25_hollow + wind_30_hollow + wind_35_hollow,
+#  data = together_net_Rating_allWindows))
+#  summary(lm(score_diff ~ wind_5 + wind_10_hollow_5 + wind_15_hollow + wind_20_hollow +
+#              wind_25_hollow + wind_30_hollow + wind_35_hollow + net_rating_diff ,
+#           data = together_net_Rating_allWindows))
+# # Adjusted R-squared:  0.1415  =>  0.1559
+# 
+# # Window size of 40 hollow
+# summary(lm(score_diff ~ wind_5 + wind_10_hollow_5 + wind_15_hollow + wind_20_hollow +
+#          wind_25_hollow + wind_30_hollow + wind_35_hollow + wind_40_hollow,
+#          data = together_net_Rating_allWindows))
+# summary(lm(score_diff ~ wind_5 + wind_10_hollow_5 + wind_15_hollow + wind_20_hollow +
+#         wind_25_hollow + wind_30_hollow + wind_35_hollow + wind_40_hollow + net_rating_diff,
+#          data = together_net_Rating_allWindows))
+# # Adjusted R-squared:  0.142  =>  0.156
+
+r_squared_window <- c(0.1145, 0.140, 0.1415, 0.142)
+r_squared_window_plus_sn_avg <- c(0.1427, 0.1552, 0.1559, 0.156)
+window_size <- c("wind_10", "wind_30", "wind_35", "wind_40")
+window_size <- ordered(window_size, levels = c("wind_10", "wind_30", "wind_35", 
+                                               "wind_40"))
+plot_data <- data.frame(r_squared_window,r_squared_window_plus_sn_avg, window_size)
+
+plot_data %>% ggplot()+
+  geom_point(y=r_squared_window, x=window_size, aes(color = "window"))+
+  geom_point(y=r_squared_window_plus_sn_avg, x= window_size, aes(color = "window & season_avg"))+
+  geom_line(aes(y=r_squared_window,x=window_size ), group = 1, color = "green")+
+  geom_line(aes(y=r_squared_window_plus_sn_avg, x= window_size), group = 1, 
+            color = "darkturquoise")+
+  labs(color = "Predictor",
+       y= "r-squared",
+       x ="Window size",
+       caption= "* each subset of prior games got its own coeff",
+       title = "Variance removed from entire dataset")+
+  theme_bw()
+
+```
+
+Now the benefit of larger windows stops at a size of 40 instead of 30. It also 
+explains an additional 1/2 percent of the variance in the response.
+
+### Inside the model  
+It is fair to ask if the model is actually assigning the temporal weights in the 
+way I asserted would add predictive value. The coefficients here show how 
+relevant a window of time is to the game outcome.
+```{r echo = TRUE}
+# Coefficients:
+#                    Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)       -3.600e-16  9.095e-02   0.000  1.00000    
+# wind_1_5          3.399e-02  1.976e-03  17.203  < 2e-16 ***
+# wind_6_10         2.587e-02  2.082e-03  12.423  < 2e-16 ***
+# wind_11_15        1.870e-02  2.173e-03   8.606  < 2e-16 ***
+# wind_16_20        1.224e-02  2.273e-03   5.384 7.35e-08 ***
+# wind_21_25        1.018e-02  2.360e-03   4.316 1.60e-05 ***
+# wind_26_30        1.147e-02  2.481e-03   4.623 3.80e-06 ***
+# wind_31_35        9.338e-03  2.589e-03   3.607  0.00031 ***
+# wind_36_40        5.312e-03  2.634e-03   2.017  0.04376 *  
+# net_rating_diff   2.763e-01  1.548e-02  17.849  < 2e-16 ***
+# ---
+```
+The regression is doing exactly what we expect by weighting more recent games 
+more heavily since they are contributing more information about the current state of the team.
+
+### Decreasing relevance of the season average as observations increase  
+
+As the season progresses we get more observations of the team, so we want
+to shift importance off the final season net rating onto the rolling 
+weighted window. For example, when we have only seen the team play once or 
+twice we want the season average rating to make up almost all of the prediction. 
+However, once we have the weighted average of the past 40 games the 
+season average should no longer make up nearly all of the prediction.
+A simple linear model has fixed coefficients cannot change in this 
+way. So I made an interaction with the number games the team has played in 
+the season so the model would make this tradeoff automatically. This improved 
+the performance of the model.
+
+```{r}
+# 
+# summary(lm(score_diff ~ wind_5 + wind_10_hollow_5 + wind_15_hollow + wind_20_hollow +
+#         wind_25_hollow + wind_30_hollow + wind_35_hollow + wind_40_hollow +
+#         net_rating_diff + games_played + net_rating_diff * games_played,
+#          data = together_net_Rating_allWindows))
+
+
+r_squared_window_plus_sn_avg <- c(0.1427, 0.1552, 0.1559, 0.156, 0.157)
+window_size <- c("wind_10", "wind_30", "wind_35", "wind_40", "wind_40_adj_sn")
+window_size <- ordered(window_size, levels = c("wind_10", "wind_30", "wind_35", 
+                                               "wind_40", "wind_40_adj_sn"))
+plot_data <- data.frame(r_squared_window_plus_sn_avg, window_size)
+
+plot_data %>% ggplot(aes(y=r_squared_window_plus_sn_avg, x= window_size))+
+  geom_point()+
+  geom_line( group = 1)+
+  labs(color = "Predictor",
+       y= "r-squared",
+       x ="Window size",
+       caption= "* each subset of prior games got its own coeff",
+       title = "Variance removed from entire dataset")+
+  theme_bw()
+
+
+```
+
+This allows us to explain an additional .1 percent of the variation in the response.  
+
+
+Again looking inside the model we can see it is behaving exactly as expected as 
+the season goes on the importance of the season average is decreased.
+```{r eacho = TRUE}
+# Coefficients:
+#                                Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                   0.0137248  0.1821098   0.075  0.93992    
+# wind_5                        0.0335713  0.0019764  16.986  < 2e-16 ***
+# wind_10_hollow_5              0.0256638  0.0020816  12.329  < 2e-16 ***
+# wind_15_hollow                0.0190647  0.0021731   8.773  < 2e-16 ***
+# wind_20_hollow                0.0129332  0.0022763   5.682 1.35e-08 ***
+# wind_25_hollow                0.0113009  0.0023688   4.771 1.85e-06 ***
+# wind_30_hollow                0.0128638  0.0024951   5.156 2.55e-07 ***
+# wind_35_hollow                0.0112371  0.0026151   4.297 1.74e-05 ***
+# wind_40_hollow                0.0077346  0.0026771   2.889  0.00387 ** 
+# net_rating_diff               0.3831956  0.0264407  14.493  < 2e-16 ***
+# games_played                 -0.0003665  0.0040991  -0.089  0.92875    
+# net_rating_diff:games_played -0.0031451  0.0006307  -4.987 6.20e-07 ***
+```
+
+### Unconstrained Centered Window 
+Now we are expanding model by using all of the previous techniques 
+but also using the outcomes of future games to get a more accurate picture of 
+how good the team is at the current point in time.  
+```{r}
+# ## Window size of 10 centered
+# summary(lm(score_diff ~ wind_10_center + net_rating_diff , 
+#            data = together_net_Rating_allWindows))
+# # Adjusted R-squared: 0.1241 => 0.1487
+# 
+# # Window size of 30 hollow_centered
+# summary(lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + 
+#              hollow_wind30_cent + net_rating_diff,
+#          data = together_net_Rating_allWindows))
+# 
+# ## Window size of 40 hollow_centered
+# summary(lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + 
+#           hollow_wind30_cent + hollow_wind40_cent + net_rating_diff,
+#           data = together_net_Rating_allWindows))
+# 
+# ## window size of 50 hollow_centered
+# summary(lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + hollow_wind30_cent+
+#            hollow_wind40_cent + hollow_wind50_cent + net_rating_diff ,
+#            data = together_net_Rating_allWindows))
+# 
+# ## window size of 60 hollow_centered 
+# summary(lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + hollow_wind30_cent+
+#            hollow_wind40_cent + hollow_wind50_cent + hollow_wind60_cent +
+#              net_rating_diff,
+#            data = together_net_Rating_allWindows))
+# 
+# 
+# ## window size of 60 hollow_centered full
+# summary(lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + hollow_wind30_cent+
+#            hollow_wind40_cent + hollow_wind50_cent + hollow_wind60_cent + net_rating_diff +
+#            games_played * net_rating_diff,
+#            data = together_net_Rating_allWindows))
+
+
+
+r_squared_window_plus_sn_avg <- c( 0.157, 0.1683, 0.171, 0.1727, 0.1749 )
+
+window_size <- c("wind_40_adj_sn", "wind_30_future", "wind_40_future",
+               "wind_50_future", "wind_60_future" )
+
+window_size <- ordered(window_size, levels = c("wind_40_adj_sn", 
+                "wind_30_future",  "wind_40_future", "wind_50_future",
+                "wind_60_future" ))
+
+plot_data <- data.frame(r_squared_window_plus_sn_avg, window_size)
+
+plot_data %>% ggplot(aes(y=r_squared_window_plus_sn_avg, x= window_size))+
+  geom_point()+
+  geom_line( group = 1)+
+  labs(color = "Predictor",
+       y= "r-squared",
+       x ="Window size",
+       caption= "* each subset of prior games got its own coeff",
+       title = "Variance removed from entire dataset")+
+  theme_bw()
+
+```
+
+This allowed us to explain a little more than 2 percent additional variance in 
+the response.
+
+We need to justify stopping at a 60 game window which might mean making 70 and 80.
+
+
+## 10-fold cross validation
+With a more complex model for team strength we needed to ensure we were not 
+just overfitting to the data. The centered window was the best in 10-fold 
+cross validation and will give us the best proxy for team strength.
+
+```{r}
+## Finding the best proxy for team strength 
+set.seed(2015)
+
+## Creating the test folds
+together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
+  mutate(test_fold = sample(rep(1:10, length.out = n())))
+
+## generates the holdout predictions
+holdout_predictions <- 
+  map_dfr(unique(together_net_Rating_allWindows$test_fold), 
+          function(holdout) {
+            # Separate test and training data:
+            test_data <- together_net_Rating_allWindows %>% filter(test_fold == holdout)
+            train_data <- together_net_Rating_allWindows %>% filter(test_fold != holdout)
+            
+            
+            # Train models:
+            ## mean alone
+            mean_alone <- lm(game_net_rating ~ net_rating_diff , data = train_data)
+            
+            ## window 30
+            w_30 <- lm(game_net_rating ~ wind_30 + net_rating_diff , data = train_data)
+            
+            ## window 35
+            w_35 <- lm(game_net_rating ~ wind_35 + net_rating_diff , data = train_data)
+            
+            ## window 40
+            w_40 <- lm(game_net_rating ~ wind_35 + net_rating_diff , data = train_data)
+            
+            ## window 30 temporal
+            w30_temp <- lm(game_net_rating ~ wind_5 + wind_10_hollow_5 + wind_15_hollow + 
+                           wind_20_hollow + wind_25_hollow + wind_30_hollow +
+                           net_rating_diff , data = train_data)
+            
+            ## window 35 temporal
+            w35_temp <- lm(game_net_rating ~ wind_5 + wind_10_hollow_5 + wind_15_hollow + 
+                wind_20_hollow + wind_25_hollow + wind_30_hollow + wind_35_hollow +
+                           net_rating_diff , data = train_data)
+            
+            ## window 40 temporal
+            w40_temp <- lm(game_net_rating ~ wind_5 + wind_10_hollow_5 + wind_15_hollow + 
+                wind_20_hollow + wind_25_hollow + wind_30_hollow + wind_35_hollow +
+                  wind_40_hollow + net_rating_diff , data = train_data)
+            
+            ## Window 40 temporal weighted
+            w40_tp <- lm(game_net_rating ~  wind_5 + wind_10_hollow_5 + wind_15_hollow +
+            wind_20_hollow + wind_25_hollow + wind_30_hollow + wind_35_hollow +
+            wind_40_hollow + net_rating_diff  + games_played * net_rating_diff,
+            data = together_net_Rating_allWindows )
+            
+            ## Window 40 temporal centered
+            w40_temp_cen <- lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + 
+                    hollow_wind30_cent + hollow_wind40_cent + net_rating_diff,
+                    data = together_net_Rating_allWindows)
+            
+            ## Window 50 temporal centered
+            w50_temp_cen <- lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + 
+                    hollow_wind30_cent + hollow_wind40_cent + hollow_wind50_cent +
+                    net_rating_diff,
+                    data = together_net_Rating_allWindows)
+            
+            ## Window 60 temporal centered
+            w60_temp_cen <- lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + 
+                    hollow_wind30_cent + hollow_wind40_cent + hollow_wind50_cent +
+                    hollow_wind60_cent + net_rating_diff,
+                    data = together_net_Rating_allWindows)
+            
+            
+            # Return tibble of holdout results:
+            tibble(sn_avg = predict(mean_alone, newdata = test_data),
+                   w_30 = predict(w_30, newdata = test_data),
+                   w_35 = predict(w_35, newdata = test_data),
+                   w_40 = predict(w_40, newdata = test_data),
+                   w30_t = predict(w30_temp, newdata = test_data),
+                   w35_t = predict(w35_temp, newdata = test_data),
+                   w40_t = predict(w40_temp, newdata = test_data),
+                   w40_tp = predict(w40_tp, newdata = test_data),
+                   w40_tc = predict(w40_temp_cen, newdata = test_data),
+                   w50_tc = predict(w50_temp_cen, newdata = test_data),
+                   w60_tc = predict(w60_temp_cen, newdata = test_data),
+                   test_actual = test_data$score_diff, 
+                   test_fold = holdout) 
+          })
+
+holdout_predictions <- holdout_predictions %>%
+  pivot_longer(sn_avg:w60_tc, 
+               names_to = "type", values_to = "test_preds")
+
+holdout_predictions$type <-  ordered(holdout_predictions$type, c("sn_avg","w_2","w_5",
+                        "w_7", "w_10", "w_15", "w_20", "w_25","w_30","w_35", 
+                        "w_40", "w30_t", "w35_t","w40_t","w40_tp", "w40_tc", 
+                        "w50_tc", "w60_tc"))
+holdout_predictions$test_fold <- as.factor(holdout_predictions$test_fold)
+
+
+holdout_predictions %>% 
+  group_by(type, test_fold) %>%
+  summarize(rmse =
+              sqrt(mean((test_actual - test_preds)^2))) %>% 
+  ggplot(aes(x = type, y = rmse)) + 
+  geom_point() + theme_bw() +
+  stat_summary(fun = mean, geom = "point", 
+               color = "red") + 
+  stat_summary(fun.data = mean_se, geom = "errorbar",
+               color = "red") +
+  labs(title = "Game net rating difference as response",
+       caption = "t = temporal weighting
+       tc = temporal weighting and using future games
+       tp = temporal weighting and season average adjustment"
+       ,
+       x = "model")
+```
+
+
+
