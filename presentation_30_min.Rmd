@@ -30,8 +30,6 @@ library(airball)
 library(gridExtra)
 library(png)
 library(grid)
-
- 
 ```
 
 ```{r xaringan-themer, include=FALSE, warning=FALSE }
