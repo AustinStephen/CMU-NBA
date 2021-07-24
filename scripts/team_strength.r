@@ -1,6 +1,8 @@
 ## PURPOSE: transform the windows dataset to build the proxy for team stength
 ## AUTHOR: Austin
-
+library(readr)
+library(tidyverse)
+library(dplyr)
 
 together_net_Rating_allWindows <- read_csv(
   "data/proxy_team_strength/together_net_Rating_allCenters.csv") %>%
@@ -23,7 +25,7 @@ together_net_Rating_allWindows <- read_csv(
          wind_20_center = net_rating_Center20gameWindow - opp_net_rating_Center20gameWindow,
          wind_30_center = net_rating_Center30gameWindow - opp_net_rating_Center30gameWindow,
          wind_40_center = net_rating_Center40gameWindow - opp_net_rating_Center40gameWindow,
-         wind_50_center = net_rating_Center50gameWindow - opp_net_rating_Center50gameWindow ,
+         wind_50_center = net_rating_Center50gameWindow - opp_net_rating_Center50gameWindow,
          wind_60_center = net_rating_Center60gameWindow - opp_net_rating_Center60gameWindow)
 
 
@@ -126,7 +128,7 @@ together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
 
 ## writing to csv
 together_net_Rating_allWindows <- together_net_Rating_allWindows %>% ungroup()%>%
-  select("Team","Opponent", "Date", "game_id", "season","game_net_rating",
+  select("Team","Opponent","Visitor", "Date", "game_id", "season","game_net_rating",
          "win_percent_diff", "games_played", "net_rating_diff", "score_diff",
          "hollow_wind60_cent", "hollow_wind50_cent", "hollow_wind40_cent", 
          "hollow_wind30_cent", "hollow_wind20_cent", "wind_10_center", 
