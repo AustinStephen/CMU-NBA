@@ -1,15 +1,15 @@
 ---
-title: "<span style='font-size: 70px'>Measuring and Predicting Player Fatigue in the NBA </style>"
+title: "<span style='font-size: 70px'>Modeling Player Fatigue in the NBA </style>"
 author: "<span style='font-size: 35px'>Austin Stephen, Matthew Yep and Grace Fain </style>"
-date: "<span style='font-size: 35px'> 7/13/2021 </style>"
+date: "<span style='font-size: 35px'> 7/30/2021 </style>"
 output:
   xaringan::moon_reader:
     css: xaringan-themer.css
-    
 ---
 
 
-```{r setup, include=FALSE}
+```{r  xaringan-themer, setup, include=FALSE}
+library(xaringanthemer)
 knitr::opts_chunk$set(
   echo = FALSE,
   cache = FALSE,
@@ -45,57 +45,62 @@ style_mono_accent(base_color = "#cc002c",
   )
 ```
 
-## Why Fatigue?
+## Why Fatigue?  
 
-- Injury Prevention  
-
-- Optimized Performance 
+<span> 1.</span> Player Performance
 
 ???
-Very clearly established by the lit  
+The literature is very clear that insufficient rest worsens althlete preformance. 
 
-"Early identification and subsequent management of fatigue may prevent detrimental physical and physiological adaptations often associated with injury and enhance athletic performance and player availability"
+"Early identification and subsequent management of fatigue may prevent detrimental 
+physical and physiological adaptations often associated with injury and enhance 
+athletic performance and player availability"
 Edwards et al The National Center for Biotechnology Information
 
 --
 
-```{r fig.height = 4, out.extra = 'style= "border:solid; border-color: #666666 "' }
-img <- readPNG("img/fatigue.png")
- grid.raster(img)
-
-```
-
-???
-Image courtsey of Taylor et al.
-
----
-
-## Project Objectives 
-
-1. Measure player fatigue  
-
-???
-Identify a proxy for fatigue and link it to in game performance.
+<span> 2. </span> Schedule Fairness  
 
 --
-  
-2. Build a model that predict the impact of fatigue on a given 
-game or multi-game sequence.  
 
 
-???
-This model can used by teams to examine their roster and match-ups and gain insights into 
-how differnt factors are influencing their teams performance
+INSERT GAPHIC AND DISTANCE TRAVELED B2B DISCUSSION
 
 ---
 
-## What is Fatigue
+## Findings  
+
+1. In-game distance measures currently lack the granularity to study player fatigue 
+
+--
+
+2. A subset of schedule induced factors impact game outcomes 
+
+--
+
+3. Impact of travel has decreased over time 
+
+  
+
+???
+1. In-game distance measures lack the granularity to measure player fatigue.
+
+2. Only a few schedule induced factors have a measurable impact on game outcomes
+
+3. This could be due to 
+
+---
+
+## What is Fatigue?
 
 - Cannot use direct measures  
 
 --
 
-- Identify a proxy
+- Identify events that fatigue players
+--
+
+  - Ex. Distance run, timezone change, etc.
 
 ???
 You cannot identify a proxy for something you don't understand.
@@ -106,16 +111,19 @@ of the nervous system and contractile properties of muscles over time"
 Edwards et al. The National Center for Biotechnology Information
 
 In a perfect world we would directly measure an NBA players internal homeostasis
-either with hematological techniques or with sensors that measure heart rate. However, players cannot wear heart rate monitors or tracking equipment in games and we certainly don't have data about in/post-game blood samples so we need a proxy to measure how fatigued a player was by in game events.
+either with hematological techniques or with sensors that measure heart rate. 
+However, players cannot wear heart rate monitors or tracking equipment in 
+games and we certainly don't have data about in/post-game blood samples 
+so we need a proxy to measure how fatigued a player was by in game events.
 
 
 ---
 
-## Proxy for Fatigue
+## Sources of Fatigue
 
-- In-game distance  
+1. In-game events  
 
-- Between game distance
+2. Between game events
 
 ???
 2 major sources for measuring volume of strain that could induce player fatigue.
@@ -123,9 +131,7 @@ either with hematological techniques or with sensors that measure heart rate. Ho
 
 ---
 
-## Proxy for Fatigue   
-
-- In-game distance  
+## In-Game Distance  
 
 ```{r}
  tracking_player <- read_csv(
@@ -160,41 +166,120 @@ Gen by computer vision
 Game by game  
 Player level  
 
-
 ---
 
-## Proxy for Fatigue
+## In-Game Distance 
 
-- In-game distance  
+- How does player distance relate to game outcomes
 
+AUSTIN ADD YOUR STUFF
 ```{r}
-tracking_team <- read_csv(
-  "data/in_game_distance_data/tracking_by_team_season_summaries_2013_to_20.csv")
 
- tracking_team %>%
-   select(c("team_name","w","l", "dist_miles","dist_miles_off", "dist_miles_def",
-            "avg_speed","avg_speed_off","avg_speed_def")) %>%
-   rename("Team" = team_name,
-          "Distance (mi)" = dist_miles,
-          "Distance Offense"  = dist_miles_off,
-          "Distance Defense" = dist_miles_def,
-          "Speed (mph)" = avg_speed,
-          "Speed Offense" = avg_speed_off,
-          "Speed Defense" = avg_speed_def) %>%
-   slice(1:4) %>%
-   gt() %>%
-   tab_header(
-    title = md("**Season Distance By Team**")
-  ) %>%
-  tab_source_note(md("Data courtesy of nba.com and Second Spectrum")) %>%
-  opt_table_outline( style = "solid", width = px(5), color = "#666666") %>%
-  tab_options(table.width = pct(80))
 ```
 
-???
-2 key differences 
-Season summaries 
-Team level
+---
+
+## In-game Distance 
+
+- How does player distance relate to game outcomes
+AUSTIN ADD YOUR STUFF
+```{r}
+
+```
+
 
 ---
+
+## In-Game Distance 
+
+- How does player distance relate to game outcomes
+AUSTIN ADD YOUR STUFF
+
+```{r}
+
+```
+
+---
+
+---
+
+## In-Game Distance 
+
+- How does player distance relate to game outcomes
+GRACE ADD your stuff
+
+---
+
+## In-Game Distance 
+
+- How does player distance relate to game outcomes
+GRACE ADD your stuff
+
+---
+
+## Between Game Events 
+ MATTHEW INTRODUCE DATA
+
+???
+Transition by saying in game events are only half the picture.
+
+---
+
+## Between Game Events 
+
+GRACE T-TEST HERE
+
+
+---
+
+## Between Game Events
+
+AUSTIN INTRODUCE THE NEED TO CONTROL FOR TEAM STRENGTH 
+
+---
+
+## Modeling for Team Strength
+
+AUSTIN INTRODUCE 2 CONCEPTS FOR MODELS AND WHY WE FOCUSED ON TYPE 2
+
+---
+
+## Modeling Team Strength 
+
+AUSTIN EXPLAIN OUR MODEL
+
+---
+
+## Modeling Team Strength 
+
+AUSTIN SHOW OUR MODELS IMPORVED RESULTS
+
+---
+## Mesuring the Impact of Between Game Events 
+
+MATTHEW SHOW OUR COEFFCICENTS 
+
+---
+## Mesuring the Impact of Between Game Events 
+
+MATTHEW SHOW OUR COEFFCICENTS OVER THE SEASONS
+
+---
+## Flexible Modeling Techniques 
+
+GRACE TALK about the modeling techniques we tried
+
+--
+## Flexible Modeling Techniques 
+
+GRACE TALK about the modeling techniques we tried
+
+--
+How Can Teams Use This Information?
+
+--
+Future Work
+
+
+
 
