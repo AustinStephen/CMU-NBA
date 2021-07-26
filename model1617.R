@@ -143,7 +143,7 @@ regseason1617 <- regseason1617 %>%
 
 write_csv(regseason1617, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1617.csv")
 
-regseason1617 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1617.csv")
+regseason1617 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1617.csv")
 
 ratings1617 <- get_general(
   season = 2016,
@@ -186,7 +186,7 @@ regseason1617 <- regseason1617 %>%
   
 
 performance1617 <- get_general(
-  season = 2013,
+  season = 2016,
   type = "Team",
   measure_type = "Base",
   per_mode = "PerGame",
@@ -235,9 +235,7 @@ regseason1617 <- regseason1617 %>%
   rename(opp_stl = "stl.y") %>%
   rename(opp_blk = "blk.y")
 
-write_csv(regseason1617, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1617.csv")
-
-data1617 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1617.csv")
+write_csv(regseason1617, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/regseason1617.csv")
 
 
 #keep track of cumulative travel 
@@ -302,6 +300,9 @@ test_east_visitor <- select(visitors, c(traveling_east, adjusted_score_diff)) %>
 #opponent record
 #opponent avg score diff
 #expected outcome T or F
+
+
+  
 
 
 

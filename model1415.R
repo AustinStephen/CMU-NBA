@@ -130,7 +130,7 @@ regseason1415 <- regseason1415 %>%
 
 write_csv(regseason1415, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1415.csv")
 
-regseason1415 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1415.csv")
+regseason1415 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1415.csv")
 
 ratings1415 <- get_general(
   season = 2014,
@@ -221,7 +221,7 @@ regseason1415 <- regseason1415 %>%
   rename(opp_stl = "stl.y") %>%
   rename(opp_blk = "blk.y")
 
-write_csv(regseason1415, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1415.csv")
+write_csv(regseason1415, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/regseason1415.csv")
 
 
   

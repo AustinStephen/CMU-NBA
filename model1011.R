@@ -1,5 +1,4 @@
 
-
 # Info about flight distance, time, direction, coordinates
 travel1011 <- nba_travel(start_season = 2011,
                          end_season = 2011,
@@ -131,12 +130,12 @@ regseason1011 <- regseason1011 %>%
 regseason1011 <- regseason1011 %>%
   mutate(win_percent_diff = w_lpercent - opp_win_percent)
 
-write_csv(regseason1011, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1011.csv")
+write_csv(regseason1011, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1011.csv")
 
-regseason1011 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1011.csv")
+regseason1011 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1011.csv")
 
 ratings1011 <- get_general(
-  season = 2014,
+  season = 2010,
   type = "Team",
   measure_type = "Advanced",
   per_mode = "Totals",
@@ -225,4 +224,8 @@ regseason1011 <- regseason1011 %>%
   rename(opp_stl = "stl.y") %>%
   rename(opp_blk = "blk.y")
 
-write_csv(regseason1011, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1011.csv")
+write_csv(regseason1011, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/regseason1011.csv")
+
+
+  
+  

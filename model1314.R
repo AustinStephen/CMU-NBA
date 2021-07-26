@@ -107,7 +107,7 @@ for (i in c(1:nrow(regseason1314))) {
 regseason1314 <- regseason1314 %>%
   mutate(adjusted_score_diff = adj_score_diffs1314)
 
-dtd_records1314 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/record_by_day_2013_14_season.csv")
+dtd_records1314 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/record_by_day_2013_14_season.csv")
 
 dtd_records1314$Team <- stringr::str_replace(dtd_records1314$team, '\\*', '') 
 
@@ -132,12 +132,12 @@ regseason1314 <- regseason1314 %>%
 regseason1314 <- regseason1314 %>%
   mutate(win_percent_diff = w_lpercent - opp_win_percent)
 
-write_csv(regseason1314, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1314.csv")
+write_csv(regseason1314, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1314.csv")
 
-regseason1314 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1314.csv")
+regseason1314 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1314.csv")
 
 ratings1314 <- get_general(
-  season = 2014,
+  season = 2013,
   type = "Team",
   measure_type = "Advanced",
   per_mode = "Totals",
@@ -225,7 +225,7 @@ regseason1314 <- regseason1314 %>%
   rename(opp_stl = "stl.y") %>%
   rename(opp_blk = "blk.y")
 
-write_csv(regseason1314, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1314.csv")
+write_csv(regseason1314, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/regseason1314.csv")
 
 
 

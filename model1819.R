@@ -138,7 +138,7 @@ regseason1819 <- regseason1819 %>%
 
 write_csv(regseason1819, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1819.csv")
 
-regseason1819 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1819.csv")
+regseason1819 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1819.csv")
 
 ratings1819 <- get_general(
   season = 2018,
@@ -181,7 +181,7 @@ regseason1819 <- regseason1819 %>%
 
 
 performance1819 <- get_general(
-  season = 2013,
+  season = 2018,
   type = "Team",
   measure_type = "Base",
   per_mode = "PerGame",
@@ -230,7 +230,7 @@ regseason1819 <- regseason1819 %>%
   rename(opp_stl = "stl.y") %>%
   rename(opp_blk = "blk.y")
 
-write_csv(regseason1819, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1819.csv")
+write_csv(regseason1819, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/regseason1819.csv")
 
 
 

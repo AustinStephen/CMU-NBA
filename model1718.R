@@ -138,7 +138,7 @@ regseason1718 <- regseason1718 %>%
 
 write_csv(regseason1718, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1718.csv")
 
-regseason1718 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1718.csv")
+regseason1718 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1718.csv")
 
 ratings1718 <- get_general(
   season = 2017,
@@ -180,7 +180,7 @@ regseason1718 <- regseason1718 %>%
   mutate(pace_diff = pace - opp_pace)
 
 performance1718 <- get_general(
-  season = 2013,
+  season = 2017,
   type = "Team",
   measure_type = "Base",
   per_mode = "PerGame",
@@ -229,7 +229,7 @@ regseason1718 <- regseason1718 %>%
   rename(opp_stl = "stl.y") %>%
   rename(opp_blk = "blk.y")
 
-write_csv(regseason1718, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1718.csv")
+write_csv(regseason1718, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/regseason1718.csv")
 
 
 

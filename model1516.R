@@ -131,9 +131,9 @@ regseason1516 <- regseason1516 %>%
 regseason1516 <- regseason1516 %>%
   mutate(win_percent_diff = w_lpercent - opp_win_percent)
 
-write_csv(regseason1516, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1516.csv")
+write_csv(regseason1516, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1516.csv")
 
-regseason1516 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1516.csv")
+regseason1516 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1516.csv")
 
 ratings1516 <- get_general(
   season = 2015,
@@ -224,7 +224,7 @@ regseason1516 <- regseason1516 %>%
   rename(opp_stl = "stl.y") %>%
   rename(opp_blk = "blk.y")
 
-write_csv(regseason1516, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/regseason1516.csv")
+write_csv(regseason1516, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/regseason1516.csv")
 
 
 
