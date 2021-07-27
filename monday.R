@@ -11,7 +11,7 @@ together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
   mutate(windowed_distance_advantage = (windowed_distance_diff) < 0)
 
 #Using just net_rating_diff
-summary(lm(game_net_rating ~ net_rating_diff*games_played + three_in_four 
+summary(lm(game_net_rating ~ net_rating_diff+ three_in_four +  
            + travel_3_hours_back + rest_diff,
            data = together_net_Rating_allWindows))
 
@@ -19,18 +19,49 @@ summary(lm(game_net_rating ~ net_rating_diff*games_played + three_in_four
 # Using centered hollowed net ratings -------------------------------------
 summary(lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + hollow_wind30_cent+
              hollow_wind40_cent + hollow_wind50_cent + hollow_wind60_cent +
-              + three_in_four + travel_3_hours_back + rest_diff,
+              + three_in_four + travel_3_hours_back + rest_diff + net_rating_diff *games_played,
            data = together_net_Rating_allWindows))
 
 
 # Using hollowed net ratings ----------------------------------------------
 summary(lm(game_net_rating ~ wind_5 + wind_10_hollow_5 + wind_15_hollow + wind_20_hollow +
      wind_25_hollow + wind_30_hollow + wind_35_hollow + wind_40_hollow
-      + three_in_four + travel_3_hours_back + rest_diff,
+      + three_in_four + travel_3_hours_back + rest_diff + + net_rating_diff *games_played,
    data = together_net_Rating_allWindows))
+
+#Random Effects Model 
+#SEEMS LIKE THESE ARENT WORKING
+together2 <- together_net_Rating_allWindows %>%
+  mutate(visitor_year = paste0(visitor, "-", season)) %>%
+  mutate(home_year = paste0(Opponent, "-", season)) 
+
+travel_lmer <- lmer(game_net_rating ~ net_rating_diff+ three_in_four +  
+                      + travel_3_hours_back + rest_diff 
+                    + (1|visitor_year) + (1|home_year), 
+                    data = together2)
+
+summary(travel_lmer)
+
+ranef(travel_lmer)
+
+#Comparing pre and post 2015
+
+pre15 <- filter(together_net_Rating_allWindows, season %in% c("2010-11","2011-12","2012-13","2013-14","2014-15"))
+post15 <- filter(together_net_Rating_allWindows, season %in% c("2015-16","2016-17","2017-18","2018-19"))
+
+summary(lm(game_net_rating ~ net_rating_diff+ three_in_four +  
+             + travel_3_hours_back + rest_diff, 
+               data = pre15))
+
+summary(lm(game_net_rating ~ net_rating_diff+ three_in_four +  
+             + travel_3_hours_back + rest_diff, 
+                data = post15))
+
+summary(post15_lm)
 
 
 # Data for error bar plots ------------------------------------------------
+#DO THESE ONCE WE DECIDE WHAT STRENGTH PROXY TO USE
 summ <- summary(travel_lm)
 coefficients <- c("intercept", "Game 1-5", "Game 6-10", 
                   "Game 11-15", "Game 16-20", 

@@ -156,10 +156,6 @@ visitors %>%
   theme_bw() +
   labs(x = "Predictions", y = "Observed Score Diff")
 
-
-check <- together %>%
-  select(c(season, four_in_five)) %>%
-  group_by(season) %>%
   
 
 
