@@ -60,7 +60,12 @@ team_boxscores1617 <- get_team_boxscore(2016) %>%
   subset(select = season_year:plus_minus) %>%
   mutate(Date = substr(game_date, 0, 10)) %>%
   rename(Team = team_name) %>%
-  select(c(Date, game_id,Team, matchup, plus_minus)) #Patrick Chodowski
+  select(c(Date, game_id,Team, matchup, plus_minus))  %>% #Patrick Chodowski 
+mutate(Team = case_when(
+  Team == "LA Clippers" ~ "Los Angeles Clippers",
+  TRUE ~ Team)
+)
+
 
 
 regseason1617 <- merge(x = regseason1617, y = team_boxscores1617,
@@ -111,11 +116,9 @@ for (i in c(1:nrow(regseason1617))) {
 regseason1617 <- regseason1617 %>%
   mutate(adjusted_score_diff = adj_score_diffs1617)
 
-dtd_records1617 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/record_by_day_2016_17_season.csv")
+dtd_records1617 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/record_by_day_2016_17_season.csv")
 
 dtd_records1617$Team <- stringr::str_replace(dtd_records1617$team, '\\*', '') 
-
-
 
 dtd_records1617 <- select(dtd_records1617, c(date, Team, w, l, w_lpercent, ps_g, pa_g)) %>%
   rename(Date = date)
@@ -141,7 +144,7 @@ regseason1617 <- regseason1617 %>%
 regseason1617 <- regseason1617 %>%
   mutate(win_percent_diff = w_lpercent - opp_win_percent)
 
-write_csv(regseason1617, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1617.csv")
+write_csv(regseason1617, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1617.csv")
 
 regseason1617 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1617.csv")
 
@@ -163,6 +166,12 @@ ratings1617 <- get_general(
 ) %>%  
   select(c("team_name", "off_rating", "def_rating", "net_rating", "pace")) %>%
   rename(Team = team_name)
+
+ratings1617 <- ratings1617 %>%
+  mutate(Team = case_when(
+    Team == "LA Clippers" ~ "Los Angeles Clippers",
+    TRUE ~ Team)
+  )
 
 regseason1617 <- merge(x = regseason1617, y = ratings1617,
                        by = "Team")
@@ -201,6 +210,12 @@ performance1617 <- get_general(
   team_id = "0",
   verbose = TRUE) %>%
   rename(Team = team_name)
+
+performance1617 <- performance1617 %>%
+  mutate(Team = case_when(
+    Team == "LA Clippers" ~ "Los Angeles Clippers",
+    TRUE ~ Team)
+  )
 
 regseason1617 <- merge(regseason1617, performance1617,
                        by = "Team")

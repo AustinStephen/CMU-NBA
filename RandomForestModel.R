@@ -34,14 +34,19 @@ library(ranger)
 library(Rcpp)
 
 init_nba_rf <- 
-  ranger(game_net_rating ~ ., data = together_rf,
-         num.trees = 100, importance = "impurity", mtry = 2)
+  ranger(game_net_rating ~ g1_5_centered_rolling_net_diff + g6_10_centered_rolling_net_diff 
+         + g11_15_centered_rolling_net_diff + g16_20_centered_rolling_net_diff 
+         + g21_25_centered_rolling_net_diff + g26_30_centered_rolling_net_diff, 
+         data = together_rf,
+         num.trees = 500, importance = "impurity", mtry = 2, min.node.size = 10)
+
+init_nba_rf
 
 #high OOB prediction error 
 #low R squared
 
 #Gives us the results of ranger
-init_nba_rf
+
 
 
 #Importance graph
@@ -50,17 +55,20 @@ vip(init_nba_rf, geom = "point") + theme_bw()
 
 #Caret doesnt let us tune # of trees so instead we tune m try
 rf_tune_grid <-
-  expand.grid(mtry = seq(2,6, by = 1),
+  expand.grid(mtry = 2,
               splitrule = "variance",
-              min.node.size = c(5, 10))
+              min.node.size = 5)
 
 set.seed(1917)
 
 caret_nba_rf <-
-  train(game_net_rating ~ rest_diff + windowed_distance_diff + g1_5_centered_rolling_net_diff 
-        + g6_10_centered_rolling_net_diff + three_in_four_vis + net_rating_diff, 
+  train(game_net_rating ~ g1_5_centered_rolling_net_diff + g6_10_centered_rolling_net_diff +
+          g11_15_centered_rolling_net_diff +  g16_20_centered_rolling_net_diff + 
+          g21_25_centered_rolling_net_diff + g26_30_centered_rolling_net_diff + net_rating_diff
+        + rest_diff + b2b_2nd_vis + three_in_four_vis + travel_3_hours_back_vis + windowed_distance_diff,
         data = together_rf,
-        method = "ranger", num.trees = 100,
+        method = "ranger",
+        num.trees = 200,
         trControl = trainControl(method = "cv", number = 10),
         tuneGrid = rf_tune_grid)
 

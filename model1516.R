@@ -54,11 +54,14 @@ team_boxscores1516 <- get_team_boxscore(2015) %>%
   subset(select = season_year:plus_minus) %>%
   mutate(Date = substr(game_date, 0, 10)) %>%
   rename(Team = team_name) %>%
-  select(c(Date, game_id,Team, matchup, plus_minus)) 
-
+  select(c(Date, game_id,Team, matchup, plus_minus)) %>%
+  mutate(Team = case_when(
+    Team == "LA Clippers" ~ "Los Angeles Clippers",
+    TRUE ~ Team)
+  )
 
 regseason1516 <- merge(x = regseason1516, y = team_boxscores1516,
-                       by = c("Date", "Team")) %>%
+                       by = c("Date", "Team"), all = TRUE) %>%
   rename(score_diff = plus_minus) %>%
   mutate(traveling_west = (direction == "West")) %>% 
   mutate(traveling_east = (direction == "East")) %>%
@@ -106,7 +109,7 @@ for (i in c(1:nrow(regseason1516))) {
 regseason1516 <- regseason1516 %>%
   mutate(adjusted_score_diff = adj_score_diffs1516)
 
-dtd_records1516 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/record_by_day_2015_16_season.csv")
+dtd_records1516 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/record_by_day_2015_16_season.csv")
 
 dtd_records1516$Team <- stringr::str_replace(dtd_records1516$team, '\\*', '') 
 
@@ -152,7 +155,13 @@ ratings1516 <- get_general(
   verbose = TRUE
 ) %>%  
   select(c("team_name", "off_rating", "def_rating", "net_rating", "pace")) %>%
-  rename(Team = team_name)
+  rename(Team = team_name) 
+
+ratings1516 <- ratings1516 %>%
+  mutate(Team = case_when(
+    Team == "LA Clippers" ~ "Los Angeles Clippers",
+    TRUE ~ Team)
+  )
 
 regseason1516 <- merge(x = regseason1516, y = ratings1516,
                        by = "Team")
@@ -189,7 +198,13 @@ performance1516 <- get_general(
   opponent_team_id = "0",
   team_id = "0",
   verbose = TRUE) %>%
-  rename(Team = team_name)
+  rename(Team = team_name) 
+
+performance1516 <- performance1516 %>%
+  mutate(Team = case_when(
+    Team == "LA Clippers" ~ "Los Angeles Clippers",
+    TRUE ~ Team)
+  )
 
 regseason1516 <- merge(regseason1516, performance1516,
                        by = "Team")

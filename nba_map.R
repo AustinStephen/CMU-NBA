@@ -91,6 +91,8 @@ for (d in coords_and_distance$total_distance_traveled) {
 
 coords_and_distance$img_size <- sizes
 
+write_csv(coords_and_distance,"/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/coords_and_distance.csv")
+
 ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group = group), fill = "white", color = "gray") + 
   coord_fixed(1.3) + 
   geom_image(data = coords_and_distance, aes(x = Longitude, y = Latitude, image = logo, size = I(img_size))) +
@@ -106,9 +108,11 @@ ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group
 # Flight Maps -------------------------------------------------------------
 library(airball)
 
-datos <- nba_travel(start_season = 2015, end_season = 2015)
+travel1415 <- nba_travel(start_season = 2015, end_season = 2015)
+write_csv(travel1415,"/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/travel1415.csv")
 
-nba_travel_plot(data = datos,
+
+nba_travel_plot(data = travel1415,
                 season = 2015,
                 team = c("Portland Trail Blazers","Denver Nuggets", "Cleveland Cavaliers", "Boston Celtics"),
                 city_color = "yellow",

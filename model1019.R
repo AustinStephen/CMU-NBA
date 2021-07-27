@@ -23,6 +23,7 @@ data1718 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_d
 data1819 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/regseason1819.csv")
 #data_bubble <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/regseason_bubble.csv")
 
+
 together <- rbind(data1011, data1112)
 together <- rbind(together, data1213)
 together <- rbind(together, data1314)
@@ -99,6 +100,11 @@ gameratings_together <-rbind(gameratings_together, gameratings1718)
 gameratings_together <-rbind(gameratings_together, gameratings1819)
 #gameratings_together <-rbind(gameratings_together, gameratings_bubble)
 
+gameratings_together <- gameratings_together %>%
+  mutate(team_name = case_when(
+    team_name == "LA Clippers" ~ "Los Angeles Clippers",
+    TRUE ~ team_name)
+  )
 
 gameratings_together <- gameratings_together %>%
   rename(Team = "team_name", game_off_rating = "off_rating", game_def_rating = "def_rating",
@@ -130,25 +136,32 @@ together<- together %>%
   mutate(travel_3_hours_back = (shift ==  -3)) %>%
   mutate(travel_3_hours_forward = (shift ==  3))
 
-distance_windows <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/together_5dayWindow_update.csv")
-together <- distance_windows[!duplicated(distance_windows),]
+#my together with all of grace's windows
+together <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/together_net_Rating_allCenters_fixed.csv")
+
+#distance_windows <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/together_5dayWindow_update.csv")
+#together <- distance_windows[!duplicated(distance_windows),]
 
 together <- together %>%
   mutate(distance_diff = Distance - opp_distance) %>%
-  mutate(windowed_distance_diff = dist_5dayWindow - opp_dist_5dayWindow) %>%
+  mutate(windowed_distance_diff = dist_30dayWindow - opp_dist_30dayWindow) %>%
   mutate(distance_advantage = (distance_diff < 0)) %>%
   mutate(windowed_distance_advantage = (windowed_distance_diff) < 0)
-
 
 together <- together %>%
   select(-c(fgm:opp_blk)) %>%
   select(-c(fgm_diff:blk_diff))
 
-net_rating_grace <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/together_net_Rating_update.csv") %>%
-  select(c(Date, Team, net_rating_5gameWindow, opp_net_rating_5gameWindow))
 
-together <- merge(together, net_rating_grace,
-                  by = c("Date", "Team")) %>%
+#net_rating_grace <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/together_net_Rating_update.csv") %>%
+  #select(c(Date, Team, net_rating_5gameWindow, opp_net_rating_5gameWindow))
+
+#together <- merge(together, net_rating_grace,
+                  #by = c("Date", "Team")) %>%
+  #mutate(net_rating_5gameWindow_diff = net_rating_5gameWindow - opp_net_rating_5gameWindow) %>%
+  #mutate(hours_shift = as.factor(shift))
+
+together <- together %>%
   mutate(net_rating_5gameWindow_diff = net_rating_5gameWindow - opp_net_rating_5gameWindow) %>%
   mutate(hours_shift = as.factor(shift))
 
@@ -178,22 +191,23 @@ together <- together %>%
          pace_home = "opp_pace",
          rest_home = "opp_rest",
          distance_home = "opp_distance",
-         dist_5dayWindow_vis = "dist_5dayWindow",
-         dist_5dayWindow_home = "opp_dist_5dayWindow",
+         dist_30dayWindow_vis = "dist_30dayWindow",
+         dist_30dayWindow_home = "opp_dist_30dayWindow",
          net_rating_5gameWindow_vis = "net_rating_5gameWindow",
          net_rating_5gameWindow_home = "opp_net_rating_5gameWindow",
   ) %>%
   select(-c("Visitor", "avg_score_diff_home", "avg_score_diff_away", "B2B", "b2b_1st"))
 
-write_csv(together, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/together.csv")
+write_csv(together, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/together_one_row_per_game.csv")
 
 
+strength_proxies <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/clean_team_strength_columns.csv") 
 
-strength_proxies <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/clean_team_strength_columns.csv") %>%
-  select(c(Date, Team, games_played, win_percent_diff, hollow_wind60_cent, hollow_wind50_cent,hollow_wind40_cent, hollow_wind30_cent, hollow_wind20_cent, wind_10_center,wind_40_hollow, wind_35_hollow, wind_30_hollow, wind_25_hollow, wind_20_hollow, wind_15_hollow, wind_10_hollow_5,wind_5))
+strength_proxies <- strength_proxies %>%
+  dplyr::select(c("Date", "visitor", "games_played", "win_percent_diff", "hollow_wind60_cent", "hollow_wind50_cent","hollow_wind40_cent", "hollow_wind30_cent", "hollow_wind20_cent", "wind_10_center","wind_40_hollow", "wind_35_hollow", "wind_30_hollow", "wind_25_hollow", "wind_20_hollow", "wind_15_hollow", "wind_10_hollow_5","wind_5"))
 
 together <- merge(together, strength_proxies,
-                  by.x = c("Date", "visitor"), by.y = c("Date","Team"))
+                  by.x = c("Date", "visitor"), by.y = c("Date","visitor"))
 
 together <- together %>%
   rename(g1_5_rolling_net_diff = wind_5,
@@ -220,6 +234,11 @@ write_csv(together, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_da
 
 together <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/together.csv")
 
+austin <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/austin_everything.csv")
+
+austin <- austin %>%
+  select(-c(fgm:opp_blk)) %>%
+  select(-c(fgm_diff:blk_diff))
 
 library(car)
 vif(travel_visitors_lm)

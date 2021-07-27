@@ -59,7 +59,11 @@ team_boxscores1819 <- get_team_boxscore(2018) %>%
   subset(select = season_year:plus_minus) %>%
   mutate(Date = substr(game_date, 0, 10)) %>%
   rename(Team = team_name) %>%
-  select(c(Date, game_id,Team, matchup, plus_minus)) 
+  select(c(Date, game_id,Team, matchup, plus_minus)) %>%
+  mutate(Team = case_when(
+    Team == "LA Clippers" ~ "Los Angeles Clippers",
+    TRUE ~ Team)
+  )
 
 
 regseason1819 <- merge(x = regseason1819, y = team_boxscores1819,
@@ -111,7 +115,7 @@ for (i in c(1:nrow(regseason1819))) {
 regseason1819 <- regseason1819 %>%
   mutate(adjusted_score_diff = adj_score_diffs1819)
 
-dtd_records1819 <- read_csv("/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/data/record_by_day_2018_19_season.csv")
+dtd_records1819 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/record_by_day_2018_19_season.csv")
 
 dtd_records1819$Team <- stringr::str_replace(dtd_records1819$team, '\\*', '') 
 
@@ -136,7 +140,7 @@ regseason1819 <- regseason1819 %>%
 regseason1819 <- regseason1819 %>%
   mutate(win_percent_diff = w_lpercent - opp_win_percent)
 
-write_csv(regseason1819, "/Users/matthewyep/Desktop/Carnegie Mellon/CMU-NBA/timesaver/temp1819.csv")
+write_csv(regseason1819, "/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1819.csv")
 
 regseason1819 <- read_csv("/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/timesaver/temp1819.csv")
 
@@ -158,6 +162,12 @@ ratings1819 <- get_general(
 ) %>%  
   select(c("team_name", "off_rating", "def_rating", "net_rating", "pace")) %>%
   rename(Team = team_name)
+
+ratings1819 <- ratings1819 %>%
+  mutate(Team = case_when(
+    Team == "LA Clippers" ~ "Los Angeles Clippers",
+    TRUE ~ Team)
+  )
 
 regseason1819 <- merge(x = regseason1819, y = ratings1819,
                        by = "Team")
@@ -196,6 +206,12 @@ performance1819 <- get_general(
   team_id = "0",
   verbose = TRUE) %>%
   rename(Team = team_name)
+
+performance1819 <- performance1819 %>%
+  mutate(Team = case_when(
+    Team == "LA Clippers" ~ "Los Angeles Clippers",
+    TRUE ~ Team)
+  )
 
 regseason1819 <- merge(regseason1819, performance1819,
                        by = "Team")

@@ -32,8 +32,8 @@ est <- (substring_time - 5)%%24
 tipoffs <-  tipoffs %>%
   mutate(game_time_est = est)
 
-subset_visitors <- visitors %>% 
-  select(c(Date, game_id, Team, Win, score_diff, capped_score_diff, game_net_rating))
+subset_visitors <- together_net_Rating_allWindows %>% 
+  select(c(Date, game_id, visitor, Win, score_diff, capped_score_diff, game_net_rating))
 
 subset_visitors <- subset_visitors %>%
   mutate(abrev = substr(visitors$matchup, 1, 3))
@@ -41,7 +41,6 @@ subset_visitors <- subset_visitors %>%
 tipoffs_and_results <- merge(x = tipoffs, y = subset_visitors,
                by = "game_id") %>%
   select(-c("Date", "abrev"))
-
 
                
 morning_game_for_west_visiting_east <- tipoffs_and_results %>%
@@ -57,10 +56,13 @@ night_game_for_east_visiting_west <- tipoffs_and_results %>%
 #Probably not enough observations for this histogram to be super useful
 ggplot(data = morning_game_for_west_visiting_east, aes(x= capped_score_diff)) +
   geom_histogram( color = "black", fill = "white")
+#117 observations
 
 #Interesting to see that there are quite a bit of blowout losses when EST teams play at night
 ggplot(data = night_game_for_east_visiting_west, aes(x= capped_score_diff)) +
   geom_histogram( color = "black", fill = "white")
+
+#2254 observations
 
 
 #We could use these results to show that tipoff time does not have an effect on outcome of the game
