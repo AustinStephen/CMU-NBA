@@ -228,7 +228,103 @@ Transition by saying in game events are only half the picture.
 ## Between Game Events 
 
 GRACE T-TEST HERE
+```{r t-test, echo = false}
 
+together_final <- read.csv("./data1/together_final.csv")
+
+team_b2b_vis <- together_final %>%
+  filter(b2b_2nd == TRUE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_other_vis <- together_final %>%
+  filter(b2b_2nd == FALSE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_b2b_vis <- together_final %>%
+  filter(b2b_2nd == TRUE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_other_vis <- together_final %>%
+  filter(b2b_2nd == FALSE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_3in4_vis <- together_final %>%
+  filter(three_in_four == TRUE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_other3in4_vis <- together_final %>%
+  filter(three_in_four == FALSE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_b2b_3in4_vis <- together_final %>%
+  filter(b2b_2nd == TRUE) %>%
+  filter(three_in_four == TRUE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_otherb2b_3in4_vis <- together_final %>%
+  filter(b2b_2nd == FALSE) %>%
+  filter(three_in_four == FALSE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_b2b_3in4_home <- together_final %>%
+  filter(b2b_2nd_home == TRUE) %>%
+  filter(three_in_four_home == TRUE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_otherb2b_3in4_home <- together_final %>%
+  filter(b2b_2nd_home == FALSE) %>%
+  filter(three_in_four_home == FALSE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_3hoursforward_vis <- together_final %>%
+  filter(travel_3_hours_forward == TRUE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_other_3hoursforward_vis <- together_final %>%
+  filter(travel_3_hours_forward == FALSE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_3hoursback_vis <- together_final %>%
+  filter(travel_3_hours_back == TRUE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+team_other_3hoursback_vis <- together_final %>%
+  filter(travel_3_hours_back == FALSE) %>%
+  mutate(Win = ifelse(Win == TRUE, 1, 0))
+
+t_b2b<- t.test(team_otherb2b_vis$Win, team_b2b_vis$Win)
+
+t_3in4 <-t.test(team_other3in4_vis$Win, team_3in4_vis$Win)
+
+t_b2b_3in4 <- t.test(team_otherb2b_3in4_vis$Win, team_b2b_3in4_vis$Win)
+
+t_3hrsForward <- t.test(team_other_3hoursforward_vis$Win, team_3hoursforward_vis$Win)
+
+t_3hrsBack <- t.test(team_other_3hoursback_vis$Win, team_3hoursback_vis$Win)
+
+t_3hrsForward_NetRatingDiff <- t.test(team_other_3hoursforward_vis$net_rating_diff, team_3hoursforward_vis$net_rating_diff)
+
+t_3hrsBack_NetRatingDiff <- t.test(team_other_3hoursback_vis$net_rating_diff, team_3hoursback_vis$net_rating_diff)
+
+
+team_t_test_info <- tibble(Test = c("B2B_Win", "Three_in_Four_Win", 
+                "b2b_and_3in4_Win", "3hrsForward_Win", 
+                "3hrsBack_Win", "3hrsForward_NRD",
+                "3hrsBack_NRD"), 
+       "Mean_of_X" = c(t_b2b$estimate[1], t_3in4$estimate[1],
+                       t_b2b_3in4$estimate[1], t_3hrsForward$estimate[1],
+                       t_3hrsBack$estimate[1], t_3hrsForward_NetRatingDiff$estimate[1],
+                       t_3hrsBack_NetRatingDiff$estimate[1]),
+       "Mean_of_Y" = c(t_b2b$estimate[2], t_3in4$estimate[2],
+                       t_b2b_3in4$estimate[2], t_3hrsForward$estimate[2],
+                       t_3hrsBack$estimate[2], t_3hrsForward_NetRatingDiff$estimate[2],
+                       t_3hrsBack_NetRatingDiff$estimate[2]),
+       "P_Value" = c(t_b2b$p.value, t_3in4$p.value, t_b2b_3in4$p.value,
+                     t_3hrsForward$p.value, t_3hrsBack$p.value,
+                     t_3hrsForward_NetRatingDiff$p.value, t_3hrsBack_NetRatingDiff$p.value))
+
+
+```
 
 ---
 
