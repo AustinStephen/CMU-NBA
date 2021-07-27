@@ -6,6 +6,7 @@ library(dplyr)
 
 together_net_Rating_allWindows <- read_csv(
   "data/proxy_team_strength/together_net_Rating_allCenters.csv") %>%
+  select(-c("w_lpercent","win_percent_diff")) %>%
   # select(c("Team","Opponent", "Date", "game_id","season", "net_rating_diff","opp_net_rating",
   #          "w_lpercent", "game_net_rating", "net_rating_2gameWindow", "net_rating_5gameWindow",
   #          "net_rating_7gameWindow", "net_rating_10gameWindow", "opp_net_rating_2gameWindow",
@@ -118,31 +119,80 @@ together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
 ## making games played
 together_net_Rating_allWindows <- together_net_Rating_allWindows %>% 
   group_by(Team, season) %>%
-  mutate(games_played = seq_along(game_id))
+  mutate(games_played = seq_along(game_id)) %>%
+  ungroup()
 
-## making exclusive win percent diff NEEDS fixed
+
+##Long process to make running win percent diff exclusive 
+
+## making exclusive win percent for the home and away teams
 together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
   group_by("Team","season") %>%
-  mutate(win_percent = ifelse(score_diff >0,w.x-1,w.x) /pmax(1,w.x + l.x -1),
-         win_percent_diff  = )
+  mutate(win_percent_home = ifelse(Visitor == FALSE,
+                                   ifelse(score_diff >0,w.x-1,w.x) /pmax(1,w.x + l.x -1),
+                                   0),
+        win_percent_away = ifelse(Visitor == TRUE,
+                                  ifelse(score_diff >0,w.x-1,w.x) /pmax(1,w.x + l.x -1),
+                                  0)) %>%
+  ungroup() 
 
-## writing to csv
-together_net_Rating_allWindows <- together_net_Rating_allWindows %>% ungroup()%>%
-  select("Team","Opponent","Visitor", "Date", "game_id", "season","game_net_rating",
+## making the vistor/home rows the same for a single game id
+tmp_home <- aggregate(together_net_Rating_allWindows$win_percent_home, 
+            by=list(Category=together_net_Rating_allWindows$game_id), FUN=sum) %>% 
+      rename(game_id = "Category", win_percent_home = "x")
+
+tmp_away <- aggregate(together_net_Rating_allWindows$win_percent_away, 
+                      by=list(Category=together_net_Rating_allWindows$game_id), FUN=sum) %>% 
+  rename(game_id = "Category", win_percent_away = "x")
+
+## dropping tmp cols
+together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
+  select(-c("win_percent_home","win_percent_away" ))
+
+## merging the correct columns into the main table
+together_net_Rating_allWindows <- merge( x = together_net_Rating_allWindows,
+                                         y =tmp_home, 
+                                         by = c("game_id"))
+
+together_net_Rating_allWindows <- merge( x = together_net_Rating_allWindows,
+                                         y = tmp_away, 
+                                         by = c("game_id")) 
+
+## making the win percent diff with reference to the home team
+together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
+  mutate(win_percent_diff =  win_percent_away - win_percent_home)
+
+##collapsing the windowed information into 1 row for each game
+together <- read_csv("data/proxy_team_strength/together.csv") %>%
+  select(c("Date", "visitor"))
+
+together <- merge(x = together, y =together_net_Rating_allWindows,
+                  by.x = c("Date", "visitor"),
+                  by.y = c("Date","Team"))
+
+## writing to csv for retrieval 
+together <- together %>% ungroup()%>%
+  select(
+    ## base cols
+         "Visitor","Opponent","Date", "game_id", "season","game_net_rating",
          "win_percent_diff", "games_played", "net_rating_diff", "score_diff",
+#         "wins_vis", "loss_vis",
+    ## window cols
          "hollow_wind60_cent", "hollow_wind50_cent", "hollow_wind40_cent", 
          "hollow_wind30_cent", "hollow_wind20_cent", "wind_10_center", 
-         "wind_40_hollow", "wind_35_hollow",
-         "wind_30_hollow", "wind_25_hollow","wind_20_hollow",
-         "wind_15_hollow", "wind_10_hollow_5", "wind_5_hollow", "wind_7_hollow",
-         "wind_10_hollow","wind_2", "wind_5", "wind_7", "wind_10","wind_15", 
-         "wind_20", "wind_25", "wind_30", "wind_35", "wind_40")
+         "wind_40_hollow", "wind_35_hollow","wind_30_hollow", "wind_25_hollow",
+         "wind_20_hollow","wind_15_hollow", "wind_10_hollow_5", "wind_5_hollow",
+         "wind_7_hollow","wind_10_hollow","wind_2", "wind_5", "wind_7", "wind_10",
+         "wind_15","wind_20", "wind_25", "wind_30", "wind_35", "wind_40")
 
-write.csv(together_net_Rating_allWindows,
+write.csv(together,
           "data/proxy_team_strength/clean_team_strength_columns.csv",
           row.names = FALSE)
 
-
+## dropping tmp datasets 
+rm(together_net_Rating_allWindows)
+rm(tmp_away)
+rm(tmp_home)
 
 
 

@@ -6,13 +6,139 @@ output: html_document
 ---
 
 ```{r}
+library(readr)
+library(dplyr)
+library(tidyverse)
+library(mgcv)
+library(gratia)
+
+together <- read_csv("../data/proxy_team_strength/together.csv")
+
+clean_windows <- 
+  read_csv("../data/proxy_team_strength/clean_team_strength_columns.csv")
 
 ```
 
 
 
-### Random Forest Travel 
+### Smoothing Splines 
 ```{r}
 
+## Creating the test folds
+clean_windows <- clean_windows %>%
+  mutate(test_fold = sample(rep(1:10, length.out = n())))
+
+## generates the holdout predictions
+holdout_predictions <- 
+  map_dfr(unique(clean_windows$test_fold), 
+          function(holdout) {
+            # Separate test and training data:
+            test_data <- clean_windows %>% filter(test_fold == holdout)
+            train_data <- clean_windows %>% filter(test_fold != holdout)
+            
+            
+            # Train models:
+            ## mean alone
+            mean_alone <- lm(game_net_rating ~ net_rating_diff , 
+                      data = train_data,
+                      method = "REML")
+            
+            ## GAM for mean alone
+            gam_mean_alone <- lm(game_net_rating ~ net_rating_diff ,
+                                 data = train_data)
+            
+            ## win percent diff
+            win_percent_diff <- lm(game_net_rating ~ net_rating_diff , 
+                             data = train_data)
+            
+            ## GAM for win percent diff
+            gam_win_percent_diff <- gam(game_net_rating ~ s(win_percent_diff),
+                      data =train_data,
+                      method = "REML")
+
+            
+            ## Window 40 temporal weighted
+            w40_tp <- lm(game_net_rating ~  wind_5 + wind_10_hollow_5 + wind_15_hollow +
+            wind_20_hollow + wind_25_hollow + wind_30_hollow + wind_35_hollow +
+            wind_40_hollow + net_rating_diff  + games_played * net_rating_diff,
+            data = together_net_Rating_allWindows )
+            
+            ## GAM Window 40 temporal weighted 
+            gam_w40_tp <- gam(game_net_rating ~  s(wind_5) + 
+            s(wind_10_hollow_5) +s(wind_15_hollow) + s(wind_20_hollow) + 
+            s(wind_25_hollow) +  s(wind_30_hollow) + s(wind_35_hollow) + 
+            s(wind_40_hollow) + s(net_rating_diff)+ 
+            ti(games_played * net_rating_diff),
+            data = train_data,
+            method = "REML")
+            
+            
+            ## Window 60 temporal centered
+            w60_temp_cen <- lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + 
+                    hollow_wind30_cent + hollow_wind40_cent + hollow_wind50_cent +
+                    hollow_wind60_cent + net_rating_diff,
+                    data = together_net_Rating_allWindows)
+            
+            ## GAM window 60 temporal centered
+            gam_w60_temp_cen <- gam(game_net_rating ~ s(wind_10_center)+ 
+            s(hollow_wind20_cent) + s(hollow_wind30_cent) + s(hollow_wind40_cent)+
+            s(hollow_wind50_cent) + S(hollow_wind60_cent) + s(net_rating_diff),
+            data = train_data,
+            method = "REML")
+            
+            # Return tibble of holdout results:
+            tibble(mean_alone = predict(mean_alone, newdata = test_data),
+                   gam_mean_alone = predict(gam_mean_alone, newdata = test_data),
+                   win_percent_diff = predict(win_percent_diff, newdata = test_data),
+                   gam_win_percent_diff = predict(gam_win_percent_diff, newdata = test_data),
+                   gam_w40_tp = predict(gam_w40_tp, newdata = test_data),
+                   w40_tp = predict(w40_tp, newdata = test_data),
+                   w60_temp_cen = predict(w60_temp_cen, newdata = test_data),
+                   gam_w60_temp_cen = predict(gam_w60_temp_cen, newdata = test_data),
+                   test_actual = test_data$score_diff, 
+                   test_fold = holdout) 
+          })
+
+holdout_predictions <- holdout_predictions %>%
+  pivot_longer(sn_avg:w60_tc, 
+               names_to = "type", values_to = "test_preds")
+
+holdout_predictions$type <-  ordered(holdout_predictions$type, c("mean_alone",
+                    "gam_mean_alone","win_percent_diff","gam_win_percent_diff",
+                    "w40_tp", "gam_w40_tp", "w60_temp_cen", "gam_w60_temp_cen"))
+
+holdout_predictions$test_fold <- as.factor(holdout_predictions$test_fold)
+
+
+holdout_predictions %>% 
+  group_by(type, test_fold) %>%
+  summarize(rmse =
+              sqrt(mean((test_actual - test_preds)^2))) %>% 
+  ggplot(aes(x = type, y = rmse)) + 
+  geom_point() + theme_bw() +
+  stat_summary(fun = mean, geom = "point", 
+               color = "red") + 
+  stat_summary(fun.data = mean_se, geom = "errorbar",
+               color = "red") +
+  labs(title = "Game net rating difference as response",
+       caption = "t = temporal weighting
+       tc = temporal weighting and using future games
+       tp = temporal weighting and dynamic season average",
+       x = "model")
+
 ```
+### Random Forest 
+```{r}
+
+
+library(ranger)
+init_mlb_rf <- ranger(game_net_rating ~ games_played,
+                    data = clean_windows, num.trees = 50, importance = "impurity")
+init_mlb_rf
+
+```
+
+
+
+
 
