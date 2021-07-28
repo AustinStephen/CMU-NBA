@@ -141,26 +141,26 @@ For the purposes of our project we define two types of fatigue inducing events.
    "data/in_game_distance_data/tracking_by_player_season_daily_2018_19.csv")
 
 
- tracking_player %>%
-   select(c("player_name","date","min", "dist_miles","dist_miles_off", "dist_miles_def",
-            "avg_speed","avg_speed_off","avg_speed_def")) %>%
-   rename("Name" = player_name,
-          "Distance (mi)" = dist_miles,
-          "Distance Offense"  = dist_miles_off,
-          "Distance Defense" = dist_miles_def,
-          "Speed (mph)" = avg_speed,
-          "Speed Offense" = avg_speed_off,
-          "Speed Defense" = avg_speed_def,
-          "Date" = date,
-          "Min" = min) %>%
-   slice(1:4) %>%
-   gt() %>%
-   tab_header(
-    title = md("**Distance By Player Individual Games**")
-  ) %>%
-  tab_source_note(md("Data courtesy of nba.com and Second Spectrum")) %>%
-  opt_table_outline( style = "solid", width = px(5), color = "#001747")%>%
-  tab_options(table.width = pct(80))
+ #tracking_player %>%
+   #select(c("player_name","date","min", "dist_miles","dist_miles_off", "dist_miles_def",
+          #  "avg_speed","avg_speed_off","avg_speed_def")) %>%
+   #rename("Name" = player_name,
+          #"Distance (mi)" = dist_miles,
+          #"Distance Offense"  = dist_miles_off,
+   #       "Distance Defense" = dist_miles_def,
+  #        "Speed (mph)" = avg_speed,
+#          "Speed Offense" = avg_speed_off,
+#          "Speed Defense" = avg_speed_def,
+ #         "Date" = date,
+#          "Min" = min) %>%
+#   #slice(1:4) %>%
+ #  gt() %>%
+ #  tab_header(
+#    title = md("**Distance By Player Individual Games**")
+ # ) %>%
+#  tab_source_note(md("Data courtesy of nba.com and Second Spectrum")) %>%
+ # opt_table_outline( style = "solid", width = px(5), color = "#001747")%>%
+#  tab_options(table.width = pct(80))
 ```
 
 ???
@@ -386,15 +386,58 @@ ggplot(aes(x = diff_sn_avg_wind_5_speed,y = diff_from_sn_avg_speed))+
 
 ## In-Game Distance
 
-- How does player distance relate to game outcomes
-GRACE ADD your stuff
+- Players run less in 2nd games of a back to back
+
+```{r dist_t_test, echo = FALSE, fig.height= 5, fig.width=14}
+together_final <- read.csv("./data1/final_together.csv")
+dist_table <- read.csv("./data1/distance_t_test_table.csv")
+
+ggplot(data = dist_table) +
+  geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
+  geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
+  scale_color_manual(name="game type",labels=c("2nd game of B2B", "All other games"), values=c("blue", "brown")) +
+  #geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error, ymax = b2b_mean + 2*standard_error), color = "blue", width = 0.2) +
+  xlab("Season") +
+  ylab("Mean Distance") +
+  labs(title = "Difference of Means between 2nd game of a back to back and all other games", color = "legend") +
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank())  +
+  theme(legend.position = "right", axis.text = element_text(size = 16), axis.title = element_text(size = 22)) +
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16), title = element_text(size = 20))
+
+```
+
 
 ---
 
-## In-Game Distance 
+## In-Game Speed
 
-- How does player distance relate to game outcomes
-GRACE ADD your stuff
+- Average Speed is less in the 2nd game of a back to back
+
+```{r speed_t-test, echo = FALSE, fig.height=5, fig.width=14}
+speed_table <- read_csv("./data1/speed_t_test_table.csv")
+
+ggplot(data = speed_table) +
+  geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
+  geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
+  scale_color_manual(name="game type",labels=c("2nd game of B2B", "All other games"), values=c("blue", "brown")) +
+  #scale_color_identity(guide = "legend") +
+  #geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error, ymax = b2b_mean + 2*standard_error), color = "blue", width = 0.2) +
+  xlab("Season") +
+  ylab("Mean speed") +
+  labs(title = "Difference of Means between 2nd game of a back to back and all other games", colour = "game type") +
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank())  +
+  theme(legend.position = "right", axis.text = element_text(size = 16), axis.title = element_text(size = 22)) +
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16), title = element_text(size = 20))
+
+
+```
+
 
 ---
 
@@ -402,7 +445,7 @@ GRACE ADD your stuff
 
 - Basketball is complex  
 
-- Evidence suggesting teams do a good job ensuring their players prefromance 
+- Evidence suggesting teams do a good job ensuring their players performance 
 does not decline due to workload.  
 
 ???
@@ -430,9 +473,33 @@ Transition by saying in game events are only half the picture.
 
 ---
 
-## Between Game Events 
+### Third game in 4 days has a significant difference of means
+- 2nd games of a back-to-back has a p-value of .776
 
-GRACE T-TEST HERE
+```{r team_t_test, echo = FALSE, fig.height=5, fig.width= 12}
+team_t_test_info <- read_csv("./data1/team_t_test_info.csv")
+
+#team_t_test_info <- ordered(Test, levels = c("2nd_B2B", "Three_in_Four", "b2b_and3in4", "3hrsBack"))
+#team_t_test_info <- data.frame(Test, Mean_of_X, Mean_of_Y, P_Value, standard_error)
+
+
+ggplot(data = team_t_test_info) +
+  geom_point(aes(x = Test, y = Mean_of_X, color = "brown"), size = 2) +
+  geom_point(aes(x = Test, y = Mean_of_Y, color = "blue"), size = 2) +
+  scale_color_manual(name="game type",labels=c("games with fatigue metric", "All other games"), values=c("blue", "brown")) +
+  labs(color = "Legend") +
+  #geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(x = Test, ymin = Mean_of_X - 2*standard_error, ymax = Mean_of_X + 2*standard_error), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = Test, ymin = Mean_of_Y - 2*standard_error, ymax = Mean_of_Y + 2*standard_error), color = "blue", width = 0.2) +
+  xlab("Fatigue Metrics") +
+  ylab("Game Net Rating Mean") +
+  labs(title = "Difference of Mean between fatigue related metrics") +
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank())  +
+  theme(legend.position = "right", axis.text = element_text(size = 16), axis.title = element_text(size = 22)) +
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16), title = element_text(size = 20))
+
+```
 
 
 ---
