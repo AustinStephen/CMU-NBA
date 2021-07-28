@@ -5,6 +5,9 @@ date: "<span style='font-size: 35px'> 7/30/2021 </style>"
 output:
   xaringan::moon_reader:
     css: xaringan-themer.css
+    nature: 
+      countIncrementalSlides: false
+      slideNumberFormat: "%current%"
 ---
 
 
@@ -12,7 +15,7 @@ output:
 library(xaringanthemer)
 knitr::opts_chunk$set(
   echo = FALSE,
-  cache = FALSE,
+  cache = TRUE,
   message = FALSE,
   warning = FALSE
   )
@@ -38,9 +41,9 @@ visitors <- read_csv("./matthew_data/visitors.csv")
 data1415 <- read_csv("./matthew_data/regseason1415.csv")
 datos <- read_csv("./matthew_data/map1415data.csv")
 
-style_mono_accent(base_color = "#cc002c",
+style_mono_accent(base_color = "#374052",
   white_color = "#e6e6e6",
-  background_color = "#b3b3b3",
+  background_color = "#b8b8b8",
   base_font_size = "28px"
   )
 ```
@@ -70,24 +73,25 @@ INSERT GAPHIC AND DISTANCE TRAVELED B2B DISCUSSION
 
 ## Findings  
 
-1. In-game distance measures currently lack the granularity to study player fatigue 
+1. In-game distance measures suggest players achieve a high degree of recovery 
+between games.
 
 --
 
-2. A subset of schedule induced factors impact game outcomes 
+2. Offer an improved model for team strength
 
 --
 
-3. Impact of travel has decreased over time 
+3. A subset of schedule induced factors impact game outcomes 
+
+--
+
+4. Impact of travel has decreased over time 
 
   
 
 ???
-1. In-game distance measures lack the granularity to measure player fatigue.
-
-2. Only a few schedule induced factors have a measurable impact on game outcomes
-
-3. This could be due to 
+These might get changed last minute.
 
 ---
 
@@ -95,15 +99,7 @@ INSERT GAPHIC AND DISTANCE TRAVELED B2B DISCUSSION
 
 - Cannot use direct measures  
 
---
-
-- Identify events that fatigue players
---
-
-  - Ex. Distance run, timezone change, etc.
-
 ???
-You cannot identify a proxy for something you don't understand.
 
 More concrete on fatigue: 
 "the decline in objective performance measures derived from the capacity 
@@ -116,17 +112,24 @@ However, players cannot wear heart rate monitors or tracking equipment in
 games and we certainly don't have data about in/post-game blood samples 
 so we need a proxy to measure how fatigued a player was by in game events.
 
+--
+
+- Identify events that fatigue players
 
 ---
 
-## Sources of Fatigue
+## Fatigue Inducing Events
 
 1. In-game events  
+  - ex. distance run or speed
+  
+--
 
-2. Between game events
+2. Between game events  
+  - ex. Length of flight or rest since last game
 
 ???
-2 major sources for measuring volume of strain that could induce player fatigue.
+For the purposes of our project we define two types of fatigue inducing events.
 
 
 ---
@@ -156,7 +159,7 @@ so we need a proxy to measure how fatigued a player was by in game events.
     title = md("**Distance By Player Individual Games**")
   ) %>%
   tab_source_note(md("Data courtesy of nba.com and Second Spectrum")) %>%
-  opt_table_outline( style = "solid", width = px(5), color = "#666666")%>%
+  opt_table_outline( style = "solid", width = px(5), color = "#001747")%>%
   tab_options(table.width = pct(80))
 ```
 
@@ -170,40 +173,218 @@ Player level
 
 ## In-Game Distance 
 
-- How does player distance relate to game outcomes
+- W = F \* d = (m \* a) \* d, $\Delta$W = $\Delta$d
 
-AUSTIN ADD YOUR STUFF
-```{r}
+--
 
-```
+- 2 steps:
 
----
+--
 
-## In-game Distance 
+   <span> 1. </span> Understand the relationship in-game distance has with game 
+   outcomes <br>   
+    
+--
+   <span> 2.</span> Identify factors that can inhibit in-game distance 
+   (ex, fatigue) and in turn influence game outcomes  
 
-- How does player distance relate to game outcomes
-AUSTIN ADD YOUR STUFF
-```{r}
 
-```
+???
+We were excited to be the first people in the public space that we are aware of
+to try and model player fatigue using this in game distance data.
 
+Second we know from physics the work it requires to preform an action is
+the (mass * acceleration) * distance. You'll notice everytime we discuss distance
+this is baselined to a players season average meaning mass and acceleration are 
+essentially constants. Giving us an incredibly powerful tool for examining a playersexertion in that game relative to the players other games.
+
+
+We saw 2 steps to making a robust analysis of this data.
+1. Understand the relationship in-game distance has with game outcomes
+2. Identify factors that can inhibit distance (ex, fatigue) and in turn 
+    influence game outcomes
 
 ---
 
 ## In-Game Distance 
 
-- How does player distance relate to game outcomes
-AUSTIN ADD YOUR STUFF
+- More distance does not equal better performance
+
+--
+
+- p-value .281
 
 ```{r}
+## team tracking distance 
+team_tracking <- read.csv(
+  "./data/in_game_distance_data/tracking_by_team_season_summaries_2013_to_20.csv")
+
+## Team season box scores
+season_box_scores_team_2010_20 <- read.csv(
+  "./data/box_scores/season_box_scores_team_2010_20.csv")
+
+## Joining team box scores to season distance data 
+team_tracking_w_box_scsores <- merge(team_tracking,
+                                    season_box_scores_team_2010_20,
+                                    by.x = c("team_id","season"), 
+                                    by.y = c("team_id","season")) %>%
+  select(-c("team_name.y","gp.y","w.y","l.y", "min1")) %>%
+  rename( "w" = w.x, "gp" = "gp.x", "l" = l.x)
+
+team_tracking_w_box_scsores %>% 
+  ggplot(aes(x=dist_miles_off, y= fg3_pct)) + 
+  geom_point()+
+  geom_abline(intercept = 110.614, slope = -7.617, color = "darkred")+
+  theme_bw()+ 
+  geom_smooth(method = "lm", se = FALSE) +
+  labs( title = "2013 to 2020 three point shooting percentage and offensive distance")
 
 ```
-
----
+???
+Step 1:
+The intuition many viewers of basketball and us going into the project was players
+get tired and then run less and as a result their performance suffers. This appears
+to be a gross simplification of player performance.
 
 ---
 
 ## In-Game Distance 
+
+- More distance does not equal better performance
+
+--
+
+- p-value 0.836
+
+```{r}
+team_tracking_w_box_scsores %>% 
+  ggplot(aes(x=dist_miles_off, y= fg_pct)) + 
+  geom_point()+
+  geom_abline(intercept = 110.614, slope = -7.617, color = "darkred")+
+  theme_bw()+ 
+  geom_smooth(method = "lm", se = FALSE) +
+  labs( title = "2013 to 2020 three point shooting percentage and offensive distance")
+
+```
+???
+Step 1:
+Same thing here for fg percentage. In general, all of the metrics we explored 
+found no relationship between he distance the players traveled and any positive 
+or negative game measure. Without a few complicated and explainable caveats.
+
+---
+
+## In-Game Distance 
+
+- Increase volume does not cause a refractory period  
+<br>
+
+```{r fig.height=4}
+gbg_player_w_distance <- read_csv(
+  "./data/in_game_distance_data/in_game_dist_box_join.csv")
+
+layer_Window_speed_daily_2014_15 <- read_csv(
+  "./data/in_game_distance_data/player_Window_speed_daily_2014_15.csv") %>%
+  select("player_id","date","speed_5dayWindow","speed_7dayWindow")
+
+layer_Window_speed_daily_2014_15$date <- as.Date(
+  layer_Window_speed_daily_2014_15$date, "%m/%d/%Y")
+
+gbg_player_w_distance <- merge(x = gbg_player_w_distance,
+                               y = layer_Window_speed_daily_2014_15,
+                               by.x =  c("player_id","date" ),
+                               by.y = c("player_id","date" ))
+
+## windows of time analysis 
+player_Window_dist_daily_2014_15 <- read_csv(
+  "./data/in_game_distance_data/player_Window_dist_daily_2014_15.csv")%>%
+  select("player_id","date","dist_5dayWindow","dist_3dayWindow","dist_7dayWindow",
+         "dist_10dayWindow")
+player_Window_dist_daily_2014_15$date <- as.Date(
+  player_Window_dist_daily_2014_15$date, "%m/%d/%Y")
+
+## removing all instances where player played less than 15 seconds because 
+## these are just not insightful instances 
+gbg_player_w_distance <- gbg_player_w_distance %>% filter(min > .25)
+
+
+## window
+gbg_player_w_distance <- merge(x = gbg_player_w_distance,
+                               y = player_Window_dist_daily_2014_15,
+                               by.x =  c("player_id","date" ),
+                               by.y = c("player_id","date" ))
+
+## Adding a difference from mean 5 day window
+gbg_player_w_distance <- gbg_player_w_distance %>%
+  group_by(player_id) %>%
+  mutate(sn_avg_wind_3_dist = mean(dist_3dayWindow)) %>%
+  mutate(diff_sn_avg_wind_3_dist = dist_3dayWindow - sn_avg_wind_3_dist ) %>%
+  mutate(sn_avg_wind_5_dist = mean(dist_5dayWindow)) %>%
+  mutate(diff_sn_avg_wind_5_dist = dist_5dayWindow - sn_avg_wind_5_dist ) %>%
+  mutate(sn_avg_wind_7_dist = mean(dist_7dayWindow)) %>%
+  mutate(diff_sn_avg_wind_7_dist = dist_7dayWindow - sn_avg_wind_7_dist ) %>%
+  mutate(sn_avg_wind_10_dist = mean(dist_10dayWindow)) %>%
+  mutate(diff_sn_avg_wind_10_dist = dist_10dayWindow - sn_avg_wind_10_dist ) %>%
+  mutate(sn_avg_wind_5_speed = mean(speed_5dayWindow)) %>%
+  mutate(diff_sn_avg_wind_5_speed = speed_5dayWindow - sn_avg_wind_5_speed ) %>%
+  mutate(sn_avg_wind_7_speed = mean(speed_7dayWindow)) %>%
+  mutate(diff_sn_avg_wind_7_speed = speed_7dayWindow - sn_avg_wind_7_speed )
+
+gbg_player_w_distance %>%
+ggplot(aes(x = diff_sn_avg_wind_5_dist,y = diff_from_sn_avg_dist))+
+  geom_point(alpha = .1)+
+  geom_smooth(method="lm")+ 
+  labs(y = "distance in game",
+       x = "distance traveled in 5 prior days",
+       title = "Distance Deviation From Season Average")+
+  theme(panel.background = element_rect(fill ="burlywood"),
+        panel.grid.major = element_blank(),
+        plot.title = element_text(size = 20),
+        text = element_text(size = 14)
+        )
+```
+
+???
+Step 2: 
+Despite not finding a relationship with distance and game outcomes, it is entirely 
+possible we could still measure players fatiguing over a season.
+
+We entered his with analysis players with the hypothesis players who played 
+more in previous games will be unable to continue that 
+level of performance because the refractory period. This motivates resting 
+schedules, however, we again found compelling evidence this is not the case. 
+In fact, we see the opposite
+
+Hypothesized this is caused by players who are playing well get left in the
+game longer.
+---
+
+## In-Game Distance 
+
+- Suggests refractory period is too small to measure
+
+- Results consistent across prior 3, 7 and 10 days  
+<br>
+
+```{r fig.height = 4}
+gbg_player_w_distance %>%
+ggplot(aes(x = diff_sn_avg_wind_5_speed,y = diff_from_sn_avg_speed))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+ 
+  labs(y = "Current game",
+       x = "Last 5 days",
+       title = "Play Time Adjusted Distance Deviation From Season Average")+
+  theme(panel.background = element_rect(fill ="burlywood"),
+        panel.grid.major = element_blank(),
+        plot.title = element_text(size = 20),
+        text = element_text(size = 14))
+
+```
+
+
+---
+
+## In-Game Distance
 
 - How does player distance relate to game outcomes
 GRACE ADD your stuff
@@ -214,6 +395,30 @@ GRACE ADD your stuff
 
 - How does player distance relate to game outcomes
 GRACE ADD your stuff
+
+---
+
+## Why do you care about these null results?
+
+- Basketball is complex  
+
+- Evidence suggesting teams do a good job ensuring their players prefromance 
+does not decline due to workload.  
+
+???
+1. Basketball is composed of complex interaction of skill sets and while
+tracking data sounds exciting without being more closely tied to other in-game
+events it offers little information about player performance.
+
+2. One of the biggest trends in basketball commentary is players get tired 
+from playing too many games and as a result the quality of game 
+decreases. However, we offer compelling evidence a players workload over the 
+their previous games does not influence their performance in future games.
+
+Base on these results, we wouldn't be surprised if often people searching 
+to explain why a player did worse in a game when they played so well in the
+previous game is not a matter of fatigue but rather random variations in 
+performance or simply regression to the mean.
 
 ---
 
