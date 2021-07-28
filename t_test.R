@@ -11,7 +11,8 @@ library(slider)
 
 
 # not as useful -----------------------------------------------------------
-
+countIncrementalSlides: false
+slideNumberFormat: "%current%"
 
 
 density_distance_2014_2015 <-read_csv("./data1/density_distance_drives_tracking/_density_drives_distance_daily_2014_15.csv")
@@ -1197,7 +1198,7 @@ t.test(other_2019$drive_passes_pct, b2b_2019$drive_passes_pct)
 
 t.test(all_other$drive_pts_pct, all_b2b$drive_pts_pct)
 
-together_final <- read.csv("./data1/together2.csv")
+together_final <- read.csv("./data1/final_together.csv")
 
 team_b2b_vis <- together_final %>%
   filter(b2b_2nd == TRUE) %>%
@@ -1230,15 +1231,7 @@ team_otherb2b_3in4_vis <- together_final %>%
   filter(three_in_four == FALSE) %>%
   mutate(Win = ifelse(Win == TRUE, 1, 0))
 
-team_b2b_3in4_home <- together_final %>%
-  filter(b2b_2nd_home == TRUE) %>%
-  filter(three_in_four_home == TRUE) %>%
-  mutate(Win = ifelse(Win == TRUE, 1, 0))
 
-team_otherb2b_3in4_home <- together_final %>%
-  filter(b2b_2nd_home == FALSE) %>%
-  filter(three_in_four_home == FALSE) %>%
-  mutate(Win = ifelse(Win == TRUE, 1, 0))
 
 team_3hoursforward_vis <- together_final %>%
   filter(travel_3_hours_forward == TRUE) %>%
@@ -1257,81 +1250,113 @@ team_other_3hoursback_vis <- together_final %>%
   mutate(Win = ifelse(Win == TRUE, 1, 0))
 
 
-t_b2b<- t.test(team_otherb2b_vis$Win, team_b2b_vis$Win)
+t_b2b<- t.test(team_otherb2b_vis$game_net_rating, team_b2b_vis$game_net_rating)
 
-t_3in4 <-t.test(team_other3in4_vis$Win, team_3in4_vis$Win)
+t_3in4 <-t.test(team_other3in4_vis$game_net_rating, team_3in4_vis$game_net_rating)
 
-t_b2b_3in4 <- t.test(team_otherb2b_3in4_vis$Win, team_b2b_3in4_vis$Win)
+t_b2b_3in4 <- t.test(team_otherb2b_3in4_vis$game_net_rating, team_b2b_3in4_vis$game_net_rating)
 
-t_3hrsForward <- t.test(team_other_3hoursforward_vis$Win, team_3hoursforward_vis$Win)
+t_3hrsForward <- t.test(team_other_3hoursforward_vis$game_net_rating, team_3hoursforward_vis$game_net_rating)
 
-t_3hrsBack <- t.test(team_other_3hoursback_vis$Win, team_3hoursback_vis$Win)
-
-t_3hrsForward_NetRatingDiff <- t.test(team_other_3hoursforward_vis$net_rating_diff, team_3hoursforward_vis$net_rating_diff)
-
-t_3hrsBack_NetRatingDiff <- t.test(team_other_3hoursback_vis$net_rating_diff, team_3hoursback_vis$net_rating_diff)
+t_3hrsBack <- t.test(team_other_3hoursback_vis$game_net_rating, team_3hoursback_vis$game_net_rating)
 
 
-team_t_test_info <- tibble(Test = c("B2B_Win", "Three_in_Four_Win", 
-                "b2b_and_3in4_Win", "3hrsForward_Win", 
-                "3hrsBack_Win", "3hrsForward_NRD",
-                "3hrsBack_NRD"), 
-       "Mean_of_X" = c(t_b2b$estimate[1], t_3in4$estimate[1],
-                       t_b2b_3in4$estimate[1], t_3hrsForward$estimate[1],
-                       t_3hrsBack$estimate[1], t_3hrsForward_NetRatingDiff$estimate[1],
-                       t_3hrsBack_NetRatingDiff$estimate[1]),
-       "Mean_of_Y" = c(t_b2b$estimate[2], t_3in4$estimate[2],
-                       t_b2b_3in4$estimate[2], t_3hrsForward$estimate[2],
-                       t_3hrsBack$estimate[2], t_3hrsForward_NetRatingDiff$estimate[2],
-                       t_3hrsBack_NetRatingDiff$estimate[2]),
-       "P_Value" = c(t_b2b$p.value, t_3in4$p.value, t_b2b_3in4$p.value,
-                     t_3hrsForward$p.value, t_3hrsBack$p.value,
-                     t_3hrsForward_NetRatingDiff$p.value, t_3hrsBack_NetRatingDiff$p.value))
+
+
+Test <- c("2nd_B2B", "Three_in_Four", "both", "3hrsBack")
+
+Test <- ordered(Test, levels = c("2nd_B2B", "Three_in_Four", "both", "3hrsBack"))
+
+Mean_of_X <- c(t_b2b$estimate[1], t_3in4$estimate[1], t_b2b_3in4$estimate[1], t_3hrsBack$estimate[1])
+
+Mean_of_Y <- c(t_b2b$estimate[2], t_3in4$estimate[2], t_b2b_3in4$estimate[2], t_3hrsBack$estimate[2])
+
+P_Value <- c(t_b2b$p.value, t_3in4$p.value, t_b2b_3in4$p.value, t_3hrsBack$p.value)
+
+standard_error <- c(sd(together_final$game_net_rating) / sqrt(length(together_final$game_net_rating)),
+                    sd(together_final$game_net_rating) / sqrt(length(together_final$game_net_rating)),
+                    sd(together_final$game_net_rating) / sqrt(length(together_final$game_net_rating)),
+                    sd(together_final$game_net_rating) / sqrt(length(together_final$game_net_rating)))
+       
+                                      
+team_t_test_info <- ordered(Test, levels = c("2nd_B2B", "Three_in_Four", "b2b_and3in4", "3hrsBack"))
+team_t_test_info <- data.frame(Test, Mean_of_X, Mean_of_Y, P_Value, standard_error)
+
+write_csv(team_t_test_info,
+          "./data1/team_t_test_info.csv")
+
+ggplot(data = team_t_test_info) +
+  geom_point(aes(x = Test, y = Mean_of_X), color = "brown", size = 2) +
+  geom_point(aes(x = Test, y = Mean_of_Y), color = "blue", size = 2) +
+  labs(color = "Legend") +
+  #geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(x = Test, ymin = Mean_of_X - 2*standard_error, ymax = Mean_of_X + 2*standard_error), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = Test, ymin = Mean_of_Y - 2*standard_error, ymax = Mean_of_Y + 2*standard_error), color = "blue", width = 0.2) +
+  xlab("Season") +
+  ylab("Game Net Rating Mean") +
+  labs(title = "Difference of Mean between fatigue related metrics") +
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank())  +
+  theme(legend.position = "bottom")
+
+
+sd(together_final$game_net_rating) / sqrt(length(together_final$game_net_rating))
 
 colnames(together_final)
 
 other_2014 <- density_distance_2014_2015 %>%
   filter(`B2B-2nd` == "No") %>%
-  filter(min.x > 10)
+  filter(min.x > 10) %>%
+  na.omit()
 
 b2b_2014 <- density_distance_2014_2015 %>%
   filter(`B2B-2nd` == "Yes") %>%
-  filter(min.x > 10)
-
+  filter(min.x > 10) %>%
+  na.omit()
+  
 
 other_2016 <- density_distance_2016_2017 %>%
   filter(`B2B-2nd` == "No") %>%
-  filter(min.x > 10)
+  filter(min.x > 10) %>%
+  na.omit()
 
 b2b_2016 <- density_distance_2016_2017 %>%
   filter(`B2B-2nd` == "Yes") %>%
-  filter(min.x > 10)
+  filter(min.x > 10) %>%
+  na.omit()
 
 other_2017 <- density_distance_2017_2018 %>%
   filter(`B2B-2nd` == "No") %>%
-  filter(min.x > 10)
+  filter(min.x > 10) %>%
+  na.omit()
+  
 
 b2b_2017 <- density_distance_2017_2018 %>%
   filter(`B2B-2nd` == "Yes") %>%
-  filter(min.x > 10)
+  filter(min.x > 10) %>%
+  na.omit()
 
 
 other_2018 <- density_distance_2018_2019 %>%
   filter(`B2B-2nd` == "No") %>%
-  filter(min.x > 10)
+  filter(min.x > 10) %>%
+  na.omit()
 
 b2b_2018 <- density_distance_2018_2019 %>%
   filter(`B2B-2nd` == "Yes") %>%
-  filter(min.x > 10)
+  filter(min.x > 10) %>%
+  na.omit()
 
 
 other_2019 <- density_distance_2019_2020 %>%
   filter(`B2B-2nd` == "No") %>%
-  filter(min.x > 10)
+  filter(min.x > 10) %>%
+  na.omit()
 
 b2b_2019 <- density_distance_2019_2020 %>%
   filter(`B2B-2nd` == "Yes") %>%
-  filter(min.x > 10)
+  filter(min.x > 10) %>%
+  na.omit()
 
 all_other <- rbind(other_2014, other_2016, other_2017, other_2018, other_2019) 
 
@@ -1355,7 +1380,7 @@ player_t_test_info <- tibble(Test = c("dist_miles", "dist_miles_def",
                                            t_avg_speed_off$estimate[2]),
                            "P_Value" = c(t_dist_miles$p.value, t_dist_miles_def$p.value, 
                                          t_dist_miles_off$p.value, t_avg_speed$p.value, t_avg_speed_off$p.value))
-
+player_info <- tibble(dist_miles = c(t_dist_miles$estimate[1], t_dist_miles$estimate[2]))
 
 other_2014_3in4 <- density_distance_2014_2015 %>%
   filter(`3in4` == "No") %>%
@@ -1421,12 +1446,114 @@ player_t_test_info_3in4 <- tibble(Test = c("dist_miles", "dist_miles_def",
                                              t_avg_speed_off_3in4$estimate[2]),
                              "P_Value" = c(t_dist_miles_3in4$p.value, t_dist_miles_def_3in4$p.value, 
                                            t_dist_miles_off_3in4$p.value, t_avg_speed_3in4$p.value, t_avg_speed_off_3in4$p.value))
+player_t_test_info %>%
+  ggplot(aes(x = Test, y = c(Mean_of_X - Mean_of_Y))) +
+  geom_bar(stat = "Identity") +
+  theme_bw()
 
-p1 <- ggplot(player_t_test_info, aes(x = Group.1, y = Value, fill = Stat)) +
-  geom_bar(stat = "Identity", position = "dodge") +
-  theme_bw() +
-  ggtitle("Atlanta Hawks") +
-  xlab("Players") +
-  ylab("avg pts per drive") +
-  scale_fill_manual("Stat", values = c("not_2nd_B2B" = "black", "2nd_B2B_game" = "skyblue")) +
-  theme(axis.text.x = element_text(size=5, angle=45, hjust = 1))
+
+
+
+
+t_dist_miles_2014 <- t.test(other_2014$dist_miles, b2b_2014$dist_miles)
+t_dist_miles_2016 <- t.test(other_2016$dist_miles, b2b_2016$dist_miles)
+t_dist_miles_2017 <- t.test(other_2017$dist_miles, b2b_2017$dist_miles)
+t_dist_miles_2018 <- t.test(other_2018$dist_miles, b2b_2018$dist_miles)
+t_dist_miles_2019 <- t.test(other_2019$dist_miles, b2b_2019$dist_miles)
+
+dist_table <- tibble(season = c("2014-15", "2016-17", "2017-18", "2018-19", "2019-20"),
+       other_mean = c(t_dist_miles_2014$estimate[1], t_dist_miles_2016$estimate[1],
+                      t_dist_miles_2017$estimate[1], t_dist_miles_2018$estimate[1],
+                      t_dist_miles_2019$estimate[1]),
+       b2b_mean = c(t_dist_miles_2014$estimate[2], t_dist_miles_2016$estimate[2],
+                    t_dist_miles_2017$estimate[2], t_dist_miles_2018$estimate[2],
+                    t_dist_miles_2019$estimate[2]),
+       standard_error = c(sd(distance__season_2014_15$dist_miles) / sqrt(length(distance__season_2014_15$dist_miles)),
+                          sd(distance__season_2016_17$dist_miles) / sqrt(length(distance__season_2016_17$dist_miles)),
+                          sd(distance__season_2017_18$dist_miles) / sqrt(length(distance__season_2017_18$dist_miles)),
+                          sd(distance__season_2018_19$dist_miles) / sqrt(length(distance__season_2018_19$dist_miles)),
+                          sd(distance__season_2019_20$dist_miles) / sqrt(length(distance__season_2019_20$dist_miles))))
+
+write_csv(dist_table,
+          "./data1/distance_t_test_table.csv")
+
+t_speed_2014 <- t.test(other_2014$avg_speed, b2b_2014$avg_speed)
+t_speed_2016 <- t.test(other_2016$avg_speed, b2b_2016$avg_speed)
+t_speed_2017 <- t.test(other_2017$avg_speed, b2b_2017$avg_speed)
+t_speed_2018 <- t.test(other_2018$avg_speed, b2b_2018$avg_speed)
+t_speed_2019 <- t.test(other_2019$avg_speed, b2b_2019$avg_speed)
+
+speed_table <- tibble(season = c("2014-15", "2016-17", "2017-18", "2018-19", "2019-20"),
+                     other_mean = c(t_speed_2014$estimate[1], t_speed_2016$estimate[1],
+                                    t_speed_2017$estimate[1], t_speed_2018$estimate[1],
+                                    t_speed_2019$estimate[1]),
+                     b2b_mean = c(t_speed_2014$estimate[2], t_speed_2016$estimate[2],
+                                  t_speed_2017$estimate[2], t_speed_2018$estimate[2],
+                                  t_speed_2019$estimate[2]),
+                     standard_error = c(sd(distance__season_2014_15$avg_speed) / sqrt(length(distance__season_2014_15$avg_speed)),
+                                        sd(distance__season_2016_17$avg_speed) / sqrt(length(distance__season_2016_17$avg_speed)),
+                                        sd(distance__season_2017_18$avg_speed) / sqrt(length(distance__season_2017_18$avg_speed)),
+                                        sd(distance__season_2018_19$avg_speed) / sqrt(length(distance__season_2018_19$avg_speed)),
+                                        sd(distance__season_2019_20$avg_speed) / sqrt(length(distance__season_2019_20$avg_speed))))
+
+write_csv(speed_table,
+          "./data1/speed_t_test_table.csv")
+
+sd(distance__season_2014_15$dist_miles) / sqrt(length(distance__season_2014_15$dist_miles))
+sd(distance__season_2016_17$dist_miles) / sqrt(length(distance__season_2016_17$dist_miles))
+sd(distance__season_2017_18$dist_miles) / sqrt(length(distance__season_2017_18$dist_miles))
+sd(distance__season_2018_19$dist_miles) / sqrt(length(distance__season_2018_19$dist_miles))
+sd(distance__season_2019_20$dist_miles) / sqrt(length(distance__season_2019_20$dist_miles))
+
+sd(distance__season_2014_15$avg_speed) / sqrt(length(distance__season_2014_15$avg_speed))
+sd(distance__season_2016_17$avg_speed) / sqrt(length(distance__season_2016_17$avg_speed))
+sd(distance__season_2017_18$avg_speed) / sqrt(length(distance__season_2017_18$avg_speed))
+sd(distance__season_2018_19$avg_speed) / sqrt(length(distance__season_2018_19$avg_speed))
+sd(distance__season_2019_20$avg_speed) / sqrt(length(distance__season_2019_20$avg_speed))
+
+
+(sd(other_2016$dist_miles) / sqrt(length(distance__season_2016_17$dist_miles)))*2
+
+ggplot(data = speed_table) +
+  geom_point(aes(x = season, y = other_mean), color = "brown", size = 2) +
+  geom_point(aes(x = season, y = b2b_mean), color = "blue", size = 2) +
+  labs(color = "Legend") +
+  #geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error, ymax = b2b_mean + 2*standard_error), color = "blue", width = 0.2) +
+  xlab("Season") +
+  ylab("Mean speed") +
+  labs(title = "Difference of Means between 2nd game of a back to back and all other games") +
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank())  +
+  theme(legend.position = "bottom")
+
+legend("topright", inset=c(-0.2,0), legend=c("b2b","other"), title="Group", fill = c("brown", "blue"), text.width = c(3,5))
+  
+ggplot(data = dist_table) +
+  geom_point(aes(x = season, y = other_mean), color = "brown", size = 2) +
+  geom_point(aes(x = season, y = b2b_mean), color = "blue", size = 2) +
+  labs(color = "Legend") +
+  #geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error, ymax = b2b_mean + 2*standard_error), color = "blue", width = 0.2) +
+  xlab("Season") +
+  ylab("Mean Distance") +
+  labs(title = "Difference of Means between 2nd game of a back to back and all other games") +
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank())  +
+  theme(legend.position = "bottom")
+legend("topright", inset=c(-0.2,0), legend=c("b2b","other"), title="Group", fill = c("brown", "blue"), text.width = c(3,5))
+
+  
+  
+ggplot(data = table, aes(x = coefficients, y = betas)) +
+  geom_point(color = "brown", size = 2) +
+  geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(ymin = betas - 2*standard_errors, ymax = betas + 2*standard_errors), color = "brown", width = 0.2) +
+  xlab("Regression Variable") +
+  ylab("Coefficient Value") +
+  labs(title = "Coefficients of the Density and Schedule Metrics") +
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank()
+  )
