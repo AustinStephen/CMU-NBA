@@ -33,7 +33,7 @@ library(airball)
 library(gridExtra)
 library(png)
 library(grid)
-library(ggimage)
+#library(ggimage)
 library(gt)
 
 ```
@@ -53,7 +53,7 @@ style_mono_accent(base_color = "#374052",
 
 ### Why Fatigue?  
 
-<span> 1.</span> Player Performance
+<span> 1.</span> Player performance
 
 ???
 The literature is very clear that insufficient rest worsens athlete preformance. 
@@ -64,22 +64,22 @@ physical and physiological adaptations often associated with injury and enhance
 athletic performance and player availability"
 --
 
-<span> 2. </span> Schedule Fairness  
+<span> 2. </span> Schedule fairness  
 
 --
 
 ```{r Map, echo = FALSE, fig.height= 5, fig.width=12}
-states <- map_data("state")
-ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group = group), fill = "white", color = "gray") + 
-  coord_fixed(1.3) + 
-  geom_image(data = coords_and_distance, aes(x = Longitude, y = Latitude, image = logo, size = I(img_size))) +
-  theme(axis.line=element_blank(),axis.text.x=element_blank(),
-        axis.text.y=element_blank(), axis.ticks=element_blank(),
-        axis.title.x=element_blank(),
-        axis.title.y=element_blank(),
-        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
-        panel.grid.minor=element_blank(),plot.background=element_blank(),
-        legend.position = "bottom")
+# states <- map_data("state")
+# ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group = group), fill = "white", color = "gray") + 
+#   coord_fixed(1.3) + 
+#   geom_image(data = coords_and_distance, aes(x = Longitude, y = Latitude, image = logo, size = I(img_size))) +
+#   theme(axis.line=element_blank(),axis.text.x=element_blank(),
+#         axis.text.y=element_blank(), axis.ticks=element_blank(),
+#         axis.title.x=element_blank(),
+#         axis.title.y=element_blank(),
+#         panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+#         panel.grid.minor=element_blank(),plot.background=element_blank(),
+#         legend.position = "bottom")
 ```
 
 ---
@@ -98,7 +98,7 @@ nba_travel_plot(data = travel1415,
 
 ---
 
-## Findings  
+## Project findings  
 
 1. In-game distance measures suggest players achieve a high degree of recovery 
 between games.
@@ -108,18 +108,15 @@ These might get changed last minute.
 
 --
 
-2. Offer framework for analyzing fatigue from a
+2. Offer a framework for analyzing fatigue
 
 --
 
 3. A subset of schedule induced factors impact game outcomes 
 
---
-
-
 ---
 
-## What is Fatigue?
+## What is fatigue?
 
 - Cannot use direct measures  
 
@@ -142,21 +139,17 @@ fatigued a player was by in game events.
 
 - Identify events that fatigue players
 
----
-
-## Fatigue Inducing Events
+--
 
 1. In-game events  
   - ex. distance run or speed
 
 2. Between game events  
   - ex. Length of flight or rest since last game
-???
-For the purposes of our project we define two types of fatigue inducing events.
 
 ---
 
-## In-Game Distance  
+### The in-game distance data
 
 ```{r}
  tracking_player <- read_csv(
@@ -193,7 +186,7 @@ Player level
 
 ---
 
-## In-Game Distance 
+### Distance's relationship with work
 
 - W = F \* d,  $\Delta$W = $\Delta$d
 
@@ -229,16 +222,16 @@ We saw 2 steps to making a robust analysis of this data.
 
 ---
 
-## In-Game Distance 
+### In-game distance and preformance 
 
-- More distance does not equal better performance
+- More distance does not correlate with better performance
 
 ???
 Hypothesized more distance meant more effort so ideally better performance.
 
 Explain axis and data is 20k observations  
 
-No correlation between fg percentage and distance a team travels.
+No correlation between fg percentage and distance a team travels.  
 
 --
 
@@ -268,16 +261,17 @@ gbg_player_w_distance %>%
 
 ---
 
-## In-Game Distance 
+### In-game distance and preformance
 
-- More distance does not equal better performance  
+- More distance does not equal correlate with better performance  
 
 ???
 Here you are looking at the same plot for turnovers, no relationship. I'm grossly 
-simpliying the exploration that went into these factors but we were able to 
-dispell any relationships. 
+simplifying the exploration that went into these factors but we were able to 
+dispel any relationships. 
 
 --
+
 - p-value 0.498  
 
 ```{r fig.height = 4, include = TRUE}
@@ -307,7 +301,7 @@ gbg_player_w_distance %>%
 ---
 
 
-## In-Game Distance 
+### In-game distance refactory period
 
 - Increase volume does not provide evidence of a refractory period  
 <br>
@@ -393,7 +387,7 @@ Hypothesized this is caused by players who are playing well get left in the
 game longer.
 ---
 
-## In-Game Distance 
+### In-game distance refractory period 
 
 - Time adjustment suggests fatigue is too small to measure
 
@@ -406,7 +400,7 @@ ggplot(aes(x = diff_sn_avg_wind_5_speed,y = diff_from_sn_avg_speed))+
   geom_smooth(method="lm")+ 
   labs(y = "Current game",
        x = "Last 5 days",
-       title = "Min Adjusted Distance Deviation From Season Average")+
+       title = "Min Adjusted Distance Deviation From Season Avg")+
   theme(panel.background = element_rect(fill ="burlywood"),
         panel.grid.major = element_blank(),
         plot.title = element_text(size = 20),
@@ -419,7 +413,7 @@ ggplot(aes(x = diff_sn_avg_wind_5_speed,y = diff_from_sn_avg_speed))+
 
 ---
 
-## In-Game Distance
+### In-game distance back to back
 
 - Players run less in 2nd games of a back to back
 
@@ -607,10 +601,12 @@ ggplot(data = team_t_test_info) +
 
 ---
 
-## Between Game Events
-- Disparity in team strength 
+### Identifying contribution to game outcome  
+- Most important factor is team strength 
 
 - Remove variance in response associated with team strength
+
+- Target variance 
 
 ???
 while t-tests offer a great way to look for relationships they have a high 
@@ -699,16 +695,39 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 ```
 ---
 
+---
+### Further work
+* Develop a mapping of fatigue to performance
+<br>
+* Generalize load management as a strategy for more players
+<br>
+* Design a stronger proxy for team strength
 
 ---
-# How Can Teams Use This Information?
+## Relevance to stakeholders
+**NBA Teams**
+- Allocation of resources
+- Load management
+
+**League Office**
+- Schedule design
+- Understanding complexities of player performance
+- Viewership and profit maximization
 
 ---
-# Future Work
+##Thanks
+ **Advisor**
+- Maksim Horowitz, Atlanta Hawks
 
+**Carnegie Mellon**
+- Ron Yurko
+- Rebecca Nugent
+- Beomjo Park
+- Meg Ellingwood
+- Nick Kissel
 
----
-# Thanks
+**Special thanks** to Tom Bliss as well for his insight on fatigue analysis in the NFL
+
 
 
 
