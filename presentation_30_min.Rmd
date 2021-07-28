@@ -51,7 +51,7 @@ style_mono_accent(base_color = "#374052",
   )
 ```
 
-### Why Fatigue?  
+### Why fatigue?  
 
 <span> 1.</span> Player performance
 
@@ -142,7 +142,7 @@ fatigued a player was by in game events.
 --
 
 1. In-game events  
-  - ex. distance run or speed
+  - ex. Distance run or speed
 
 2. Between game events  
   - ex. Length of flight or rest since last game
@@ -247,7 +247,7 @@ gbg_player_w_distance %>%
   geom_abline(intercept = 110.614, slope = -7.617, color = "darkred")+
   theme_bw()+ 
   geom_smooth(method = "lm", se = FALSE) +
-  labs( title = "FG % Difference From Season Average",
+  labs( title = "Difference From Season Average FG %",
         x = "Distance in Miles Min Adjusted",
         y = "FG Percent")+
   theme(panel.background = element_rect(fill ="burlywood"),
@@ -263,7 +263,7 @@ gbg_player_w_distance %>%
 
 ### In-game distance and preformance
 
-- More distance does not equal correlate with better performance  
+- More distance does not correlate with better performance  
 
 ???
 Here you are looking at the same plot for turnovers, no relationship. I'm grossly 
@@ -285,7 +285,7 @@ gbg_player_w_distance %>%
   geom_abline(intercept = 110.614, slope = -7.617, color = "darkred")+
   theme_bw()+ 
   geom_smooth(method = "lm", se = FALSE) +
-  labs( title = "Turnovers Difference From Season Average",
+  labs( title = "Difference From Season Average Turnovers",
         x = "Distance in Miles Min Adjusted",
         y = "Turnovers")+
   theme(panel.background = element_rect(fill ="burlywood"),
@@ -301,7 +301,7 @@ gbg_player_w_distance %>%
 ---
 
 
-### In-game distance refactory period
+### Post distance overload regress
 
 - Increase volume does not provide evidence of a refractory period  
 <br>
@@ -387,7 +387,7 @@ Hypothesized this is caused by players who are playing well get left in the
 game longer.
 ---
 
-### In-game distance refractory period 
+### Post distance overload regress
 
 - Time adjustment suggests fatigue is too small to measure
 
@@ -518,6 +518,8 @@ ggplot(data = filter(check, ratioPIE < 0.6)) +
 
 - Evidence indicating teams do a good job making sure their players are recovered.  
 
+- Intuition may be misguided 
+
 
 ???
 1. Basketball is composed of complex interaction of skill sets and simply working
@@ -543,7 +545,7 @@ sophisticated than can be captured by measuring the players work.
 
 ---
 
-###Taking a look at cross game fatigue
+### Taking a look at cross game fatigue
 ``` {r Cross Game Data, echo = FALSE, fig.height = 6.5, fig.width = 12}
 together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
   select(-c(fgm:opp_blk)) %>%
@@ -602,11 +604,15 @@ ggplot(data = team_t_test_info) +
 ---
 
 ### Identifying contribution to game outcome  
+
+- Response is game outcome 
+
+- Predictors are any event contributing to that outcome
+
 - Most important factor is team strength 
 
-- Remove variance in response associated with team strength
-
-- Target variance 
+- Extract relationships with the game outcome that are present once the team
+strength has been eliminated from the picture
 
 ???
 while t-tests offer a great way to look for relationships they have a high 
@@ -619,7 +625,7 @@ which could have introduced latent effects associated with their travel.
 
 ---
 
-## Modeling for Team Strength
+## Modeling for team Strength
 
 1. __Constrained:__ Limited to the information available to a team when they would 
 have played the game.
