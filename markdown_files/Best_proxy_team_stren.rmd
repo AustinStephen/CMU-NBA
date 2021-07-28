@@ -472,6 +472,7 @@ holdout_predictions$type <-  ordered(holdout_predictions$type, c("sn_avg","w_2",
                         "w50_tc", "w60_tc"))
 holdout_predictions$test_fold <- as.factor(holdout_predictions$test_fold)
 
+#write.csv(holdout_predictions, "../data/")
 
 holdout_predictions %>% 
   group_by(type, test_fold) %>%
@@ -489,6 +490,110 @@ holdout_predictions %>%
        tp = temporal weighting and dynamic season average",
        x = "model")
 ```
+
+
+### REDO 10 fold just didn't want to delete 
+```{r}
+
+library(glmnet)
+
+together_net_Rating_allWindows <- 
+  read_csv("../data/proxy_team_strength/clean_team_strength_columns.csv") %>%
+  dplyr::select(-c("Visitor","Opponent","Date","game_id","season","score_diff"))
+
+## Finding the best proxy for team strength 
+set.seed(2015)
+
+## Creating the test folds
+together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
+  
+  mutate(test_fold = sample(rep(1:10, length.out = n())))
+
+## generates the holdout predictions
+holdout_predictions <- 
+  map_dfr(unique(together_net_Rating_allWindows$test_fold), 
+          function(holdout) {
+            # Separate test and training data:
+            test_data <- together_net_Rating_allWindows %>% filter(test_fold == holdout)
+            train_data <- together_net_Rating_allWindows %>% filter(test_fold != holdout)
+            
+            # Repeat for matrices
+            test_x <- as.matrix(dplyr::select(test_data, c("hollow_wind60_cent",
+                          "hollow_wind50_cent","hollow_wind40_cent","hollow_wind30_cent",
+                          "hollow_wind20_cent", "wind_10_center", "net_rating_diff")))
+            train_x <- as.matrix(dplyr::select(train_data, c("hollow_wind60_cent",
+                          "hollow_wind50_cent","hollow_wind40_cent","hollow_wind30_cent",
+                          "hollow_wind20_cent", "wind_10_center", "net_rating_diff")))
+            
+            
+            # Train models:
+            ## mean alone
+            sn_net_rating_diff <- lm(game_net_rating ~ net_rating_diff ,
+                                     data = train_data)
+            
+            ## window 40
+            w_40 <- lm(game_net_rating ~ wind_40 + net_rating_diff , data = train_data)
+            
+            ## window 40 temporal
+            w40_t <- lm(game_net_rating ~ wind_5 + wind_10_hollow_5 + wind_15_hollow + 
+                wind_20_hollow + wind_25_hollow + wind_30_hollow + wind_35_hollow +
+                  wind_40_hollow + net_rating_diff , data = train_data)
+            
+            ## Window 40 temporal weighted
+            w40_tw <- lm(game_net_rating ~  wind_5 + wind_10_hollow_5 + wind_15_hollow +
+            wind_20_hollow + wind_25_hollow + wind_30_hollow + wind_35_hollow +
+            wind_40_hollow + net_rating_diff  + games_played * net_rating_diff,
+            data = together_net_Rating_allWindows )
+            
+            ## Window 60 temporal centered
+            w60_tc <- lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + 
+                    hollow_wind30_cent + hollow_wind40_cent + hollow_wind50_cent +
+                    hollow_wind60_cent + net_rating_diff,
+                    data = together_net_Rating_allWindows)
+            
+            ## Elastic net
+            en_model <- cv.glmnet(train_x, train_data$game_net_rating, alpha = .20)
+            
+            # Return tibble of holdout results:
+            tibble(sn_net_rating_diff = predict(sn_net_rating_diff, newdata = test_data),
+                   w_40 = predict(w_40, newdata = test_data),
+                   w40_t = predict(w40_t, newdata = test_data),
+                   w40_tw = predict(w40_tw, newdata = test_data),
+                   w60_tc = predict(w60_tc, newdata = test_data),
+                   w60_EN = predict(en_model, newx = test_x),
+                   test_actual = test_data$game_net_rating, 
+                   test_fold = holdout) 
+          })
+
+holdout_predictions <- holdout_predictions %>%
+  pivot_longer(sn_net_rating_diff:w60_EN, 
+               names_to = "type", values_to = "test_preds")
+
+holdout_predictions$type <-  ordered(holdout_predictions$type, c("sn_net_rating_diff","w_40",
+                      "w40_t", "w40_tw", "w60_tc", "w60_EN"))
+holdout_predictions$test_fold <- as.factor(holdout_predictions$test_fold)
+
+#write.csv(holdout_predictions, "../data/")
+
+holdout_predictions %>% 
+  group_by(type, test_fold) %>%
+  summarize(rmse =
+              sqrt(mean((test_actual - test_preds)^2))) %>% 
+  ggplot(aes(x = type, y = rmse)) + 
+  geom_point() + theme_bw() +
+  stat_summary(fun = mean, geom = "point", 
+               color = "red") + 
+  stat_summary(fun.data = mean_se, geom = "errorbar",
+               color = "red") +
+  labs(title = "Game net rating difference as response",
+       caption = "t = temporal weighting
+       tc = temporal weighting and using future games
+       tp = temporal weighting and dynamic season average",
+       x = "model")
+
+```
+
+
 
 
 
