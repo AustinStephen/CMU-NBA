@@ -596,7 +596,7 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
   geom_errorbar(aes(ymin = betas - 2*standard_errors, ymax = betas + 2*standard_errors), color = "brown", width = 0.2) +
   xlab("Regression Variable") +
   ylab("Coefficient Value") +
-  labs(title = "Significant Variables")
+  labs(title = "Significant Variables") + 
   theme(panel.background = element_rect(fill = "burlywood"),
         panel.grid.major=element_blank()
   )
