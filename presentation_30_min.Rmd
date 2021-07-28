@@ -33,16 +33,17 @@ library(airball)
 library(gridExtra)
 library(png)
 library(grid)
-
+library(ggimage)
+library(gt)
 tracking_by_player_season_daily_2019_20 <- read_csv("data/in_game_distance_data/tracking_by_player_season_daily_2019_20.csv")
 
 ```
 
 ```{r xaringan-themer, include=FALSE, warning=FALSE }
-
-visitors <- read_csv("./matthew_data/visitors.csv")
-data1415 <- read_csv("./matthew_data/regseason1415.csv")
-datos <- read_csv("./matthew_data/map1415data.csv")
+coords_and_distance <- read_csv("./matthew_data/coords_and_distance.csv")
+travel1415 <- read_csv("./matthew_data/travel1415.csv")
+together_net_Rating_allWindows <- read_csv("./matthew_data/austin_everything.csv")
+check <- read_csv("./matthew_data/kawhi.csv")
 
 style_mono_accent(base_color = "#374052",
   white_color = "#e6e6e6",
@@ -71,6 +72,37 @@ athletic performance and player availability"
 
 
 INSERT GAPHIC AND DISTANCE TRAVELED B2B DISCUSSION
+
+---
+###North-eastern teams travel substantially less than other teams
+<font size="4.5"> The Blazers traveled over 62,000 miles in the 14-15 season, the Cavs only traveled 35,000 </font>
+```{r Map, echo = FALSE, fig.height= 7, fig.width=12}
+states <- map_data("state")
+ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group = group), fill = "white", color = "gray") + 
+  coord_fixed(1.3) + 
+  geom_image(data = coords_and_distance, aes(x = Longitude, y = Latitude, image = logo, size = I(img_size))) +
+  theme(axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(), axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),plot.background=element_blank(),
+        legend.position = "bottom")
+```
+
+---
+### The Cavaliers also cross far less timezones than the coastal teams
+```{r Flight Paths, echo = FALSE, fig.height = 7, fig.width=12}
+nba_travel_plot(data = travel1415,
+                season = 2015,
+                team = c("Portland Trail Blazers","Denver Nuggets", "Cleveland Cavaliers", "Boston Celtics"),
+                city_color = "yellow",
+                plot_background_fill = "black",
+                land_color = "gray",
+                caption_color = "lightblue",
+                ncolumns = 2)
+
+```
 
 ---
 
@@ -141,26 +173,26 @@ For the purposes of our project we define two types of fatigue inducing events.
    "data/in_game_distance_data/tracking_by_player_season_daily_2018_19.csv")
 
 
- tracking_player %>%
-   select(c("player_name","date","min", "dist_miles","dist_miles_off", "dist_miles_def",
-            "avg_speed","avg_speed_off","avg_speed_def")) %>%
-   rename("Name" = player_name,
-          "Distance (mi)" = dist_miles,
-          "Distance Offense"  = dist_miles_off,
-          "Distance Defense" = dist_miles_def,
-          "Speed (mph)" = avg_speed,
-          "Speed Offense" = avg_speed_off,
-          "Speed Defense" = avg_speed_def,
-          "Date" = date,
-          "Min" = min) %>%
-   slice(1:4) %>%
-   gt() %>%
-   tab_header(
-    title = md("**Distance By Player Individual Games**")
-  ) %>%
-  tab_source_note(md("Data courtesy of nba.com and Second Spectrum")) %>%
-  opt_table_outline( style = "solid", width = px(5), color = "#001747")%>%
-  tab_options(table.width = pct(80))
+ #tracking_player %>%
+   #select(c("player_name","date","min", "dist_miles","dist_miles_off", "dist_miles_def",
+          #  "avg_speed","avg_speed_off","avg_speed_def")) %>%
+   #rename("Name" = player_name,
+          #"Distance (mi)" = dist_miles,
+          #"Distance Offense"  = dist_miles_off,
+   #       "Distance Defense" = dist_miles_def,
+  #        "Speed (mph)" = avg_speed,
+#          "Speed Offense" = avg_speed_off,
+#          "Speed Defense" = avg_speed_def,
+ #         "Date" = date,
+#          "Min" = min) %>%
+#   #slice(1:4) %>%
+ #  gt() %>%
+ #  tab_header(
+#    title = md("**Distance By Player Individual Games**")
+ # ) %>%
+#  tab_source_note(md("Data courtesy of nba.com and Second Spectrum")) %>%
+ # opt_table_outline( style = "solid", width = px(5), color = "#001747")%>%
+#  tab_options(table.width = pct(80))
 ```
 
 ???
@@ -399,15 +431,58 @@ ggplot(aes(x = diff_sn_avg_wind_5_speed,y = diff_from_sn_avg_speed))+
 
 ## In-Game Distance
 
-- How does player distance relate to game outcomes
-GRACE ADD your stuff
+- Players run less in 2nd games of a back to back
+
+```{r dist_t_test, echo = FALSE, fig.height= 5, fig.width=14}
+together_final <- read.csv("./data1/final_together.csv")
+dist_table <- read.csv("./data1/distance_t_test_table.csv")
+
+ggplot(data = dist_table) +
+  geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
+  geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
+  scale_color_manual(name="game type",labels=c("2nd game of B2B", "All other games"), values=c("blue", "brown")) +
+  #geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error, ymax = b2b_mean + 2*standard_error), color = "blue", width = 0.2) +
+  xlab("Season") +
+  ylab("Mean Distance") +
+  labs(title = "Difference of Means between 2nd game of a back to back and all other games", color = "legend") +
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank())  +
+  theme(legend.position = "right", axis.text = element_text(size = 16), axis.title = element_text(size = 22)) +
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16), title = element_text(size = 20))
+
+```
+
 
 ---
 
-## In-Game Distance 
+## In-Game Speed
 
-- How does player distance relate to game outcomes
-GRACE ADD your stuff
+- Average Speed is less in the 2nd game of a back to back
+
+```{r speed_t-test, echo = FALSE, fig.height=5, fig.width=14}
+speed_table <- read_csv("./data1/speed_t_test_table.csv")
+
+ggplot(data = speed_table) +
+  geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
+  geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
+  scale_color_manual(name="game type",labels=c("2nd game of B2B", "All other games"), values=c("blue", "brown")) +
+  #scale_color_identity(guide = "legend") +
+  #geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error, ymax = b2b_mean + 2*standard_error), color = "blue", width = 0.2) +
+  xlab("Season") +
+  ylab("Mean speed") +
+  labs(title = "Difference of Means between 2nd game of a back to back and all other games", colour = "game type") +
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank())  +
+  theme(legend.position = "right", axis.text = element_text(size = 16), axis.title = element_text(size = 22)) +
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16), title = element_text(size = 20))
+
+
+```
+
 
 ---
 
@@ -415,9 +490,8 @@ GRACE ADD your stuff
 
 - Basketball is complex  
 
-- Evidence indicating teams do a good job making sure their players are recovered.
+- Evidence indicating teams do a good job making sure their players are recovered.  
 
-- 
 
 ???
 1. Basketball is composed of complex interaction of skill sets and simply working
@@ -441,15 +515,102 @@ and the techniques used by teams to ensure players are ready to play are more
 sophisticated than can be captured by measuring the players work.
 
 ---
+### Load Management is an effective strategy for Kawhi in the short run
+```{r Kawhi Case Study, echo = FALSE, fig.height = 6.5, fig.width = 12}
+check$player_rest <- ifelse(check$player_rest == 15, 4, check$player_rest)
+check$team_rest <- ifelse(check$team_rest == 15, 4, check$team_rest)
 
-## Between Game Events 
- MATTHEW INTRODUCE DATA
+check <- check %>% 
+  mutate(extra_rest = player_rest - team_rest) 
+
+x <- check$extra_rest
+check$type_of_rest <- case_when(
+  x >= 14 ~ "extended injury rest",
+  x < 14 & x >= 4 ~ "minor injury rest", 
+  x < 4 & x > 1 ~ "couple extra days rest",
+  x == 1 ~ "sit out one game",
+  x ==0 ~ "no load manage",
+)
+
+check$type_of_rest <- ordered(check$type_of_rest, levels = c("extended injury rest",
+                                                             "minor injury rest",
+                                                             "couple extra days rest",
+                                                             "sit out one game",
+                                                             "no load manage"))
+nums <- c(1:524)
+check$count <- nums
+
+ggplot(data = filter(check, ratioPIE < 0.6)) +
+  geom_point(aes(x = count, y = ratioPIE, color = type_of_rest), alpha = 0.7) +
+  geom_hline(yintercept = 0.1 , linetype = "dashed") +
+  geom_vline(xintercept = 408, linetype = "dashed", color = "gray") +
+  geom_vline(xintercept = 468, linetype = "dashed", color = "gray") +
+  scale_color_manual(values=c("red", "yellow", "purple", "blue", "gray")) + 
+  labs(title = "Kawhi's PIE in Games Following Different Periods of  Rest") + 
+  ylab("Player Impact Estimate") +
+  xlab("Game Date") +
+  theme(axis.text.x=element_blank(),
+        panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),
+        axis.ticks=element_blank(),
+        legend.position = "bottom")
+```
+---
+
+###Taking a look at cross game fatigue
+``` {r Cross Game Data, echo = FALSE, fig.height = 6.5, fig.width = 12}
+together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
+  select(-c(fgm:opp_blk)) %>%
+  select(-c(fgm_diff:blk_diff))
+
+together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
+  mutate(distance_diff = Distance - opp_distance) %>%
+  mutate(windowed_distance_diff = dist_30dayWindow - opp_dist_30dayWindow) %>%
+  mutate(distance_advantage = (distance_diff < 0)) %>%
+  mutate(windowed_distance_advantage = (windowed_distance_diff) < 0)
+
+together_net_Rating_allWindows %>%
+  select(c("Date", "visitor", "Opponent", "game_net_rating", "distance_diff","rest_diff","shift", 
+           "b2b_2nd", , "net_rating_diff", )) %>%
+  slice(1, 2386, 4200, 8642) %>%
+   gt() %>%
+   tab_header(
+    title = md("**Travel, Schedule and Density Data**")
+  ) %>%
+  tab_source_note(md("Data courtesy of Jose Fernandez (airball) and Patrick Chodowski (NBAr)")) %>%
+  opt_table_outline( style = "solid", width = px(5), color = "#666666") %>%
+  tab_options(table.width = pct(100))
+```
 
 ---
 
-## Between Game Events 
+### Third game in 4 days has a significant difference of means
+- 2nd games of a back-to-back has a p-value of .776
 
-GRACE T-TEST HERE
+```{r team_t_test, echo = FALSE, fig.height=5, fig.width= 12}
+team_t_test_info <- read_csv("./data1/team_t_test_info.csv")
+
+#team_t_test_info <- ordered(Test, levels = c("2nd_B2B", "Three_in_Four", "b2b_and3in4", "3hrsBack"))
+#team_t_test_info <- data.frame(Test, Mean_of_X, Mean_of_Y, P_Value, standard_error)
+
+
+ggplot(data = team_t_test_info) +
+  geom_point(aes(x = Test, y = Mean_of_X, color = "brown"), size = 2) +
+  geom_point(aes(x = Test, y = Mean_of_Y, color = "blue"), size = 2) +
+  scale_color_manual(name="game type",labels=c("games with fatigue metric", "All other games"), values=c("blue", "brown")) +
+  labs(color = "Legend") +
+  #geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(x = Test, ymin = Mean_of_X - 2*standard_error, ymax = Mean_of_X + 2*standard_error), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = Test, ymin = Mean_of_Y - 2*standard_error, ymax = Mean_of_Y + 2*standard_error), color = "blue", width = 0.2) +
+  xlab("Fatigue Metrics") +
+  ylab("Game Net Rating Mean") +
+  labs(title = "Difference of Mean between fatigue related metrics") +
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank())  +
+  theme(legend.position = "right", axis.text = element_text(size = 16), axis.title = element_text(size = 22)) +
+  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16), title = element_text(size = 20))
+
+```
 
 
 ---
@@ -499,11 +660,53 @@ the team strength as possible.
 ```
 
 ---
-## Mesuring the Impact of Between Game Events 
-
-MATTHEW SHOW OUR COEFFCICENTS 
+### Many of our travel and scheduling metrics had insignificant effects on game net rating
+* Distance traveled
+* Windowed distance traveled
+* Distance traveled difference
+* Flight duration
+* Timezone shift by -2, -1, 1, 2, and 3 hours
+* 2nd leg of a back to back
+* Tipoff time 
+  + West coast teams playing in the morning EST
+  + East coast teams playing at night PST
 
 ---
+
+### Rest, a 3 hour shfit back, and three in four proved to be significant
+ <font size="5"> $gameNetRating$ = $\beta_0$ + $\beta_1$ $netRatingDiff$ + $\beta_2$ $restDiff$ + $\beta_3$ $travel3HoursBack$ + $\beta_4$ $third GameFourDays$ </font>
+```{r Linear Model, echo=FALSE, fig.align = "center", fig.height = 5.5, fig.width = 12}
+summ <- summary(lm(game_net_rating ~ net_rating_diff+ three_in_four 
+             + travel_3_hours_back + rest_diff,
+           data = together_net_Rating_allWindows))
+
+coefficients <- c("intercept", "net_rating_diff",
+                  "rest_diff", "three_in_four","travel_3_hours_back")
+
+coefficients <- ordered(coefficients, levels = c("intercept","net_rating_diff",
+                                                 "rest_diff","travel_3_hours_back", "three_in_four"))
+betas <- as.numeric(summ$coefficients[,1])
+standard_errors <- as.numeric(summ$coefficients[,2])
+p_values <- as.numeric(summ$coefficients[,4])
+p <- sprintf("p= %s", p_values)
+
+table <- data.frame(coefficients, betas, standard_errors, p)
+
+library(ggrepel)
+
+ggplot(data = table, aes(x = coefficients, y = betas)) +
+  geom_point(color = "brown", size = 2) +
+  geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(ymin = betas - 2*standard_errors, ymax = betas + 2*standard_errors), color = "brown", width = 0.2) +
+  xlab("Regression Variable") +
+  ylab("Coefficient Value") +
+  labs(title = "Significant Variables") + 
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank()
+  )
+```
+---
+
 ## Mesuring the Impact of Between Game Events 
 
 MATTHEW SHOW OUR COEFFCICENTS OVER THE SEASONS
