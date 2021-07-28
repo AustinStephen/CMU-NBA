@@ -1,5 +1,8 @@
 
 # Seeing how travel and density metrics affect visitors performance across multiple seasons ---------------------
+together_net_Rating_allWindows$dist_30_one_fifth <- (together_net_Rating_allWindows$dist_30dayWindow)^0.2
+
+
 
 visitors1011 <- filter(together_net_Rating_allWindows, season == "2010-11")
 visitors1112 <- filter(together_net_Rating_allWindows, season == "2011-12")
@@ -17,32 +20,23 @@ visitors1112 <- visitors1112[-c(344,422),]
 
 
 
-lm1011 <- lm(game_net_rating  ~ net_rating_diff+ three_in_four +  b2b_2nd + windowed_distance_diff
-               + travel_3_hours_back + rest_diff, 
+lm1011 <- lm(game_net_rating  ~ net_rating_diff +  dist_30_one_fifth, 
                              data = visitors1011)
-lm1112 <- lm(game_net_rating  ~ net_rating_diff+ three_in_four +  b2b_2nd + windowed_distance_diff
-             + travel_3_hours_back + rest_diff,
+lm1112 <- lm(game_net_rating  ~ net_rating_diff+  dist_30_one_fifth,
              data = visitors1112)
-lm1213 <- lm(game_net_rating ~ net_rating_diff + three_in_four +  b2b_2nd + windowed_distance_diff
-             + travel_3_hours_back + rest_diff, 
+lm1213 <- lm(game_net_rating ~ net_rating_diff  + dist_30_one_fifth, 
              data = visitors1213)
-lm1314 <- lm(game_net_rating  ~ net_rating_diff+ three_in_four +  b2b_2nd + windowed_distance_diff
-             + travel_3_hours_back + rest_diff, 
+lm1314 <- lm(game_net_rating  ~ net_rating_diff + dist_30_one_fifth, 
                             data = visitors1314)
-lm1415 <- lm(game_net_rating ~ net_rating_diff+ three_in_four +  b2b_2nd + windowed_distance_diff
-             + travel_3_hours_back + rest_diff, 
+lm1415 <- lm(game_net_rating ~ net_rating_diff + dist_30_one_fifth, 
              data = visitors1415)
-lm1516 <- lm(game_net_rating ~ net_rating_diff+ three_in_four +  b2b_2nd + windowed_distance_diff
-             + travel_3_hours_back + rest_diff, 
+lm1516 <- lm(game_net_rating ~ net_rating_diff + dist_30_one_fifth, 
              data = visitors1516)
-lm1617 <- lm(game_net_rating ~ net_rating_diff+ three_in_four +  b2b_2nd + windowed_distance_diff
-             + travel_3_hours_back + rest_diff, 
+lm1617 <- lm(game_net_rating ~ net_rating_diff + dist_30_one_fifth, 
              data = visitors1617)
-lm1718 <- lm(game_net_rating ~ net_rating_diff+ three_in_four +  b2b_2nd + windowed_distance_diff
-             + travel_3_hours_back + rest_diff, 
+lm1718 <- lm(game_net_rating ~ net_rating_diff + dist_30_one_fifth, 
              data = visitors1718)
-lm1819 <- lm(game_net_rating  ~ net_rating_diff+ three_in_four +  b2b_2nd + windowed_distance_diff
-             + travel_3_hours_back + rest_diff,
+lm1819 <- lm(game_net_rating  ~ net_rating_diff + dist_30_one_fifth,
              data = visitors1819)
 
 coeffs1011 <- as.numeric(summary(lm1011)$coefficients[,1])
@@ -94,28 +88,39 @@ coeffs_and_standard_errors <- rbind(coeffs_and_standard_errors, cfse1819)
 coeffs_and_standard_errors <- as.data.frame(coeffs_and_standard_errors)
 
 
+# coeffs_and_standard_errors <- coeffs_and_standard_errors %>%
+#  rename(intercept = V1,
+#          net_rating_diff = V2,
+#          three_in_four_vis = V3,
+#          b2b_2nd_vis = V4,
+#          windowed_distance_diff = V5,
+#          travel_3_hours_back_vis = V6,
+#          rest_diff= V7,
+#          dist_30 = V8,
+#          intercept_se = V9,
+#          net_rating_diff_se = V10,
+#          three_in_four_vis_se = V11,
+#          b2b_2nd_vis_se = V12,
+#          windowed_distance_diff_se = V13,
+#          travel_3_hours_back_vis_se = V14,
+#          rest_diff_se= V15,
+#          dist_30_se = V16
+#          ) 
+
 coeffs_and_standard_errors <- coeffs_and_standard_errors %>%
   rename(intercept = V1,
          net_rating_diff = V2,
-         three_in_four_vis = V3,
-         b2b_2nd_vis = V4,
-         windowed_distance_diff = V5,
-         travel_3_hours_back_vis = V6,
-         rest_diff= V7,
-         intercept_se = V8,
-         net_rating_diff_se = V9,
-         three_in_four_vis_se = V10,
-         b2b_2nd_vis_se = V11,
-         windowed_distance_diff_se = V12,
-         travel_3_hours_back_vis_se = V13,
-         rest_diff_se= V14,
-         ) 
+         dist_30 = V3,
+         intercept_se = V4,
+         net_rating_diff_se = V5,
+         dist_30_se = V6
+  ) 
 
 coeffs_and_standard_errors <- mutate(coeffs_and_standard_errors, season = c(2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018))
 
 #Need to improve this with windowed distance and data with no duplicates
-dy = coeffs_and_standard_errors$travel_3_hours_back_vis_se
-var = coeffs_and_standard_errors$travel_3_hours_back_vis
+dy = coeffs_and_standard_errors$dist_30_se
+var = coeffs_and_standard_errors$dist_30
 ggplot(data = coeffs_and_standard_errors, aes(x = season, y = var)) + 
   geom_line(color = "blue") + 
   geom_point(size = 2, color = "blue") +
