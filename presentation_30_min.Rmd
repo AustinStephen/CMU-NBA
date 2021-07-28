@@ -35,7 +35,6 @@ library(png)
 library(grid)
 library(ggimage)
 library(gt)
-tracking_by_player_season_daily_2019_20 <- read_csv("data/in_game_distance_data/tracking_by_player_season_daily_2019_20.csv")
 
 ```
 
@@ -52,7 +51,7 @@ style_mono_accent(base_color = "#374052",
   )
 ```
 
-## Why Fatigue?  
+### Why Fatigue?  
 
 <span> 1.</span> Player Performance
 
@@ -63,20 +62,13 @@ Edwards et al The National Center for Biotechnology Information
 "Early identification and subsequent management of fatigue may prevent detrimental 
 physical and physiological adaptations often associated with injury and enhance 
 athletic performance and player availability"
-
 --
 
 <span> 2. </span> Schedule Fairness  
 
 --
 
-
-INSERT GAPHIC AND DISTANCE TRAVELED B2B DISCUSSION
-
----
-###North-eastern teams travel substantially less than other teams
-<font size="4.5"> The Blazers traveled over 62,000 miles in the 14-15 season, the Cavs only traveled 35,000 </font>
-```{r Map, echo = FALSE, fig.height= 7, fig.width=12}
+```{r Map, echo = FALSE, fig.height= 5, fig.width=12}
 states <- map_data("state")
 ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group = group), fill = "white", color = "gray") + 
   coord_fixed(1.3) + 
@@ -116,15 +108,13 @@ These might get changed last minute.
 
 --
 
-2. Offer an improved model for team strength
+2. Offer framework for analyzing fatigue from a
 
 --
 
 3. A subset of schedule induced factors impact game outcomes 
 
 --
-
-4. Impact of travel has decreased over time 
 
 
 ---
@@ -173,26 +163,26 @@ For the purposes of our project we define two types of fatigue inducing events.
    "data/in_game_distance_data/tracking_by_player_season_daily_2018_19.csv")
 
 
- #tracking_player %>%
-   #select(c("player_name","date","min", "dist_miles","dist_miles_off", "dist_miles_def",
-          #  "avg_speed","avg_speed_off","avg_speed_def")) %>%
-   #rename("Name" = player_name,
-          #"Distance (mi)" = dist_miles,
-          #"Distance Offense"  = dist_miles_off,
-   #       "Distance Defense" = dist_miles_def,
-  #        "Speed (mph)" = avg_speed,
-#          "Speed Offense" = avg_speed_off,
-#          "Speed Defense" = avg_speed_def,
- #         "Date" = date,
-#          "Min" = min) %>%
-#   #slice(1:4) %>%
- #  gt() %>%
- #  tab_header(
-#    title = md("**Distance By Player Individual Games**")
- # ) %>%
-#  tab_source_note(md("Data courtesy of nba.com and Second Spectrum")) %>%
- # opt_table_outline( style = "solid", width = px(5), color = "#001747")%>%
-#  tab_options(table.width = pct(80))
+tracking_player %>%
+select(c("player_name","date","min", "dist_miles","dist_miles_off", "dist_miles_def",
+ "avg_speed","avg_speed_off","avg_speed_def")) %>%
+rename("Name" = player_name,
+"Distance (mi)" = dist_miles,
+"Distance Offense"  = dist_miles_off,
+      "Distance Defense" = dist_miles_def,
+       "Speed (mph)" = avg_speed,
+         "Speed Offense" = avg_speed_off,
+         "Speed Defense" = avg_speed_def,
+        "Date" = date,
+         "Min" = min) %>%
+  slice(1:4) %>%
+ gt() %>%
+ tab_header(
+   title = md("**Distance By Player Individual Games**")
+) %>%
+ tab_source_note(md("Data courtesy of nba.com and Second Spectrum")) %>%
+opt_table_outline( style = "solid", width = px(5), color = "#001747")%>%
+ tab_options(table.width = pct(80))
 ```
 
 ???
@@ -482,40 +472,8 @@ ggplot(data = speed_table) +
 
 
 ```
-
-
 ---
-
-## What does this mean?
-
-- Basketball is complex  
-
-- Evidence indicating teams do a good job making sure their players are recovered.  
-
-
-???
-1. Basketball is composed of complex interaction of skill sets and simply working
-harder does necessarily yield better results. While tracking data sounds 
-exciting without being more closely tied to other in-game events it offers 
-little utility by way of player performance.
-
-2. One of the biggest trends in basketball commentary is players get tired 
-from playing too many games and as a result the quality of game 
-decreases. However, we offer compelling evidence a players workload over the 
-their previous games does not influence their performance in future games.
-
-Based on these results, we wouldn't be surprised if often people are often searching 
-to explain why a player did worse in a game when the truth is there may be
-nothing more than random variations in performance. Aka just because your star player 
-had a bad night it does not mean fatigue was necessarily to blame.
-
-That said, we aren't trying to tell you players don't ever get tired because that's 
-obviously not the case. Rather we are saying it appears the complexity of basketball
-and the techniques used by teams to ensure players are ready to play are more
-sophisticated than can be captured by measuring the players work.
-
----
-### Load Management is an effective strategy for Kawhi in the short run
+### Case study:Load Management
 ```{r Kawhi Case Study, echo = FALSE, fig.height = 6.5, fig.width = 12}
 check$player_rest <- ifelse(check$player_rest == 15, 4, check$player_rest)
 check$team_rest <- ifelse(check$team_rest == 15, 4, check$team_rest)
@@ -553,8 +511,42 @@ ggplot(data = filter(check, ratioPIE < 0.6)) +
         panel.grid.major=element_blank(),
         panel.grid.minor=element_blank(),
         axis.ticks=element_blank(),
+        plot.title = element_text(size = 20),
+        text = element_text(size = 14),
         legend.position = "bottom")
 ```
+
+---
+
+## What does this mean?
+
+- Basketball is complex  
+
+- Evidence indicating teams do a good job making sure their players are recovered.  
+
+
+???
+1. Basketball is composed of complex interaction of skill sets and simply working
+harder does necessarily yield better results. While tracking data sounds 
+exciting without being more closely tied to other in-game events it offers 
+little utility by way of player performance.
+
+2. One of the biggest trends in basketball commentary is players get tired 
+from playing too many games and as a result the quality of game 
+decreases. However, we offer compelling evidence a players workload over the 
+their previous games does not influence their performance in future games.
+
+Based on these results, we wouldn't be surprised if often people are often searching 
+to explain why a player did worse in a game when the truth is there may be
+nothing more than random variations in performance. Aka just because your star player 
+had a bad night it does not mean fatigue was necessarily to blame.
+
+That said, we aren't trying to tell you players don't ever get tired because that's 
+obviously not the case. Rather we are saying it appears the complexity of basketball
+and the techniques used by teams to ensure players are ready to play are more
+sophisticated than can be captured by measuring the players work.
+
+
 ---
 
 ###Taking a look at cross game fatigue
@@ -584,7 +576,7 @@ together_net_Rating_allWindows %>%
 
 ---
 
-### Third game in 4 days has a significant difference of means
+### 3 games in 4 days difference of means
 - 2nd games of a back-to-back has a p-value of .776
 
 ```{r team_t_test, echo = FALSE, fig.height=5, fig.width= 12}
@@ -618,9 +610,9 @@ ggplot(data = team_t_test_info) +
 ## Between Game Events
 - Disparity in team strength 
 
-- Remove variance in response associated with 
+- Remove variance in response associated with team strength
 
-?? 
+???
 while t-tests offer a great way to look for relationships they have a high 
 risk for colinearlity with a latent variable. For example, in the time period
 we observed the Golden State Warriors had a sequence of 
@@ -707,15 +699,16 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 ```
 ---
 
-## Mesuring the Impact of Between Game Events 
 
-MATTHEW SHOW OUR COEFFCICENTS OVER THE SEASONS
+---
+# How Can Teams Use This Information?
 
---
-How Can Teams Use This Information?
+---
+# Future Work
 
---
-Future Work
+
+---
+# Thanks
 
 
 
