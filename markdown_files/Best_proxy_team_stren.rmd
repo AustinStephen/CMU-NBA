@@ -552,7 +552,7 @@ holdout_predictions <-
                     data = together_net_Rating_allWindows)
             
             ## Elastic net
-            en_model <- cv.glmnet(train_x, train_data$game_net_rating, alpha = .20)
+            en_model <- cv.glmnet(train_x, train_data$game_net_rating, alpha = .25)
             
             # Return tibble of holdout results:
             tibble(sn_net_rating_diff = predict(sn_net_rating_diff, newdata = test_data),

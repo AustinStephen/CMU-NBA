@@ -47,7 +47,8 @@ check <- read_csv("./matthew_data/kawhi.csv")
 style_mono_accent(base_color = "#374052",
   white_color = "#e6e6e6",
   background_color = "#b8b8b8",
-  base_font_size = "28px"
+  base_font_size = "28px",
+  header_background_content_padding_top = "4rem"
   )
 ```
 
@@ -98,25 +99,30 @@ nba_travel_plot(data = travel1415,
 
 ---
 
-## Project findings  
+### Project takeways  
 
-1. In-game distance measures suggest players achieve a high degree of recovery 
-between games.
+<span style='font-size: 38px'> **1.** </span> Offer evidence 
+players achieve a high degree of recovery 
+between games.  
+<br>
 
 ???
-These might get changed last minute.
+Just list these
 
 --
 
-2. Offer a framework for analyzing fatigue
+<span style='font-size: 38px'> **2.** </span> Offer a framework for 
+analyzing fatigue.  
+<br>
 
 --
-
-3. A subset of schedule induced factors impact game outcomes 
+<span style='font-size: 38px'> **3.** </span> Establish a subset of 
+schedule induced factors that impact game outcomes.   
+<br>
 
 ---
 
-## What is fatigue?
+### What is fatigue?
 
 - Cannot use direct measures  
 
@@ -141,10 +147,10 @@ fatigued a player was by in game events.
 
 --
 
-1. In-game events  
+1. **In-game events**  
   - ex. Distance run or speed
 
-2. Between game events  
+2. **Between game events**  
   - ex. Length of flight or rest since last game
 
 ---
@@ -173,7 +179,7 @@ rename("Name" = player_name,
  tab_header(
    title = md("**Distance By Player Individual Games**")
 ) %>%
- tab_source_note(md("Data courtesy of nba.com and Second Spectrum")) %>%
+ tab_source_note(md("Data courtesy of nba.com, Second Spectrum, Patrcik Chodowski (NBAr)")) %>%
 opt_table_outline( style = "solid", width = px(5), color = "#001747")%>%
  tab_options(table.width = pct(80))
 ```
@@ -274,7 +280,7 @@ dispel any relationships.
 
 - p-value 0.498  
 
-```{r fig.height = 4, include = TRUE}
+```{r fig.height = 4, fig.width = 7, include = TRUE}
 
 gbg_player_w_distance <- read_csv(
  "./data/in_game_distance_data/in_game_dist_box_join.csv") %>% filter(min >12)
@@ -294,7 +300,8 @@ gbg_player_w_distance %>%
         text = element_text(size = 14)
         )+
    scale_x_continuous(limits = c(-.75,1))
-#summary(lm(diff_from_sn_avg_tov ~ diff_from_sn_avg_speed, data =gbg_player_w_distance))
+#summary(lm(diff_from_sn_avg_tov ~ diff_from_sn_avg_speed, 
+#        data =gbg_player_w_distance))
 
 ```
 
@@ -303,10 +310,10 @@ gbg_player_w_distance %>%
 
 ### Post distance overload regress
 
-- Increase volume does not provide evidence of a refractory period  
+- Increased volume in prior games does not provide evidence of players  
 <br>
 
-```{r fig.height=4, include = TRUE}
+```{r fig.height=4, fig.width = 7, include = TRUE}
 gbg_player_w_distance <- read_csv(
   "./data/in_game_distance_data/in_game_dist_box_join.csv")
 
@@ -603,16 +610,16 @@ ggplot(data = team_t_test_info) +
 
 ---
 
-### Identifying contribution to game outcome  
+### Contribution to game outcome  
 
-- Response is game outcome 
+- Game outcome is the response
 
-- Predictors are any event contributing to that outcome
+- Event contributing to that outcome is a predictor
 
 - Most important factor is team strength 
 
-- Extract relationships with the game outcome that are present once the team
-strength has been eliminated from the picture
+- **Goal** Extract relationships with the game outcome that are present once 
+the team strength has been eliminated from the picture
 
 ???
 while t-tests offer a great way to look for relationships they have a high 
@@ -625,33 +632,54 @@ which could have introduced latent effects associated with their travel.
 
 ---
 
-## Modeling for team Strength
+### Modeling team strength
 
 1. __Constrained:__ Limited to the information available to a team when they would 
 have played the game.
 
 2. __Unconstrained:__ All available information about the team not
-incorporated into the response is used to break down what contributed to the 
-outcome of a given game.
+incorporated into the response.
 
 
 ???
 2 concepts for modeling team strength. 
 
+---
+
+### Modeling team strength
+__Unconstrained:__ All available information about the team not
+incorporated into the response.
+  - Allows us to build the most accurate picture.
+  - Cannot be to predict how much a game will fatigue a team.
+
+???
 We chose to prioritize the second model because essentially what it would allow us
 to do is decompose the response into its causes and we were interested in identifying
 what effect between game factors had on game outcome in the absence of as much of
-the team strength as possible.
+the team strength as possible.  
+
+We felt the understanding of fatigue is more valuable.
 
 ---
 
 ## Modeling Team Strength 
 
-- Net season rating is very powerful
+- Net season rating difference is very powerful
 
 ```{r}
 
 ```
+
+???
+The net rating of a game is a metric composed of how the team preformed in that
+given game. If a team won a game with a rating of 10 their opponent had a rating
+of -10. The teams season average net rating served as a very powerful predictor.
+
+However we wanted to incorporate in the locality of how good a team is
+at a given point in time. Therefore, we explored a wide varaiety of techniques for 
+capturing this information. 
+
+
 
 ---
 ### Many of our travel and scheduling metrics had insignificant effects on game net rating
@@ -710,7 +738,7 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 * Design a stronger proxy for team strength
 
 ---
-## Relevance to stakeholders
+### Relevance to stakeholders
 **NBA Teams**
 - Allocation of resources
 - Load management
@@ -721,18 +749,19 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 - Viewership and profit maximization
 
 ---
-##Thanks
- **Advisor**
-- Maksim Horowitz, Atlanta Hawks
+## Thanks  
+**Advisor:**  
+Maksim Horowitz, Atlanta Hawks  
 
-**Carnegie Mellon**
-- Ron Yurko
-- Rebecca Nugent
-- Beomjo Park
-- Meg Ellingwood
-- Nick Kissel
+**Carnegie Mellon:**  
+Ron Yurko  
+Rebecca Nugent  
+Beomjo Park  
+Meg Ellingwood  
+Nick Kissel 
 
-**Special thanks** to Tom Bliss as well for his insight on fatigue analysis in the NFL
+**Special thanks** to Tom Bliss for his insight on fatigue 
+analysis in the NFL
 
 
 

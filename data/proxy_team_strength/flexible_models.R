@@ -1,6 +1,6 @@
 
 #read in data
-together_final <- read_csv("./data1/together_final.csv")
+together_final <- read_csv("../data1/together_final.csv")
    
 #Elastic Net just team strength
 
