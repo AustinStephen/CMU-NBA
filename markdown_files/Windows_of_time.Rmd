@@ -1,0 +1,286 @@
+---
+title: "Window analysis game-by-game and player level"
+author: "Austin Stephen"
+date: "7/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE }
+library(nbastatR)
+library(NBAr)
+library(ballr)
+library(tidyverse)
+library(dplyr)
+knitr::opts_chunk$set(
+  cache = TRUE,
+  echo = FALSE,
+  message = FALSE, 
+  warning = FALSE,
+  fig.height=3
+)
+
+## game by game player distance joined to player box scores.
+gbg_player_w_distance <- read_csv(
+  "../data/in_game_distance_data/in_game_dist_box_join.csv")
+
+## windows of time analysis 
+player_Window_dist_daily_2014_15 <- read_csv(
+  "../data/in_game_distance_data/player_Window_dist_daily_2014_15.csv")%>%
+  select("player_id","date","dist_5dayWindow","dist_3dayWindow","dist_7dayWindow",
+         "dist_10dayWindow")
+
+player_Window_dist_daily_2014_15$date <- as.Date(
+  player_Window_dist_daily_2014_15$date, "%m/%d/%Y")
+
+## removing all instances where player played less than 15 seconds because 
+## these are just not insightful instances 
+gbg_player_w_distance <- gbg_player_w_distance %>% filter(min > .25)
+
+
+## window
+gbg_player_w_distance <- merge(x = gbg_player_w_distance,
+                               y = player_Window_dist_daily_2014_15,
+                               by.x =  c("player_id","date" ),
+                               by.y = c("player_id","date" ))
+
+## Adding a difference from mean 5 day window
+gbg_player_w_distance <- gbg_player_w_distance %>%
+  group_by(player_id) %>%
+  mutate(sn_avg_wind_3_dist = mean(dist_3dayWindow)) %>%
+  mutate(diff_sn_avg_wind_3_dist = dist_3dayWindow - sn_avg_wind_3_dist ) %>%
+  mutate(sn_avg_wind_5_dist = mean(dist_5dayWindow)) %>%
+  mutate(diff_sn_avg_wind_5_dist = dist_5dayWindow - sn_avg_wind_5_dist ) %>%
+  mutate(sn_avg_wind_7_dist = mean(dist_7dayWindow)) %>%
+  mutate(diff_sn_avg_wind_7_dist = dist_7dayWindow - sn_avg_wind_7_dist ) %>%
+  mutate(sn_avg_wind_10_dist = mean(dist_10dayWindow)) %>%
+  mutate(diff_sn_avg_wind_10_dist = dist_10dayWindow - sn_avg_wind_10_dist )
+
+
+
+gbg_player_w_distance_play_time <- gbg_player_w_distance %>% filter(min > 10)
+
+## Between game
+between_game_dist <- read_csv("../data/between_game_dist/between_game_dist.csv") %>%
+  rename(distance_team_traveled_pre_game = "Distance") %>%
+  select(-c("Season","Date","Team", "Opponent","Month","Week"))
+
+gbg_player_w_distance_subset <- merge(x = gbg_player_w_distance,
+                               y = between_game_dist,
+                               by.x = c("idGame","team_id"),
+                               by.y = c("game_id","team_id")
+                               )
+
+
+
+## Distance differential at a given game
+
+## Cross with Matthew's distance data to see if there is a correlation between the distance 
+#  outside of a game and distance in game.
+
+## See if teams adapt their styles to their opponents. So if defense distance is 
+# correlated with opponent offense by season average and game.
+
+## see if speed or distance differential is related to score score differential 
+
+## Scatter plot by team that includes player name showing if having 1 outlier player 
+#  leads to a decrease in the overall distance traveled.
+
+```
+
+### Take Aways:
+* This is not capturing the refractory period due to fatigue (shows opposite actually). 
+* This looks good for our rolling avg as a proxy for team strength as
+current performance is closely tied to performance over the last 5 games. 
+* Need to do new windows of speed because it is time adjusted and this might help
+avoid players getting used more.
+
+#### About the data:
+Each observation is a single player in a single game. All players who were in 
+the game for less than 15 seconds were removed. In total, It has 24k
+observations from the 2014-15 regular season.
+
+```{r fig.height=2, fig.width=3.5}
+# No normalizing
+gbg_player_w_distance %>%
+ggplot(aes(x = dist_5dayWindow, y = dist_miles))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+ 
+  labs(y = "in-game distance (mi)",
+       x = "Sum in-game dist 5 days prior to observation")
+
+#summary(lm(dist_miles ~ dist_5dayWindow, data = gbg_player_w_distance))
+# Adjusted for player averages
+gbg_player_w_distance %>%
+ggplot(aes(x = dist_5dayWindow,y = diff_from_sn_avg_dist))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+ 
+  labs(y = "diff from season avg dist",
+       x = "Sum in-game dist 5 days prior to observation")
+
+#summary(lm(diff_from_sn_avg_dist ~ dist_5dayWindow, data = gbg_player_w_distance))
+
+# Adjusted for player averages and window averages 
+gbg_player_w_distance %>%
+ggplot(aes(x = diff_sn_avg_wind_5_dist,y = diff_from_sn_avg_dist))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+ 
+  labs(y = "diff from season avg dist",
+       x = "diff from season avg 5 day window")
+
+#summary(lm(diff_sn_avg_wind_5_dist ~ diff_from_sn_avg_dist, data = gbg_player_w_distance))
+
+```
+
+1. *dist_miles* = $\beta_{0}$ + $\beta_{1}$ (*Sum_of_dist_5_days_prior*)  
+p-value $\beta_{1}$ : <2e-16 (t statistic 115.2)  
+
+2. *diff_from_season_avg_distance* = $\beta_{0}$ + $\beta_{1}$
+(*Sum_of_dist_5_days_prior*)  
+p-value $\beta_{1}$ : <2e-16 (t statistic 31.93)  
+
+3. *diff_from_season_avg_distance* = $\beta_{0}$ + $\beta_{1}$
+(*diff_from_season_avg_window_last_5_games*)  
+p-value $\beta_{1}$ : <2e-16 (t statistic 41.910)  
+
+
+### Testing window sizes of 3, 5, 7, 10 days  
+* No difference  
+```{r, fig.height = 2,fig.width=3}
+# Adjusted for player averages and window averages 
+gbg_player_w_distance %>%
+ggplot(aes(x = diff_sn_avg_wind_3_dist,y = diff_from_sn_avg_dist))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+ 
+  labs(y = "diff from season avg dist per game",
+       x = "diff from season avg 3 day window")+
+  scale_x_continuous(limits = c(-11,11))+
+  scale_y_continuous(limits = c(-2.5,2.5))
+#summary(lm(diff_from_sn_avg_dist ~ diff_sn_avg_wind_3_dist, data = gbg_player_w_distance))
+
+gbg_player_w_distance %>%
+ggplot(aes(x = diff_sn_avg_wind_5_dist,y = diff_from_sn_avg_dist))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+ 
+  labs(y = "diff from season avg dist per game",
+       x = "diff from season avg 5 day window")+
+  scale_x_continuous(limits = c(-11,11))+
+  scale_y_continuous(limits = c(-2.5,2.5))
+
+gbg_player_w_distance %>%
+ggplot(aes(x = diff_sn_avg_wind_7_dist,y = diff_from_sn_avg_dist))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+ 
+  labs(y = "diff from season avg dist per game",
+       x = "diff from season avg 7 day window")+
+  scale_x_continuous(limits = c(-11,11))+
+  scale_y_continuous(limits = c(-2.5,2.5))
+
+gbg_player_w_distance %>%
+ggplot(aes(x = diff_sn_avg_wind_10_dist,y = diff_from_sn_avg_dist))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+ 
+  labs(y = "diff from season avg dist per game",
+       x = "diff from season avg 10 day window")+
+  scale_x_continuous(limits = c(-11,11))+
+  scale_y_continuous(limits = c(-2.5,2.5))
+
+```
+
+### Only players who played more than 10 minutes
+* no difference in relationship  
+```{r fig.height = 2,fig.width=3}
+gbg_player_w_distance_play_time %>%
+ggplot(aes(x = diff_sn_avg_wind_3_dist,y = diff_from_sn_avg_dist))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+ 
+  labs(y = "diff from season avg dist per game",
+       x = "diff from season avg 3 day window")+
+  scale_x_continuous(limits = c(-11,11))+
+  scale_y_continuous(limits = c(-2.5,2.5))
+
+gbg_player_w_distance_play_time %>%
+ggplot(aes(x = diff_sn_avg_wind_5_dist,y = diff_from_sn_avg_dist))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+ 
+  labs(y = "diff from season avg dist per game",
+       x = "diff from season avg 5 day window")+
+  scale_x_continuous(limits = c(-11,11))+
+  scale_y_continuous(limits = c(-2.5,2.5))
+
+```
+
+### Relationship with preformance   
+* Since we showed distance to be positively correlated with fg and fg3 
+percentage this small positive correlation makes sense.  
+
+```{r fig.height = 2,fig.width=3}
+
+gbg_player_w_distance %>%
+ggplot(aes(x = diff_sn_avg_wind_7_dist, y = diff_from_sn_avg_fgpct ))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+ 
+  labs(y = "diff from season avg fg pct",
+       x = "diff from season avg 7 day window")
+
+# summary(lm(diff_from_sn_avg_fgpct ~ diff_sn_avg_wind_7_dist, data =
+#           gbg_player_w_distance))
+
+gbg_player_w_distance %>%
+ggplot(aes(x = diff_sn_avg_wind_7_dist, y = diff_from_sn_avg_fg3pct ))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+ 
+  labs(y = "diff from season avg fg 3 pct",
+       x = "diff from season avg 7 day window")
+
+# summary(lm(diff_from_sn_avg_fg3pct ~ diff_sn_avg_wind_7_dist, data =
+# gbg_player_w_distance))
+
+```
+
+1. *diff_from_season_avg_fg_pct* = $\beta_{0}$ + $\beta_{1}$ 
+(*diff_sn_avg_wind_7_dist*)  
+p-value $\beta_{1}$ : 1.55e-08 (t statistic 5.658)  
+
+2. *diff_from_season_avg_fg3_pct* = $\beta_{0}$ + $\beta_{1}$
+(*diff_sn_avg_wind_7_dist*)  
+p-value $\beta_{1}$ : 5.42e-07 (t statistic 5.012)  
+
+
+### Reltationship between travel distance and in-game distance
+* Not windows just had this left over  
+* No relationship  
+```{r fig.height = 2,fig.width=3}
+gbg_player_w_distance_subset %>%
+ggplot(aes(x = distance_team_traveled_pre_game, y = diff_from_sn_avg_speed ))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+
+  labs(x = "trip distance",
+       y = "diff from season avg speed")
+
+# summary(lm(diff_from_sn_avg_speed ~ distance_team_traveled_pre_game, data =
+#  gbg_player_w_distance_subset))
+
+gbg_player_w_distance_subset %>%
+ggplot(aes(x = distance_team_traveled_pre_game, y = diff_from_sn_avg_dist ))+
+  geom_point(alpha = .05)+
+  geom_smooth(method="lm")+
+  labs(x = "trip distance",
+       y = "diff from season avg distance")
+
+# summary(lm(diff_from_sn_avg_dist ~ distance_team_traveled_pre_game, data =
+#   gbg_player_w_distance_subset))
+
+```
+
+1. *diff_from_sn_avg_speed* = $\beta_{0}$ + $\beta_{1}$
+(*distance_team_traveled_pre_game*)  
+p-value $\beta_{1}$ : 0.718  (t statistic -0.362)  
+
+2. *diff_from_sn_avg_dist* = $\beta_{0}$ + $\beta_{1}$
+(*distance_team_traveled_pre_game*)  
+p-value $\beta_{1}$ : 0.0215 (t statistic 2.3)  
+
+
+
+
+
