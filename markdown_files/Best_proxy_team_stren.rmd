@@ -540,40 +540,42 @@ holdout_predictions <-
                   wind_40_hollow + net_rating_diff , data = train_data)
             
             ## Window 40 temporal weighted
-            w40_tw <- lm(game_net_rating ~  wind_5 + wind_10_hollow_5 + wind_15_hollow +
+            w40_td <- lm(game_net_rating ~  wind_5 + wind_10_hollow_5 + wind_15_hollow +
             wind_20_hollow + wind_25_hollow + wind_30_hollow + wind_35_hollow +
             wind_40_hollow + net_rating_diff  + games_played * net_rating_diff,
             data = together_net_Rating_allWindows )
             
             ## Window 60 temporal centered
-            w60_tc <- lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + 
+            w60_tf <- lm(game_net_rating ~ wind_10_center + hollow_wind20_cent + 
                     hollow_wind30_cent + hollow_wind40_cent + hollow_wind50_cent +
                     hollow_wind60_cent + net_rating_diff,
                     data = together_net_Rating_allWindows)
             
             ## Elastic net
-            en_model <- cv.glmnet(train_x, train_data$game_net_rating, alpha = .20)
+            en_model <- cv.glmnet(train_x, train_data$game_net_rating, alpha = .25)
             
             # Return tibble of holdout results:
-            tibble(sn_net_rating_diff = predict(sn_net_rating_diff, newdata = test_data),
+            tibble(
+            sn_net_rating_diff = predict(sn_net_rating_diff, newdata = test_data),
+                   w60_en = predict(en_model, newx = test_x),
                    w_40 = predict(w_40, newdata = test_data),
                    w40_t = predict(w40_t, newdata = test_data),
-                   w40_tw = predict(w40_tw, newdata = test_data),
-                   w60_tc = predict(w60_tc, newdata = test_data),
-                   w60_EN = predict(en_model, newx = test_x),
+                   w40_td = predict(w40_td, newdata = test_data),
+                   w60_tf = predict(w60_tf, newdata = test_data),
                    test_actual = test_data$game_net_rating, 
                    test_fold = holdout) 
           })
 
 holdout_predictions <- holdout_predictions %>%
-  pivot_longer(sn_net_rating_diff:w60_EN, 
+  pivot_longer(sn_net_rating_diff:w60_tf, 
                names_to = "type", values_to = "test_preds")
 
-holdout_predictions$type <-  ordered(holdout_predictions$type, c("sn_net_rating_diff","w_40",
-                      "w40_t", "w40_tw", "w60_tc", "w60_EN"))
+holdout_predictions$type <-  ordered(holdout_predictions$type,
+            c("sn_net_rating_diff","w60_en", "w_40", "w40_t", "w40_td", "w60_tf"))
+
 holdout_predictions$test_fold <- as.factor(holdout_predictions$test_fold)
 
-#write.csv(holdout_predictions, "../data/")
+write.csv(holdout_predictions, "../data/results_model_building.csv")
 
 holdout_predictions %>% 
   group_by(type, test_fold) %>%
