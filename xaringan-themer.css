@@ -224,7 +224,7 @@ table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hover {
   box-sizing: border-box;
 }
 .remark-slide-content.header_background {
-  padding-top: 7rem;
+  padding-top: 4rem;
 }
 
 @page { margin: 0; }
