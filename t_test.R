@@ -1492,11 +1492,11 @@ dist_table <- tibble(season = c("2014-15", "2016-17", "2017-18", "2018-19", "201
        b2b_mean = c(t_dist_miles_2014$estimate[2], t_dist_miles_2016$estimate[2],
                     t_dist_miles_2017$estimate[2], t_dist_miles_2018$estimate[2],
                     t_dist_miles_2019$estimate[2]),
-       standard_error = c(sd(distance__season_2014_15$dist_miles) / sqrt(length(distance__season_2014_15$dist_miles)),
-                          sd(distance__season_2016_17$dist_miles) / sqrt(length(distance__season_2016_17$dist_miles)),
-                          sd(distance__season_2017_18$dist_miles) / sqrt(length(distance__season_2017_18$dist_miles)),
-                          sd(distance__season_2018_19$dist_miles) / sqrt(length(distance__season_2018_19$dist_miles)),
-                          sd(distance__season_2019_20$dist_miles) / sqrt(length(distance__season_2019_20$dist_miles))))
+       standard_error = c(sd(density_distance_2014_2015$dist_miles) / sqrt(length(density_distance_2014_2015$dist_miles)),
+                          sd(density_distance_2016_2017$dist_miles) / sqrt(length(density_distance_2016_2017$dist_miles)),
+                          sd(density_distance_2017_2018$dist_miles) / sqrt(length(density_distance_2017_2018$dist_miles)),
+                          sd(density_distance_2018_2019$dist_miles) / sqrt(length(density_distance_2018_2019$dist_miles)),
+                          sd(density_distance_2019_2020$dist_miles) / sqrt(length(density_distance_2019_2020$dist_miles))))
 
 write_csv(dist_table,
           "./data1/distance_t_test_table.csv")
@@ -1536,12 +1536,6 @@ sd(distance__season_2018_19$avg_speed) / sqrt(length(distance__season_2018_19$av
 sd(distance__season_2019_20$avg_speed) / sqrt(length(distance__season_2019_20$avg_speed))
 
 
-speed_table$other_mean + (sd(distance__season_2016_17$avg_speed) / sqrt(length(distance__season_2016_17$avg_speed)))*2
-
-sd(distance__season_2016_17$avg_speed)
-
-density_distance_2014_2015 <- density_distance_2014_2015 %>%
-  mutate(season = "2014")
 
 ggplot(data = speed_table) +
   geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
@@ -1556,11 +1550,7 @@ ggplot(data = speed_table) +
   theme(panel.background = element_rect(fill = "burlywood"),
         panel.grid.major=element_blank())  +
   theme(legend.position = "bottom") 
-  #geom_point() +
-  #stat_summary(fun = mean, geom = "point", 
-   #            color = "red") +
-  #stat_summary(aes(x = season, y = avg_speed), fun.data = mean_se, geom = "errorbar", 
-  #             color = "red")
+ 
 
 
 legend("topright", inset=c(-0.2,0), legend=c("b2b","other"), title="Group", fill = c("brown", "blue"), text.width = c(3,5))
@@ -1579,14 +1569,69 @@ ggplot(data = dist_table) +
         panel.grid.major=element_blank())  +
   theme(legend.position = "bottom")
  
-  
-ggplot(data = table, aes(x = coefficients, y = betas)) +
-  geom_point(color = "brown", size = 2) +
-  geom_text_repel(aes(label=p), size = 2.5) + 
-  geom_errorbar(aes(ymin = betas - 2*standard_errors, ymax = betas + 2*standard_errors), color = "brown", width = 0.2) +
-  xlab("Regression Variable") +
-  ylab("Coefficient Value") +
-  labs(title = "Coefficients of the Density and Schedule Metrics") +
+
+
+ 
+speed_table_sd <- tibble(season = c("2014-15", "2016-17", "2017-18", "2018-19", "2019-20"),
+                      other_mean = c(t_speed_2014$estimate[1], t_speed_2016$estimate[1],
+                                     t_speed_2017$estimate[1], t_speed_2018$estimate[1],
+                                     t_speed_2019$estimate[1]),
+                      b2b_mean = c(t_speed_2014$estimate[2], t_speed_2016$estimate[2],
+                                   t_speed_2017$estimate[2], t_speed_2018$estimate[2],
+                                   t_speed_2019$estimate[2]),
+                      standard_error = c(sd(density_distance_2014_2015$avg_speed), 
+                                         sd(density_distance_2016_2017$avg_speed), 
+                                         sd(density_distance_2017_2018$avg_speed),
+                                         sd(density_distance_2018_2019$avg_speed),
+                                         sd(density_distance_2019_2020$avg_speed)))
+
+ggplot(data = speed_table_sd) +
+  geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
+  geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
+  labs(color = "Legend") +
+  #geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error, ymax = b2b_mean + 2*standard_error), color = "blue", width = 0.2) +
+  xlab("Season") +
+  ylab("Mean speed") +
+  labs(title = "Difference of Means between 2nd game of a back to back and all other games") +
   theme(panel.background = element_rect(fill = "burlywood"),
-        panel.grid.major=element_blank()
-  )
+        panel.grid.major=element_blank())  +
+  theme(legend.position = "bottom") 
+
+
+dist_table_sd <- tibble(season = c("2014-15", "2016-17", "2017-18", "2018-19", "2019-20"),
+                     other_mean = c(t_dist_miles_2014$estimate[1], t_dist_miles_2016$estimate[1],
+                                    t_dist_miles_2017$estimate[1], t_dist_miles_2018$estimate[1],
+                                    t_dist_miles_2019$estimate[1]),
+                     b2b_mean = c(t_dist_miles_2014$estimate[2], t_dist_miles_2016$estimate[2],
+                                  t_dist_miles_2017$estimate[2], t_dist_miles_2018$estimate[2],
+                                  t_dist_miles_2019$estimate[2]),
+                     standard_error = c(sd(density_distance_2014_2015$dist_miles),
+                                        sd(density_distance_2016_2017$dist_miles),
+                                        sd(density_distance_2017_2018$dist_miles),
+                                        sd(density_distance_2018_2019$dist_miles),
+                                        sd(density_distance_2019_2020$dist_miles)))
+
+
+ggplot(data = dist_table_sd) +
+  geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
+  geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
+  labs(color = "Legend") +
+  #geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error, ymax = b2b_mean + 2*standard_error), color = "blue", width = 0.2) +
+  xlab("Season") +
+  ylab("Mean Distance") +
+  labs(title = "Difference of Means between 2nd game of a back to back and all other games") +
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank())  +
+  theme(legend.position = "bottom")
+
+
+#geom_point() +
+#stat_summary(fun = mean, geom = "point", 
+#            color = "red") +
+#stat_summary(aes(x = season, y = avg_speed), fun.data = mean_se, geom = "errorbar", 
+#             color = "red")
+
