@@ -67,29 +67,31 @@ coords_and_distance <- merge(coords_and_distance, nba_logos,
 sizes <- c()
 for (d in coords_and_distance$total_distance_traveled) {
   if (d >60000) {
-    sizes <- c(sizes, 0.12) #99th
+    sizes <- c(sizes, 0.16) #99th
   }
-  if (d<60000 & d> 52000) { 
+  if (d<60000 & d> 52000) { #90th 
+    sizes <- c(sizes, 0.14)
+  }
+  if (d<52000 & d> 50000) { #80th percentile
+    sizes <- c(sizes, 0.12)
+  }
+  if (d<50000 & d> 47000) { #65th
     sizes <- c(sizes, 0.1)
   }
-  if (d<52000 & d> 50000) {
-    sizes <- c(sizes, 0.08)
+  if (d<47000 & d> 44000) {  #45th
+    sizes <- c(sizes, 0.09)
   }
-  if (d<50000 & d> 46000) {
+  if (d<44000 & d> 40000) { #35th percentile
     sizes <- c(sizes, 0.07)
   }
-  if (d<46000 & d> 43000) {
-    sizes <- c(sizes, 0.06)
-  }
-  if (d<43000 & d> 40000) {
+  if (d<40000) { #25th percentile
     sizes <- c(sizes, 0.05)
-  }
-  if (d<40000) {
-    sizes <- c(sizes, 0.04)
   }
 }
 
 coords_and_distance$img_size <- sizes
+
+coords_and_distance[26,"Latitude"] = 40
 
 write_csv(coords_and_distance,"/Users/matthewyep/Desktop/CarnegieMellon/CMU-NBA/matthew_data/coords_and_distance.csv")
 
@@ -120,3 +122,5 @@ nba_travel_plot(data = travel1415,
                 land_color = "gray",
                 caption_color = "lightblue",
                 ncolumns = 2)
+
+
