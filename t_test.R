@@ -9,6 +9,8 @@ library(slider)
 
 #Purpose: difference of means between 2gameB2b and other
 
+distance__season_2014_15 <- read_csv("./data1/density_distance_drives_tracking/_density_drives_daily_2014_15.csv")
+
 
 # not as useful -----------------------------------------------------------
 countIncrementalSlides: false
@@ -16,6 +18,10 @@ slideNumberFormat: "%current%"
 
 
 density_distance_2014_2015 <-read_csv("./data1/density_distance_drives_tracking/_density_drives_distance_daily_2014_15.csv")
+density_distance_2016_2017 <-read_csv("./data1/density_distance_drives_tracking/_density_drives_distance_daily_2016_17.csv")
+density_distance_2017_2018 <-read_csv("./data1/density_distance_drives_tracking/_density_drives_distance_daily_2017_18.csv")
+density_distance_2018_2019 <-read_csv("./data1/density_distance_drives_tracking/_density_drives_distance_daily_2018_19.csv")
+density_distance_2019_2020 <-read_csv("./data1/density_distance_drives_tracking/_density_drives_distance_daily_2019_20.csv")
 
 mean(density_distance_2014_2015$min.x)
 
@@ -1382,6 +1388,22 @@ player_t_test_info <- tibble(Test = c("dist_miles", "dist_miles_def",
                                          t_dist_miles_off$p.value, t_avg_speed$p.value, t_avg_speed_off$p.value))
 player_info <- tibble(dist_miles = c(t_dist_miles$estimate[1], t_dist_miles$estimate[2]))
 
+density_distance_2014_2015 <- density_distance_2014_2015 %>%
+  na.omit() %>%
+  filter(min.x > 10)
+
+density_distance_2016_2017 <- density_distance_2016_2017 %>%
+  na.omit()
+
+density_distance_2017_2018 <- density_distance_2017_2018 %>%
+  na.omit()
+
+density_distance_2018_2019 <- density_distance_2018_2019 %>%
+  na.omit()
+
+density_distance_2019_2020 <- density_distance_2019_2020 %>%
+  na.omit()
+  
 other_2014_3in4 <- density_distance_2014_2015 %>%
   filter(`3in4` == "No") %>%
   filter(min.x > 10)
@@ -1423,6 +1445,8 @@ other_2019_3in4 <- density_distance_2019_2020 %>%
 b2b_2019_3in4 <- density_distance_2019_2020 %>%
   filter(`3in4` == "Yes") %>%
   filter(min.x > 10)
+
+
 
 all_other_3in4 <- rbind(other_2014_3in4, other_2016_3in4, other_2017_3in4, other_2018_3in4, other_2019_3in4) 
 
@@ -1490,11 +1514,11 @@ speed_table <- tibble(season = c("2014-15", "2016-17", "2017-18", "2018-19", "20
                      b2b_mean = c(t_speed_2014$estimate[2], t_speed_2016$estimate[2],
                                   t_speed_2017$estimate[2], t_speed_2018$estimate[2],
                                   t_speed_2019$estimate[2]),
-                     standard_error = c(sd(distance__season_2014_15$avg_speed) / sqrt(length(distance__season_2014_15$avg_speed)),
-                                        sd(distance__season_2016_17$avg_speed) / sqrt(length(distance__season_2016_17$avg_speed)),
-                                        sd(distance__season_2017_18$avg_speed) / sqrt(length(distance__season_2017_18$avg_speed)),
-                                        sd(distance__season_2018_19$avg_speed) / sqrt(length(distance__season_2018_19$avg_speed)),
-                                        sd(distance__season_2019_20$avg_speed) / sqrt(length(distance__season_2019_20$avg_speed))))
+                     standard_error = c(sd(density_distance_2014_2015$avg_speed) / sqrt(length(density_distance_2014_2015$avg_speed)), 
+                                        sd(density_distance_2016_2017$avg_speed) / sqrt(length(density_distance_2016_2017$avg_speed)), 
+                                        sd(density_distance_2017_2018$avg_speed)/ sqrt(length(density_distance_2017_2018$avg_speed)),
+                                        sd(density_distance_2018_2019$avg_speed) / sqrt(length(density_distance_2018_2019$avg_speed)),
+                                        sd(density_distance_2019_2020$avg_speed) / sqrt(length(density_distance_2019_2020$avg_speed))))
 
 write_csv(speed_table,
           "./data1/speed_t_test_table.csv")
@@ -1516,6 +1540,9 @@ speed_table$other_mean + (sd(distance__season_2016_17$avg_speed) / sqrt(length(d
 
 sd(distance__season_2016_17$avg_speed)
 
+density_distance_2014_2015 <- density_distance_2014_2015 %>%
+  mutate(season = "2014")
+
 ggplot(data = speed_table) +
   geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
   geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
@@ -1528,7 +1555,13 @@ ggplot(data = speed_table) +
   labs(title = "Difference of Means between 2nd game of a back to back and all other games") +
   theme(panel.background = element_rect(fill = "burlywood"),
         panel.grid.major=element_blank())  +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") 
+  #geom_point() +
+  #stat_summary(fun = mean, geom = "point", 
+   #            color = "red") +
+  #stat_summary(aes(x = season, y = avg_speed), fun.data = mean_se, geom = "errorbar", 
+  #             color = "red")
+
 
 legend("topright", inset=c(-0.2,0), legend=c("b2b","other"), title="Group", fill = c("brown", "blue"), text.width = c(3,5))
   
