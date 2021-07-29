@@ -1116,33 +1116,40 @@ have played the game.
 2. __Unconstrained:__ All available information about the team not
 incorporated into the response.
 
-&lt;font size="5"&gt; We chose to prioritize the second approach because it would allow us
+&lt;font size="4.5"&gt; We chose to prioritize the second approach because it would allow us
 to decompose the response into its causes and we were interested in identifying
 what effect between game factors had on game outcome in the absence of as much of
 the team strength as possible. We felt understanding fatigue was
 more valuable that predicting fatigue. &lt;/font&gt;
 
 ---
-### Apendix C
+### Appendix C
 #### Investigation into modeling team strength 
 &lt;img src="presentation_10_min_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
 
-&lt;font size="5"&gt;
-The net rating of a game is a metric composed of how the team preformed in that
+&lt;font size="4.5"&gt;
+The net rating of a game is composed of how the team preformed in that
 given game. If a team won a game with a rating of 10 their opponent had a rating
-of -10. The teams season average net rating served as a very powerful predictor.
+of -10. The teams season average net rating difference served as the most simple 
+and nearly the most predictor.  &lt;/font&gt;
 
-However we wanted to incorporate in the locality of how good a team is
-at a given point in time. Therefore, we explored a wide varaiety of techniques for 
-capturing this information. 
+---
 
-Elastic net a shrinkage method
-
-Window. 
-
-Windows with temporal weighting. 
-
-windows with temporal weighting and interaction with games played.
+### Appendix C P2
+&lt;font size="4.5"&gt;
+&lt;b&gt;w60_en&lt;/b&gt; is a shrinkage method using elastic net trained on a large set of 
+team information.
+&lt;br&gt;
+&lt;b&gt;w_40&lt;/b&gt; is a window of the last 40 games a team has played as an additional predictor.  
+&lt;br&gt;
+&lt;b&gt;w40_t&lt;/b&gt; is a window of the last 40 games a team has played as an additional predictor
+with temporal weighting.. 
+&lt;br&gt;
+&lt;b&gt;w40_td&lt;/b&gt; is a window of the last 40 games where an interaction with the games played 
+and the season net rating difference allows.  
+&lt;br&gt;
+&lt;b&gt;w60_tf&lt;/b&gt; is a window of the last 30 games and 30 games into the future weighted 
+seperately from the season average.
 &lt;/font&gt;
 
 
