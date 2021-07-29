@@ -421,7 +421,7 @@ ggplot(aes(x = diff_sn_avg_wind_5_speed,y = diff_from_sn_avg_speed))+
 
 ## In-Game Distance
 
-- Can not draw conclusions across multiple seasons
+- Cannot draw conclusions across multiple seasons
 
 ```{r dist_t_test, echo = FALSE, fig.height= 6.5, fig.width=14}
 together_final <- read.csv("./data1/final_together.csv")
@@ -449,7 +449,7 @@ ggplot(data = dist_table) +
 
 ## In-Game Speed
 
-- Can not draw conclusions across multiple seasons
+- Cannot draw conclusions across multiple seasons
 
 ```{r speed_t-test, echo = FALSE, fig.height=6.5, fig.width=14}
 speed_table <- read_csv("./data1/speed_t_test_table.csv")
