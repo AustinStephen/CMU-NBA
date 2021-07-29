@@ -137,6 +137,8 @@ fatigued a player was by in game events.
 
 ### The in-game distance data
 
+- See appendix A for theoretical motivation
+
 ```{r}
  tracking_player <- read_csv(
    "data/in_game_distance_data/tracking_by_player_season_daily_2018_19.csv")
@@ -270,8 +272,8 @@ gbg_player_w_distance %>%
 ggplot(aes(x = diff_sn_avg_wind_5_speed,y = diff_from_sn_avg_speed))+
   geom_point(alpha = .05, color = "brown")+
   geom_smooth(method="lm")+ 
-  labs(y = "Current game",
-       x = "Last 5 days",
+  labs(y = "Current Game",
+       x = "Last 5 Days",
        title = "Min Adjusted Distance Deviation From Season Avg")+
   theme_bw()+
   theme(panel.background = element_rect(fill ="burlywood"),
@@ -451,6 +453,8 @@ together_net_Rating_allWindows %>%
 - **Goal:** Extract relationships with the game outcome that are present once 
 the team strength has been eliminated from the picture
 
+- See Appendices B and C for details on model construction
+
 ???
 Outline the appraoch to modeling
 
@@ -503,7 +507,7 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
   geom_point(color = "brown", size = 2) +
   geom_text_repel(aes(label=betas), size = 5) + 
   geom_errorbar(aes(ymin = betas - 2*standard_errors, ymax = betas + 2*standard_errors), color = "brown", width = 0.2) +
-  xlab("Regression Variable") +
+  xlab("Predictor Variable") +
   ylab("Coefficient Value") +
   labs(title = "Significant Variables") + 
   theme(panel.background = element_rect(fill = "burlywood"),
