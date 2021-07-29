@@ -1512,11 +1512,13 @@ sd(distance__season_2018_19$avg_speed) / sqrt(length(distance__season_2018_19$av
 sd(distance__season_2019_20$avg_speed) / sqrt(length(distance__season_2019_20$avg_speed))
 
 
-(sd(other_2016$dist_miles) / sqrt(length(distance__season_2016_17$dist_miles)))*2
+speed_table$other_mean + (sd(distance__season_2016_17$avg_speed) / sqrt(length(distance__season_2016_17$avg_speed)))*2
+
+sd(distance__season_2016_17$avg_speed)
 
 ggplot(data = speed_table) +
-  geom_point(aes(x = season, y = other_mean), color = "brown", size = 2) +
-  geom_point(aes(x = season, y = b2b_mean), color = "blue", size = 2) +
+  geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
+  geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
   labs(color = "Legend") +
   #geom_text_repel(aes(label=p), size = 2.5) + 
   geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
@@ -1531,8 +1533,8 @@ ggplot(data = speed_table) +
 legend("topright", inset=c(-0.2,0), legend=c("b2b","other"), title="Group", fill = c("brown", "blue"), text.width = c(3,5))
   
 ggplot(data = dist_table) +
-  geom_point(aes(x = season, y = other_mean), color = "brown", size = 2) +
-  geom_point(aes(x = season, y = b2b_mean), color = "blue", size = 2) +
+  geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
+  geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
   labs(color = "Legend") +
   #geom_text_repel(aes(label=p), size = 2.5) + 
   geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
@@ -1543,9 +1545,7 @@ ggplot(data = dist_table) +
   theme(panel.background = element_rect(fill = "burlywood"),
         panel.grid.major=element_blank())  +
   theme(legend.position = "bottom")
-legend("topright", inset=c(-0.2,0), legend=c("b2b","other"), title="Group", fill = c("brown", "blue"), text.width = c(3,5))
-
-  
+ 
   
 ggplot(data = table, aes(x = coefficients, y = betas)) +
   geom_point(color = "brown", size = 2) +

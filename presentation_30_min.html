@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>presentation_30_min.knit</title>
+    <meta charset="utf-8" />
+    <script src="presentation_30_min_files/header-attrs-2.8/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# <span style='font-size: 70px'>Modeling Player Fatigue in the NBA
+</style>
+### <span style='font-size: 35px'>Austin Stephen, Matthew Yep and Grace Fain
+</style>
+### <span style='font-size: 35px'> 7/30/2021
+</style>
+
+---
+
+
+
+
+
+
+
+### Why Fatigue?  
+
+&lt;span&gt; 1.&lt;/span&gt; Player Performance
+
+???
+The literature is very clear that insufficient rest worsens athlete preformance. 
+
+Edwards et al The National Center for Biotechnology Information
+"Early identification and subsequent management of fatigue may prevent detrimental 
+physical and physiological adaptations often associated with injury and enhance 
+athletic performance and player availability"
+--
+
+&lt;span&gt; 2. &lt;/span&gt; Schedule Fairness  
+
+--
+
+![](presentation_30_min_files/figure-html/Map-1.png)&lt;!-- --&gt;
+
+---
+### The Cavaliers also cross far less timezones than the coastal teams
+![](presentation_30_min_files/figure-html/Flight Paths-1.png)&lt;!-- --&gt;
+
+---
+
+## Findings  
+
+1. In-game distance measures suggest players achieve a high degree of recovery 
+between games.
+
+???
+These might get changed last minute.
+
+--
+
+2. Offer framework for analyzing fatigue from a
+
+--
+
+3. A subset of schedule induced factors impact game outcomes 
+
+--
+
+
+---
+
+## What is Fatigue?
+
+- Cannot use direct measures  
+
+???
+
+More concrete on fatigue: 
+Edwards et al. The National Center for Biotechnology Information
+"the decline in objective performance measures derived from the capacity 
+of the nervous system and contractile properties of muscles over time"
+
+
+In a perfect world we would directly measure an NBA players internal homeostasis
+either with hematological techniques or heart rate sensors. 
+However, players cannot wear heart rate monitors or tracking equipment in 
+games and we certainly don't have data about in/post-game blood samples 
+for hematological analysis so we need a proxies to measure how 
+fatigued a player was by in game events.
+
+--
+
+- Identify events that fatigue players
+
+---
+
+## Fatigue Inducing Events
+
+1. In-game events  
+  - ex. distance run or speed
+
+2. Between game events  
+  - ex. Length of flight or rest since last game
+???
+For the purposes of our project we define two types of fatigue inducing events.
+
+---
+
+## In-Game Distance  
+
+<div id="tanksmcmkf" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#tanksmcmkf .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: 80%;
+  border-top-style: solid;
+  border-top-width: 5px;
+  border-top-color: #001747;
+  border-right-style: solid;
+  border-right-width: 5px;
+  border-right-color: #001747;
+  border-bottom-style: solid;
+  border-bottom-width: 5px;
+  border-bottom-color: #001747;
+  border-left-style: solid;
+  border-left-width: 5px;
+  border-left-color: #001747;
+}
+
+#tanksmcmkf .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tanksmcmkf .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tanksmcmkf .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tanksmcmkf .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tanksmcmkf .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tanksmcmkf .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tanksmcmkf .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tanksmcmkf .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tanksmcmkf .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tanksmcmkf .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tanksmcmkf .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tanksmcmkf .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tanksmcmkf .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#tanksmcmkf .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#tanksmcmkf .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tanksmcmkf .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#tanksmcmkf .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tanksmcmkf .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#tanksmcmkf .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tanksmcmkf .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tanksmcmkf .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#tanksmcmkf .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tanksmcmkf .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tanksmcmkf .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#tanksmcmkf .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tanksmcmkf .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#tanksmcmkf .gt_left {
+  text-align: left;
+}
+
+#tanksmcmkf .gt_center {
+  text-align: center;
+}
+
+#tanksmcmkf .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tanksmcmkf .gt_font_normal {
+  font-weight: normal;
+}
+
+#tanksmcmkf .gt_font_bold {
+  font-weight: bold;
+}
+
+#tanksmcmkf .gt_font_italic {
+  font-style: italic;
+}
+
+#tanksmcmkf .gt_super {
+  font-size: 65%;
+}
+
+#tanksmcmkf .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="9" class="gt_heading gt_title gt_font_normal gt_bottom_border" style><strong>Distance By Player Individual Games</strong></th>
+    </tr>
+    
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Date</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Min</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Distance (mi)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Distance Offense</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Distance Defense</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Speed (mph)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Speed Offense</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Speed Defense</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left">Al Horford</td>
+<td class="gt_row gt_left">10/16/2018</td>
+<td class="gt_row gt_right">29.95</td>
+<td class="gt_row gt_right">2.15</td>
+<td class="gt_row gt_right">1.21</td>
+<td class="gt_row gt_right">0.94</td>
+<td class="gt_row gt_right">3.91</td>
+<td class="gt_row gt_right">4.15</td>
+<td class="gt_row gt_right">3.64</td></tr>
+    <tr><td class="gt_row gt_left">Alex Abrines</td>
+<td class="gt_row gt_left">10/16/2018</td>
+<td class="gt_row gt_right">23.48</td>
+<td class="gt_row gt_right">1.88</td>
+<td class="gt_row gt_right">0.97</td>
+<td class="gt_row gt_right">0.91</td>
+<td class="gt_row gt_right">4.57</td>
+<td class="gt_row gt_right">4.96</td>
+<td class="gt_row gt_right">4.19</td></tr>
+    <tr><td class="gt_row gt_left">Alfonzo McKinnie</td>
+<td class="gt_row gt_left">10/16/2018</td>
+<td class="gt_row gt_right">2.35</td>
+<td class="gt_row gt_right">0.18</td>
+<td class="gt_row gt_right">0.11</td>
+<td class="gt_row gt_right">0.07</td>
+<td class="gt_row gt_right">4.79</td>
+<td class="gt_row gt_right">4.99</td>
+<td class="gt_row gt_right">4.61</td></tr>
+    <tr><td class="gt_row gt_left">Amir Johnson</td>
+<td class="gt_row gt_left">10/16/2018</td>
+<td class="gt_row gt_right">11.18</td>
+<td class="gt_row gt_right">0.87</td>
+<td class="gt_row gt_right">0.47</td>
+<td class="gt_row gt_right">0.39</td>
+<td class="gt_row gt_right">4.49</td>
+<td class="gt_row gt_right">4.83</td>
+<td class="gt_row gt_right">4.13</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="9">Data courtesy of nba.com and Second Spectrum</td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+
+???
+3 important things:  
+Gen by computer vision  
+Game by game  
+Player level  
+
+---
+
+## In-Game Distance 
+
+- W = F \* d,  `\(\Delta\)`W = `\(\Delta\)`d
+
+???
+We were particularly excited by the prospect of using this in-game distance data 
+because it holds the potential to be a very strong measure of athlete exertion. 
+We know from kinematics the work it requires to preform an action is 
+defined as Force * distance. The force to move an object of constant mass is also
+as constant, therefore if we assume a players mass is constant over a season,
+the changes in distance for a game capturing all of their delta in work.
+In other words, work is agnostic to the time and cardinality of the force players
+use to move their bodies. This means despite being a very high level view of the
+game it is capturing a very high amount information about plaeyer exertion.
+We felt this gave our exploration of players distance relative to their baseline 
+really strong theoretical footing. This is why when we use player data it is 
+relative to player baselines.  
+
+We saw 2 steps to making a robust analysis of this data.
+1. Understand the relationship in-game distance has with game outcomes
+2. Identify factors that can inhibit distance (ex, fatigue) and in turn 
+    influence game outcomes
+
+--
+
+- 2 steps:
+
+--
+
+   &lt;span&gt; 1. &lt;/span&gt; Identify how in-game distance relates to game outcomes &lt;br&gt;   
+    
+--
+   &lt;span&gt; 2.&lt;/span&gt; Identify factors that can inhibit in-game distance  
+
+---
+
+## In-Game Distance 
+
+- More distance does not equal better performance
+
+???
+Hypothesized more distance meant more effort so ideally better performance.
+
+Explain axis and data is 20k observations  
+
+No correlation between fg percentage and distance a team travels.
+
+--
+
+- p-value 0.402
+
+![](presentation_30_min_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+
+---
+
+## In-Game Distance 
+
+- More distance does not equal better performance  
+
+???
+Here you are looking at the same plot for turnovers, no relationship. I'm grossly 
+simpliying the exploration that went into these factors but we were able to 
+dispell any relationships. 
+
+--
+- p-value 0.498  
+
+![](presentation_30_min_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+
+---
+
+
+## In-Game Distance 
+
+- Increase volume does not provide evidence of a refractory period  
+&lt;br&gt;
+
+![](presentation_30_min_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+???
+
+Moving to the second part of our analysis of in-game distance we are looking to 
+observe players fatiguing over time.
+
+We hypothesized a players who's workload deviated from their season average in previous 
+days would exhibit a refractory period due to fatigue. However, we again found 
+compelling evidence this is not the case.
+It actually appears the opposite is true, the greater workload in preceding days
+indicated in the observation game the athlete was likely to again take on 
+a higher workload.
+
+Hypothesized this is caused by players who are playing well get left in the
+game longer.
+---
+
+## In-Game Distance 
+
+- Time adjustment suggests fatigue is too small to measure
+
+- Results consistent across 3, 5, 7 and 10 day windows
+
+![](presentation_30_min_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+
+---
+
+## In-Game Distance
+
+- results are not conclusive across multiple seasons
+
+![](presentation_30_min_files/figure-html/dist_t_test-1.png)&lt;!-- --&gt;
+
+
+---
+
+## In-Game Speed
+
+- results are not conclusive across multiple seasons
+
+![](presentation_30_min_files/figure-html/speed_t-test-1.png)&lt;!-- --&gt;
+---
+### Case study:Load Management
+![](presentation_30_min_files/figure-html/Kawhi Case Study-1.png)&lt;!-- --&gt;
+
+---
+
+## What does this mean?
+
+- Basketball is complex  
+
+- Evidence indicating teams do a good job making sure their players are recovered.  
+
+
+???
+1. Basketball is composed of complex interaction of skill sets and simply working
+harder does necessarily yield better results. While tracking data sounds 
+exciting without being more closely tied to other in-game events it offers 
+little utility by way of player performance.
+
+2. One of the biggest trends in basketball commentary is players get tired 
+from playing too many games and as a result the quality of game 
+decreases. However, we offer compelling evidence a players workload over the 
+their previous games does not influence their performance in future games.
+
+Based on these results, we wouldn't be surprised if often people are often searching 
+to explain why a player did worse in a game when the truth is there may be
+nothing more than random variations in performance. Aka just because your star player 
+had a bad night it does not mean fatigue was necessarily to blame.
+
+That said, we aren't trying to tell you players don't ever get tired because that's 
+obviously not the case. Rather we are saying it appears the complexity of basketball
+and the techniques used by teams to ensure players are ready to play are more
+sophisticated than can be captured by measuring the players work.
+
+
+---
+
+###Taking a look at cross game fatigue
+<div id="ynuofynrdz" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#ynuofynrdz .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: 100%;
+  border-top-style: solid;
+  border-top-width: 5px;
+  border-top-color: #666666;
+  border-right-style: solid;
+  border-right-width: 5px;
+  border-right-color: #666666;
+  border-bottom-style: solid;
+  border-bottom-width: 5px;
+  border-bottom-color: #666666;
+  border-left-style: solid;
+  border-left-width: 5px;
+  border-left-color: #666666;
+}
+
+#ynuofynrdz .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ynuofynrdz .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ynuofynrdz .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ynuofynrdz .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ynuofynrdz .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ynuofynrdz .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ynuofynrdz .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ynuofynrdz .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ynuofynrdz .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ynuofynrdz .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ynuofynrdz .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ynuofynrdz .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ynuofynrdz .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ynuofynrdz .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ynuofynrdz .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ynuofynrdz .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#ynuofynrdz .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ynuofynrdz .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#ynuofynrdz .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ynuofynrdz .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ynuofynrdz .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ynuofynrdz .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ynuofynrdz .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ynuofynrdz .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#ynuofynrdz .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ynuofynrdz .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#ynuofynrdz .gt_left {
+  text-align: left;
+}
+
+#ynuofynrdz .gt_center {
+  text-align: center;
+}
+
+#ynuofynrdz .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ynuofynrdz .gt_font_normal {
+  font-weight: normal;
+}
+
+#ynuofynrdz .gt_font_bold {
+  font-weight: bold;
+}
+
+#ynuofynrdz .gt_font_italic {
+  font-style: italic;
+}
+
+#ynuofynrdz .gt_super {
+  font-size: 65%;
+}
+
+#ynuofynrdz .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="9" class="gt_heading gt_title gt_font_normal gt_bottom_border" style><strong>Travel, Schedule and Density Data</strong></th>
+    </tr>
+    
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Date</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">visitor</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Opponent</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">game_net_rating</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">distance_diff</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">rest_diff</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">shift</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1">b2b_2nd</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">net_rating_diff</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left">2010-10-26</td>
+<td class="gt_row gt_left">Houston Rockets</td>
+<td class="gt_row gt_left">Los Angeles Lakers</td>
+<td class="gt_row gt_right">-0.9</td>
+<td class="gt_row gt_right">1380</td>
+<td class="gt_row gt_right">0</td>
+<td class="gt_row gt_right">-2</td>
+<td class="gt_row gt_center">TRUE</td>
+<td class="gt_row gt_right">-4.0</td></tr>
+    <tr><td class="gt_row gt_left">2012-11-21</td>
+<td class="gt_row gt_left">Portland Trail Blazers</td>
+<td class="gt_row gt_left">Phoenix Suns</td>
+<td class="gt_row gt_right">-29.3</td>
+<td class="gt_row gt_right">1001</td>
+<td class="gt_row gt_right">-1</td>
+<td class="gt_row gt_right">1</td>
+<td class="gt_row gt_center">FALSE</td>
+<td class="gt_row gt_right">3.3</td></tr>
+    <tr><td class="gt_row gt_left">2014-02-08</td>
+<td class="gt_row gt_left">Miami Heat</td>
+<td class="gt_row gt_left">Utah Jazz</td>
+<td class="gt_row gt_right">-5.8</td>
+<td class="gt_row gt_right">-421</td>
+<td class="gt_row gt_right">2</td>
+<td class="gt_row gt_right">1</td>
+<td class="gt_row gt_center">FALSE</td>
+<td class="gt_row gt_right">12.7</td></tr>
+    <tr><td class="gt_row gt_left">2017-11-24</td>
+<td class="gt_row gt_left">New York Knicks</td>
+<td class="gt_row gt_left">Atlanta Hawks</td>
+<td class="gt_row gt_right">-12.2</td>
+<td class="gt_row gt_right">748</td>
+<td class="gt_row gt_right">0</td>
+<td class="gt_row gt_right">0</td>
+<td class="gt_row gt_center">TRUE</td>
+<td class="gt_row gt_right">2.3</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="9">Data courtesy of Jose Fernandez (airball) and Patrick Chodowski (NBAr)</td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+
+---
+
+### Game net rating difference of means
+- 2nd games of a back-to-back has a p-value of .776
+
+![](presentation_30_min_files/figure-html/team_t_test-1.png)&lt;!-- --&gt;
+
+
+---
+
+## Between Game Events
+- Disparity in team strength 
+
+- Remove variance in response associated with team strength
+
+???
+while t-tests offer a great way to look for relationships they have a high 
+risk for colinearlity with a latent variable. For example, in the time period
+we observed the Golden State Warriors had a sequence of 
+historically strong seasons and they also make up 1/5 of the West coast teams, 
+which could have introduced latent effects associated with their travel.
+
+
+
+---
+
+## Modeling for Team Strength
+
+1. __Constrained:__ Limited to the information available to a team when they would 
+have played the game.
+
+2. __Unconstrained:__ All available information about the team not
+incorporated into the response is used to break down what contributed to the 
+outcome of a given game.
+
+
+???
+2 concepts for modeling team strength. 
+
+We chose to prioritize the second model because essentially what it would allow us
+to do is decompose the response into its causes and we were interested in identifying
+what effect between game factors had on game outcome in the absence of as much of
+the team strength as possible.
+
+---
+
+## Modeling Team Strength 
+
+- Net season rating is very powerful
+
+
+
+---
+### Many of our travel and scheduling metrics had insignificant effects on game net rating
+* Distance traveled
+* Windowed distance traveled
+* Distance traveled difference
+* Flight duration
+* Timezone shift by -2, -1, 1, 2, and 3 hours
+* 2nd leg of a back to back
+* Tipoff time 
+  + West coast teams playing in the morning EST
+  + East coast teams playing at night PST
+
+---
+
+### Rest, a 3 hour shfit back, and three in four proved to be significant
+ &lt;font size="5"&gt; `\(gameNetRating\)` = `\(\beta_0\)` + `\(\beta_1\)` `\(netRatingDiff\)` + `\(\beta_2\)` `\(restDiff\)` + `\(\beta_3\)` `\(travel3HoursBack\)` + `\(\beta_4\)` `\(third GameFourDays\)` &lt;/font&gt;
+&lt;img src="presentation_30_min_files/figure-html/Linear Model-1.png" style="display: block; margin: auto;" /&gt;
+---
+
+
+---
+# How Can Teams Use This Information?
+
+---
+# Future Work
+
+
+---
+# Thanks
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
