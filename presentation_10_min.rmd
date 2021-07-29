@@ -460,7 +460,7 @@ the team strength has been eliminated from the picture
 Outline the appraoch to modeling
 
 ---
-### Linear Model Results
+### Linear model results
 #### Many of our travel and scheduling metrics had insignificant effects on game net rating...
 .pull-left[
 * Distance traveled
