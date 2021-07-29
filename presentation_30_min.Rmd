@@ -84,8 +84,8 @@ athletic performance and player availability"
 ```
 
 ---
-### The Cavaliers also cross far less timezones than the coastal teams
-```{r Flight Paths, echo = FALSE, fig.height = 7, fig.width=12}
+### Timezones and circadian rhythm
+```{r Flight Paths, echo = FALSE, fig.height = 7, fig.width=10}
 nba_travel_plot(data = travel1415,
                 season = 2015,
                 team = c("Portland Trail Blazers","Denver Nuggets", "Cleveland Cavaliers", "Boston Celtics"),
@@ -474,48 +474,52 @@ ggplot(data = speed_table) +
 
 ```
 ---
-### Case study:Load Management
+### Case study: Load Management
 ```{r Kawhi Case Study, echo = FALSE, fig.height = 6.5, fig.width = 12}
-check$player_rest <- ifelse(check$player_rest == 15, 4, check$player_rest)
-check$team_rest <- ifelse(check$team_rest == 15, 4, check$team_rest)
-
-check <- check %>% 
-  mutate(extra_rest = player_rest - team_rest) 
+# check$player_rest <- ifelse(check$player_rest == 15, 4, check$player_rest)
+# check$team_rest <- ifelse(check$team_rest == 15, 4, check$team_rest)
+# 
+# check <- check %>% 
+#   mutate(extra_rest = player_rest - team_rest) 
 
 x <- check$extra_rest
 check$type_of_rest <- case_when(
-  x >= 14 ~ "extended injury rest",
-  x < 14 & x >= 4 ~ "minor injury rest", 
-  x < 4 & x > 1 ~ "couple extra days rest",
-  x == 1 ~ "sit out one game",
-  x ==0 ~ "no load manage",
+  x >= 10 ~ "extended injury rest (10+)",
+  x < 10 & x >= 4 ~ "minor injury rest (4-9)", 
+  x < 4 & x > 1 ~ "2-3 extra days rest",
+  x == 1 ~ "1 game load manage",
+  x == 0 ~ "no load manage",
 )
 
-check$type_of_rest <- ordered(check$type_of_rest, levels = c("extended injury rest",
-                                                             "minor injury rest",
-                                                             "couple extra days rest",
-                                                             "sit out one game",
+check$type_of_rest <- ordered(check$type_of_rest, levels = c("extended injury rest (10+)",
+                                                             "minor injury rest (4-9)",
+                                                             "2-3 extra days rest",
+                                                             "1 game load manage",
                                                              "no load manage"))
-nums <- c(1:524)
-check$count <- nums
+#games <- c(1:576)
+#check$game <- games
 
 ggplot(data = filter(check, ratioPIE < 0.6)) +
-  geom_point(aes(x = count, y = ratioPIE, color = type_of_rest), alpha = 0.7) +
-  geom_hline(yintercept = 0.1 , linetype = "dashed") +
+  geom_point(aes(x = game, y = ratioPIE, color = type_of_rest, shape = w_l), alpha = 0.7) +
+  geom_hline(yintercept = 0.15 , linetype = "dashed") +
   geom_vline(xintercept = 408, linetype = "dashed", color = "gray") +
   geom_vline(xintercept = 468, linetype = "dashed", color = "gray") +
-  scale_color_manual(values=c("red", "yellow", "purple", "blue", "gray")) + 
+  scale_color_manual(values=c("red", "orange", "purple", "blue", "gray")) + 
   labs(title = "Kawhi's PIE in Games Following Different Periods of  Rest") + 
   ylab("Player Impact Estimate") +
-  xlab("Game Date") +
+  xlab("Point in Kawhi's Career") +
   theme(axis.text.x=element_blank(),
         panel.grid.major=element_blank(),
         panel.grid.minor=element_blank(),
         axis.ticks=element_blank(),
         plot.title = element_text(size = 20),
         text = element_text(size = 14),
-        legend.position = "bottom")
+        legend.position = "bottom") +
+  annotate("text", x = 1, y = -0.1, label = "Spurs") +
+  annotate("text", x = 435, y = -0.1, label = "Raptors") +
+  annotate("text", x = 530, y = -0.1, label = "Clippers")
 ```
+
 
 ---
 
@@ -664,9 +668,9 @@ We felt the understanding of fatigue is more valuable.
 
 ## Modeling Team Strength 
 
-- Net season rating difference is very powerful
+- Season net rating is very powerful
 
-```{r fig.height = 4}
+{r fig.height = 4}
 res <- read_csv("./data/results_model_building.csv")
 
 
@@ -712,34 +716,40 @@ windows with temporal weighting and interaction with games played.
 
 
 ---
-### Many of our travel and scheduling metrics had insignificant effects on game net rating
+##Linear Model Results
+#### Many of our travel and scheduling metrics had insignificant effects on game net rating...
+.pull-left[
 * Distance traveled
 * Windowed distance traveled
 * Distance traveled difference
 * Flight duration
 * Timezone shift by -2, -1, 1, 2, and 3 hours
+]
+
+.pull-right[
+
 * 2nd leg of a back to back
 * Tipoff time 
   + West coast teams playing in the morning EST
   + East coast teams playing at night PST
-
+]
 ---
 
-### Rest, a 3 hour shfit back, and three in four proved to be significant
- <font size="5"> $gameNetRating$ = $\beta_0$ + $\beta_1$ $netRatingDiff$ + $\beta_2$ $restDiff$ + $\beta_3$ $travel3HoursBack$ + $\beta_4$ $third GameFourDays$ </font>
+### Rest, 3 in 4, and 3 hours back were significant
+ <font size="5"> $gameNetRatingResidual$ = $\beta_0$ + $\beta_1$ $restDiff$ + $\beta_2$ $travel3HoursBack$ + $\beta_3$ $third GameFourDays$ </font>
 ```{r Linear Model, echo=FALSE, fig.align = "center", fig.height = 5.5, fig.width = 12}
-summ <- summary(lm(game_net_rating ~ net_rating_diff+ three_in_four 
+summ <- summary(lm(game_net_rating ~ net_rating_diff + three_in_four 
              + travel_3_hours_back + rest_diff,
            data = together_net_Rating_allWindows))
 
-coefficients <- c("intercept", "net_rating_diff",
-                  "rest_diff", "three_in_four","travel_3_hours_back")
+coefficients <- c("intercept",
+                  "three_in_four","travel_3_hours_back", "rest_diff")
 
-coefficients <- ordered(coefficients, levels = c("intercept","net_rating_diff",
-                                                 "rest_diff","travel_3_hours_back", "three_in_four"))
-betas <- as.numeric(summ$coefficients[,1])
-standard_errors <- as.numeric(summ$coefficients[,2])
-p_values <- as.numeric(summ$coefficients[,4])
+coefficients <- ordered(coefficients, levels = c("intercept",
+                                                 "rest_diff","travel_3_hours_back","three_in_four"))
+betas <- as.numeric(summ$coefficients[,1])[c(1,3,4,5)]
+standard_errors <- as.numeric(summ$coefficients[,2])[c(1,3,4,5)]
+p_values <- as.numeric(summ$coefficients[,4])[c(1,3,4,5)]
 p <- sprintf("p= %s", p_values)
 
 table <- data.frame(coefficients, betas, standard_errors, p)
@@ -754,13 +764,16 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
   ylab("Coefficient Value") +
   labs(title = "Significant Variables") + 
   theme(panel.background = element_rect(fill = "burlywood"),
-        panel.grid.major=element_blank()
+        panel.grid.major=element_blank(),
+        plot.title = element_text(size = 20),
+        text = element_text(size = 14)
   )
 ```
----
 
 ---
+
 ### Further work
+
 * Develop a mapping of fatigue to performance
 <br>
 * Generalize load management as a strategy for more players
@@ -768,6 +781,7 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 * Design a stronger proxy for team strength
 
 ---
+
 ### Relevance to stakeholders
 **NBA Teams**
 - Allocation of resources
@@ -779,6 +793,30 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 - Viewership and profit maximization
 
 ---
+
+##Thanks
+ **Advisor**
+- Maksim Horowitz, Atlanta Hawks
+
+**Carnegie Mellon**
+- Ron Yurko
+- Rebecca Nugent
+- Beomjo Park
+- Meg Ellingwood
+- Nick Kissel
+
+**Special thanks** to Tom Bliss as well for his insight on fatigue analysis in the NFL
+
+
+
+
+
+
+
+
+
+
+=======
 ## Thanks  
 **Advisor:**  
 Maksim Horowitz, Atlanta Hawks  
