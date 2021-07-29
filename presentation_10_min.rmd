@@ -1,18 +1,21 @@
 ---
-title: "<span style='font-size: 70px'>Measuring and Predicting Player Fatigue in the NBA </style>"
+title: "<span style='font-size: 70px'>Modeling Player Fatigue in the NBA (10) </style>"
 author: "<span style='font-size: 35px'>Austin Stephen, Matthew Yep and Grace Fain </style>"
-date: "<span style='font-size: 35px'> 7/13/2021 </style>"
+date: "<span style='font-size: 35px'> 7/30/2021 </style>"
 output:
   xaringan::moon_reader:
     css: xaringan-themer.css
-    
+    nature: 
+      countIncrementalSlides: false
+      slideNumberFormat: "%current%"
 ---
 
 
-```{r setup, include=FALSE}
+```{r  xaringan-themer, setup, include=FALSE}
+library(xaringanthemer)
 knitr::opts_chunk$set(
   echo = FALSE,
-  cache = FALSE,
+  cache = TRUE,
   message = FALSE,
   warning = FALSE
   )
@@ -30,66 +33,615 @@ library(airball)
 library(gridExtra)
 library(png)
 library(grid)
+#library(ggimage)
+library(gt)
 
- 
 ```
 
 ```{r xaringan-themer, include=FALSE, warning=FALSE }
+coords_and_distance <- read_csv("./matthew_data/coords_and_distance.csv")
+travel1415 <- read_csv("./matthew_data/travel1415.csv")
+together_net_Rating_allWindows <- read_csv("./matthew_data/austin_everything.csv")
+check <- read_csv("./matthew_data/kawhi.csv")
 
-visitors <- read_csv("./matthew_data/visitors.csv")
-data1415 <- read_csv("./matthew_data/regseason1415.csv")
-datos <- read_csv("./matthew_data/map1415data.csv")
-
-style_mono_accent(base_color = "#cc002c",
+style_mono_accent(base_color = "#374052",
   white_color = "#e6e6e6",
-  background_color = "#b3b3b3",
-  base_font_size = "28px"
+  background_color = "#b8b8b8",
+  base_font_size = "28px",
+  header_background_content_padding_top = "4rem"
   )
 ```
 
+### Why fatigue?  
 
-## Why Fatigue?
-
-- Injury Prevention  
-
-- Optimized Performance 
+<span> 1.</span> Player performance
 
 ???
-Very clearly established by the lit  
+The literature is very clear that insufficient rest worsens athlete preformance. 
 
-"Early identification and subsequent management of fatigue may prevent detrimental physical and physiological adaptations often associated with injury and enhance athletic performance and player availability"
 Edwards et al The National Center for Biotechnology Information
+"Early identification and subsequent management of fatigue may prevent detrimental 
+physical and physiological adaptations often associated with injury and enhance 
+athletic performance and player availability"
+--
+
+<span> 2. </span> Schedule fairness  
 
 --
 
-```{r fig.height = 4, out.extra = 'style= "border:solid; border-color: #666666 "' }
-img <- readPNG("img/fatigue.png")
- grid.raster(img)
+```{r Map, echo = FALSE, fig.height= 5, fig.width=12}
+# states <- map_data("state")
+# ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group = group), fill = "white", color = "gray") +
+#   coord_fixed(1.3) +
+#   geom_image(data = coords_and_distance, aes(x = Longitude, y = Latitude, image = logo, size = I(img_size))) +
+#   theme(axis.line=element_blank(),axis.text.x=element_blank(),
+#         axis.text.y=element_blank(), axis.ticks=element_blank(),
+#         axis.title.x=element_blank(),
+#         axis.title.y=element_blank(),
+#         panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+#         panel.grid.minor=element_blank(),plot.background=element_blank(),
+#         legend.position = "bottom")
+```
+
+---
+
+### Project takeways  
+
+<span style='font-size: 38px'> **1.** </span> Offer evidence 
+players achieve a high degree of recovery 
+between games.  
+
+
+???
+Just list these
+
+--
+<span style='font-size: 38px'> **2.** </span> Establish a subset of 
+schedule induced factors that impact game outcomes.  
+
+
+---
+
+### What is fatigue?
+
+- Cannot use direct measures  
+
+???
+
+More concrete on fatigue: 
+Edwards et al. The National Center for Biotechnology Information
+"the decline in objective performance measures derived from the capacity 
+of the nervous system and contractile properties of muscles over time"
+
+
+In a perfect world we would directly measure an NBA players internal homeostasis
+either with hematological techniques or heart rate sensors. 
+However, players cannot wear heart rate monitors or tracking equipment in 
+games and we certainly don't have data about in/post-game blood samples 
+for hematological analysis so we need a proxies to measure how 
+fatigued a player was by in game events.
+
+--
+
+- Identify events that fatigue players
+
+--
+
+1. **In-game events**  
+  - ex. Distance run or speed
+
+2. **Between game events**  
+  - ex. Length of flight or rest since last game
+
+---
+
+### The in-game distance data
+
+- See appendix A for theoretical motivation
+
+```{r}
+ tracking_player <- read_csv(
+   "data/in_game_distance_data/tracking_by_player_season_daily_2018_19.csv")
+
+
+tracking_player %>%
+select(c("player_name","date","min", "dist_miles","dist_miles_off", "dist_miles_def",
+ "avg_speed","avg_speed_off","avg_speed_def")) %>%
+rename("Name" = player_name,
+"Distance (mi)" = dist_miles,
+"Distance Offense"  = dist_miles_off,
+      "Distance Defense" = dist_miles_def,
+       "Speed (mph)" = avg_speed,
+         "Speed Offense" = avg_speed_off,
+         "Speed Defense" = avg_speed_def,
+        "Date" = date,
+         "Min" = min) %>%
+  slice(1:4) %>%
+ gt() %>%
+ tab_header(
+   title = md("**Distance By Player Individual Games**")
+) %>%
+ tab_source_note(md("Data courtesy of nba.com, Second Spectrum, Patrcik Chodowski (NBAr)")) %>%
+opt_table_outline( style = "solid", width = px(5), color = "#001747")%>%
+ tab_options(table.width = pct(80))
+```
+
+???
+3 important things:  
+Gen by computer vision  
+Game by game  
+Player level  
+
+---
+
+### In-game distance and preformance 
+
+- More distance does not correlate with better performance
+
+???
+Hypothesized more distance meant more effort so ideally better performance.
+
+Explain axis and data is 20k observations  
+
+No correlation between fg percentage and distance a team travels.  
+
+--
+
+- p-value 0.402
+
+```{r fig.height =4,fig.align = "center", fig.width = 8, include =TRUE}
+gbg_player_w_distance <- read_csv(
+ "./data/in_game_distance_data/in_game_dist_box_join.csv") %>% filter(min >12)
+
+gbg_player_w_distance %>% 
+  ggplot(aes(x=diff_from_sn_avg_speed, y= diff_from_sn_avg_fgpct)) + 
+  geom_point(color = "brown", alpha = .1)+
+  geom_abline(intercept = 110.614, slope = -7.617, color = "darkred")+
+  theme_bw()+ 
+  geom_smooth(method = "lm", se = FALSE) +
+  labs( title = "Difference From Season Average FG %",
+        x = "Distance in Miles Min Adjusted",
+        y = "FG Percent")+
+  theme(panel.background = element_rect(fill ="burlywood"),
+        panel.grid.major = element_blank(),
+        plot.title = element_text(size = 20),
+        text = element_text(size = 14)
+        )
+# summary(lm(diff_from_sn_avg_speed ~ diff_from_sn_avg_fgpct, data =gbg_player_w_distance))
+
+```
+
+---
+
+### Post distance overload regress
+
+- Results consistent across 3, 5, 7 and 10 day windows
+
+```{r fig.height = 5, fig.align = "center"}
+gbg_player_w_distance <- read_csv(
+  "./data/in_game_distance_data/in_game_dist_box_join.csv")
+
+layer_Window_speed_daily_2014_15 <- read_csv(
+  "./data/in_game_distance_data/player_Window_speed_daily_2014_15.csv") %>%
+  select("player_id","date","speed_5dayWindow","speed_7dayWindow")
+
+layer_Window_speed_daily_2014_15$date <- as.Date(
+  layer_Window_speed_daily_2014_15$date, "%m/%d/%Y")
+
+gbg_player_w_distance <- merge(x = gbg_player_w_distance,
+                               y = layer_Window_speed_daily_2014_15,
+                               by.x =  c("player_id","date" ),
+                               by.y = c("player_id","date" ))
+
+## windows of time analysis 
+player_Window_dist_daily_2014_15 <- read_csv(
+  "./data/in_game_distance_data/player_Window_dist_daily_2014_15.csv")%>%
+  select("player_id","date","dist_5dayWindow","dist_3dayWindow","dist_7dayWindow",
+         "dist_10dayWindow")
+player_Window_dist_daily_2014_15$date <- as.Date(
+  player_Window_dist_daily_2014_15$date, "%m/%d/%Y")
+
+## removing all instances where player played less than 15 seconds because 
+## these are just not insightful instances 
+gbg_player_w_distance <- gbg_player_w_distance %>% filter(min > .25)
+
+
+## window
+gbg_player_w_distance <- merge(x = gbg_player_w_distance,
+                               y = player_Window_dist_daily_2014_15,
+                               by.x =  c("player_id","date" ),
+                               by.y = c("player_id","date" ))
+
+## Adding a difference from mean 5 day window
+gbg_player_w_distance <- gbg_player_w_distance %>%
+  group_by(player_id) %>%
+  mutate(sn_avg_wind_3_dist = mean(dist_3dayWindow)) %>%
+  mutate(diff_sn_avg_wind_3_dist = dist_3dayWindow - sn_avg_wind_3_dist ) %>%
+  mutate(sn_avg_wind_5_dist = mean(dist_5dayWindow)) %>%
+  mutate(diff_sn_avg_wind_5_dist = dist_5dayWindow - sn_avg_wind_5_dist ) %>%
+  mutate(sn_avg_wind_7_dist = mean(dist_7dayWindow)) %>%
+  mutate(diff_sn_avg_wind_7_dist = dist_7dayWindow - sn_avg_wind_7_dist ) %>%
+  mutate(sn_avg_wind_10_dist = mean(dist_10dayWindow)) %>%
+  mutate(diff_sn_avg_wind_10_dist = dist_10dayWindow - sn_avg_wind_10_dist ) %>%
+  mutate(sn_avg_wind_5_speed = mean(speed_5dayWindow)) %>%
+  mutate(diff_sn_avg_wind_5_speed = speed_5dayWindow - sn_avg_wind_5_speed ) %>%
+  mutate(sn_avg_wind_7_speed = mean(speed_7dayWindow)) %>%
+  mutate(diff_sn_avg_wind_7_speed = speed_7dayWindow - sn_avg_wind_7_speed )
+
+gbg_player_w_distance %>%
+ggplot(aes(x = diff_sn_avg_wind_5_speed,y = diff_from_sn_avg_speed))+
+  geom_point(alpha = .05, color = "brown")+
+  geom_smooth(method="lm")+ 
+  labs(y = "Current Game",
+       x = "Last 5 Days",
+       title = "Min Adjusted Distance Deviation From Season Avg")+
+  theme_bw()+
+  theme(panel.background = element_rect(fill ="burlywood"),
+        panel.grid.major = element_blank(),
+        plot.title = element_text(size = 20),
+        text = element_text(size = 14))+
+  scale_y_continuous(limits = c(-3.5, 3.5))
+        
 
 ```
 
 ???
-Image courtsey of Taylor et al.
+
+Moving to the second part of our analysis of in-game distance we are looking to 
+observe players fatiguing over time.
+
+We hypothesized a players who's workload deviated from their season average in previous 
+days would exhibit a refractory period due to fatigue. However, we again found 
+compelling evidence this is not the case.
+It actually appears the opposite is true, the greater workload in preceding days
+indicated in the observation game the athlete was likely to again take on 
+a higher workload.
+
+Hypothesized this is caused by players who are playing well get left in the
+game longer.
 
 ---
 
-## Project Objectives 
+### In-game distance back to back
 
-1. Measure player fatigue  
+- Cannot draw conclusions across multiple seasons  
+
+
+```{r dist_t_test, echo = FALSE, fig.height= 6.5, fig.width=14}
+together_final <- read.csv("./data1/final_together.csv")
+dist_table <- read.csv("./data1/distance_t_test_table.csv")
+
+ggplot(data = dist_table) +
+  geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
+  geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
+  scale_color_manual(name="Game Type",labels=c("True", "False"), values=c("blue", "brown")) +
+  #geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error, ymax = b2b_mean + 2*standard_error), color = "blue", width = 0.2) +
+  xlab("Season") +
+  ylab("Mean Distance") +
+  labs(title = "Difference of Means 2nd Game of a Back to Back and Other Games", color = "legend") +
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank())  +
+  theme(legend.position = "right", axis.text = element_text(size = 14), axis.title = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 14), legend.title = element_text(size = 14), title = element_text(size = 20))
+
+```
+
+---
+
+### Case study: Load Management
+```{r Kawhi Case Study, echo = FALSE, fig.height = 6.5, fig.width = 14}
+# check$player_rest <- ifelse(check$player_rest == 15, 4, check$player_rest)
+# check$team_rest <- ifelse(check$team_rest == 15, 4, check$team_rest)
+# 
+# check <- check %>% 
+#   mutate(extra_rest = player_rest - team_rest) 
+
+x <- check$extra_rest
+check$type_of_rest <- case_when(
+  x >= 10 ~ "extended rest",
+  x < 10 & x >= 4 ~ "minor injury rest", 
+  x < 4 & x > 1 ~ "2-3 extra days rest",
+  x == 1 ~ "1 game load manage",
+  x == 0 ~ "no load manage",
+)
+
+check$type_of_rest <- ordered(check$type_of_rest, levels = c("extended rest",
+                                                             "minor injury rest",
+                                                             "2-3 extra days rest",
+                                                             "1 game load manage",
+                                                             "no load manage"))
+#games <- c(1:576)
+#check$game <- games
+
+ggplot(data = filter(check, ratioPIE < 0.6)) +
+  geom_point(aes(x = game, y = ratioPIE, color = type_of_rest, 
+                 shape = w_l), alpha = .7, size =5) +
+  geom_hline(yintercept = 0.15 , linetype = "dashed") +
+  geom_vline(xintercept = 408, linetype = "dashed", color = "gray") +
+  geom_vline(xintercept = 468, linetype = "dashed", color = "gray") +
+  scale_color_manual(values=c("red", "orange", "purple", "blue", "gray")) + 
+  labs(title = "Kawhi's PIE in Games Following Different Periods of Rest",
+       col= "Type of Rest", shape = "") + 
+  ylab("Player Impact Estimate") +
+  xlab("Point in Kawhi's Career") +
+  theme(axis.text.x=element_blank(),
+        panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),
+        axis.ticks=element_blank(),
+        plot.title = element_text(size = 24),
+        text = element_text(size = 18),
+        legend.position = "bottom",
+        ) +
+  annotate("text", x = 1, y = -0.1, label = "Spurs") +
+  annotate("text", x = 435, y = -0.1, label = "Raptors") +
+  annotate("text", x = 530, y = -0.1, label = "Clippers") 
+```
+
+
+---
+
+### What does this mean?
+
+- Basketball is complex  
+
+- Evidence indicating players are recovered between games.
+
+- Intuition may be misguided 
+
 
 ???
-Identify a proxy for fatigue and link it to in game performance.
+1. Basketball is composed of complex interaction of skill sets and simply working
+harder does necessarily yield better results. While tracking data sounds 
+exciting without being more closely tied to other in-game events it offers 
+little utility by way of player performance.
 
---
+2. One of the biggest trends in basketball commentary is players get tired 
+from playing too many games and as a result the quality of game 
+decreases. However, we offer compelling evidence a players workload over the 
+their previous games does not influence their performance in future games.
+
+Based on these results, we wouldn't be surprised if often people are often searching 
+to explain why a player did worse in a game when the truth is there may be
+nothing more than random variations in performance. Aka just because your star player 
+had a bad night it does not mean fatigue was necessarily to blame.
+
+That said, we aren't trying to tell you players don't ever get tired because that's 
+obviously not the case. Rather we are saying it appears the complexity of basketball
+and the techniques used by teams to ensure players are ready to play are more
+sophisticated than can be captured by measuring the players work.
+
+
+---
+
+### Taking a look at cross game fatigue
+``` {r Cross Game Data, echo = FALSE, fig.height = 6.5, fig.width = 12}
+together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
+  select(-c(fgm:opp_blk)) %>%
+  select(-c(fgm_diff:blk_diff))
+
+together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
+  mutate(distance_diff = Distance - opp_distance) %>%
+  mutate(windowed_distance_diff = dist_30dayWindow - opp_dist_30dayWindow) %>%
+  mutate(distance_advantage = (distance_diff < 0)) %>%
+  mutate(windowed_distance_advantage = (windowed_distance_diff) < 0)
+
+together_net_Rating_allWindows %>%
+  select(c("Date", "visitor", "Opponent", "game_net_rating", "distance_diff","rest_diff","shift", 
+           "b2b_2nd", , "net_rating_diff", )) %>%
+  slice(1, 2386, 4200, 8642) %>%
+   gt() %>%
+   tab_header(
+    title = md("**Travel, Schedule and Density Data**")
+  ) %>%
+  tab_source_note(md("Data courtesy of Jose Fernandez (airball) and Patrick Chodowski (NBAr)")) %>%
+  opt_table_outline( style = "solid", width = px(5), color = "#666666") %>%
+  tab_options(table.width = pct(100))
+```
+
+---
+
+### Composition of game outcome  
+
+- Game outcome is the response
+
+- Event contributing to that outcome is a predictor
+
+- Most important factor is team strength 
+
+- **Goal:** Extract relationships with the game outcome that are present once 
+the team strength has been eliminated from the picture
+
+- See Appendices B and C for details on model construction
+
+???
+Outline the appraoch to modeling
+
+---
+### Linear Model Results
+#### Many of our travel and scheduling metrics had insignificant effects on game net rating...
+.pull-left[
+* Distance traveled
+* Windowed distance traveled
+* Distance traveled difference
+* Flight duration
+* Timezone shift by -2, -1, 1, 2, and 3 hours
+]
+
+.pull-right[
+
+* 2nd leg of a back to back
+* Tipoff time 
+  + West coast teams playing in the morning EST
+  + East coast teams playing at night PST
+]
+---
+
+### Significant schedule induced factors
+ <font size="5"> <i>gameNetRatingResiduals</i> = </font>  
+ <br>
+ <font size="5"> $\beta_0$ + $\beta_1$<i>restDiff</i> + $\beta_2$ <i>3HrsBack</i>
+ + $\beta_3$<i>3rdGame4Days</i> </font>  
+ 
+```{r Linear Model, echo=FALSE, fig.align = "center", fig.height = 5.5, fig.width = 12}
+summ <- summary(lm(game_net_rating ~ net_rating_diff + three_in_four 
+             + travel_3_hours_back + rest_diff,
+           data = together_net_Rating_allWindows))
+
+coefficients <- c("intercept",
+                  "three_in_four","travel_3_hours_back", "rest_diff")
+
+coefficients <- ordered(coefficients, levels = c("intercept",
+                                                 "rest_diff","travel_3_hours_back","three_in_four"))
+betas <- round(as.numeric(summ$coefficients[,1])[c(1,3,4,5)], digits = 3)
+standard_errors <- as.numeric(summ$coefficients[,2])[c(1,3,4,5)]
+p_values <- as.numeric(summ$coefficients[,4])[c(1,3,4,5)]
+p <- sprintf("p= %s", p_values)
+
+table <- data.frame(coefficients, betas, standard_errors, p)
+
+library(ggrepel)
+
+ggplot(data = table, aes(x = coefficients, y = betas)) +
+  geom_point(color = "brown", size = 2) +
+  geom_text_repel(aes(label=betas), size = 5) + 
+  geom_errorbar(aes(ymin = betas - 2*standard_errors, ymax = betas + 2*standard_errors), color = "brown", width = 0.2) +
+  xlab("Predictor Variable") +
+  ylab("Coefficient Value") +
+  labs(title = "Significant Variables") + 
+  theme(panel.background = element_rect(fill = "burlywood"),
+        panel.grid.major=element_blank(),
+        plot.title = element_text(size = 24),
+        text = element_text(size = 18)
+  )
+```
+
+---
+
+### Further work
+
+* Develop a mapping of fatigue to performance  
+
+
+* Generalize load management to more players
+  + Study effectiveness in the long run    
   
-2. Build a model that predict the impact of fatigue on a given 
-game or multi-game sequence.  
 
-
-???
-This model can used by teams to examine their roster and match-ups and gain insights into 
-how differnt factors are influencing their teams performance
+* Design a stronger proxy for team strength
 
 ---
+
+### Relevance to stakeholders
+**NBA Teams:**  
+- Allocation of resources  
+- Load management  
+
+**League Office:**  
+- Schedule design  
+- Understanding complexities of player performance  
+- Viewership and profit maximization  
+
+---
+## Thanks  
+**Advisor:**  
+Maksim Horowitz, Atlanta Hawks  
+
+**Carnegie Mellon:**  
+Ron Yurko  
+Rebecca Nugent  
+Beomjo Park  
+Meg Ellingwood  
+Nick Kissel 
+
+**Special thanks:**  
+Tom Bliss for your insight on fatigue in the NFL
+
+---
+### Appendix A
+#### Theoretical basis for distance's relationship with work  
+W = F \* d,  $\Delta$W = $\Delta$d
+
+<font size="4.5"> From kinematics work is defined as Force * distance. 
+The force to move an object of constant mass is also a constant, 
+therefore if we assume a players mass is constant over a season,
+the changes in distance for a game captures nearly all of their delta in work.
+In other words, work is agnostic to the time and cardinality of the force players
+use to move their bodies. This means despite being a very high level view of the
+game it is capturing a very high amount information about player exertion.</font>
+
+---
+### Appendix B
+#### Conceptual approaches to modeling team strength
+1. __Constrained:__ Limited to the information available to a team when they would 
+have played the game.  
+2. __Unconstrained:__ All available information about the team not
+incorporated into the response.
+
+<font size="4.5"> We chose to prioritize the second approach because it would allow us
+to decompose the response into its causes and we were interested in identifying
+what effect between game factors had on game outcome in the absence of as much of
+the team strength as possible. We felt understanding fatigue was
+more valuable that predicting fatigue. </font>
+
+---
+### Appendix C
+#### Investigation into modeling team strength 
+```{r fig.height = 3.5, fig.width = 8, fig.align = "center"}
+res <- read_csv("./data/results_model_building.csv")
+
+
+res$type <- ordered(res$type,
+            c("sn_net_rating_diff","w60_en", "w_40", "w40_t", "w40_td", "w60_tf"))
+
+res$test_fold <- as.factor(res$test_fold)
+
+res %>%
+  group_by(type, test_fold) %>%
+  summarize(rmse =
+              sqrt(mean((test_actual - test_preds)^2))) %>% 
+  ggplot(aes(x = type, y = rmse)) + 
+  geom_point() + theme_bw() +
+  stat_summary(fun = mean, geom = "point", 
+               color = "red") + 
+  stat_summary(fun.data = mean_se, geom = "errorbar",
+               color = "red") +
+  labs(title = "Game Net Rating Difference as Response",
+       x= "Type of Model",
+       y = "RMSE",
+       caption = "t = temporal weighting
+       td = temporal weighting and dynamic season avg
+       tf = temporal weighting and future games" )+
+  theme(panel.background = element_rect(fill ="burlywood"),
+        panel.grid.major = element_blank(),
+        plot.title = element_text(size = 22),
+        text = element_text(size = 18),
+        plot.caption = element_text(size=16))
+```
+
+<font size="4.5">
+The net rating of a game is composed of how the team preformed in that
+given game. If a team won a game with a rating of 10 their opponent had a rating
+of -10. The teams season average net rating difference served as the most simple 
+and nearly the most predictor.  </font>
+
+---
+
+### Appendix C P2
+<font size="4.5">
+<b>w60_en</b> is a shrinkage method using elastic net trained on a large set of 
+team information.
+<br>
+<b>w_40</b> is a window of the last 40 games a team has played as an additional predictor.  
+<br>
+<b>w40_t</b> is a window of the last 40 games a team has played as an additional predictor
+with temporal weighting. 
+<br>
+<b>w40_td</b> is a window of the last 40 games where an interaction with the games played 
+and the season net rating difference allows.  
+<br>
+<b>w60_tf</b> is a window of the last 30 games and 30 games into the future weighted 
+separately from the season average.
+</font>
 
 
