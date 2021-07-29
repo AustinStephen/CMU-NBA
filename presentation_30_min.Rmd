@@ -473,48 +473,52 @@ ggplot(data = speed_table) +
 
 ```
 ---
-### Case study:Load Management
+### Case study: Load Management
 ```{r Kawhi Case Study, echo = FALSE, fig.height = 6.5, fig.width = 12}
-check$player_rest <- ifelse(check$player_rest == 15, 4, check$player_rest)
-check$team_rest <- ifelse(check$team_rest == 15, 4, check$team_rest)
-
-check <- check %>% 
-  mutate(extra_rest = player_rest - team_rest) 
+# check$player_rest <- ifelse(check$player_rest == 15, 4, check$player_rest)
+# check$team_rest <- ifelse(check$team_rest == 15, 4, check$team_rest)
+# 
+# check <- check %>% 
+#   mutate(extra_rest = player_rest - team_rest) 
 
 x <- check$extra_rest
 check$type_of_rest <- case_when(
-  x >= 14 ~ "extended injury rest",
-  x < 14 & x >= 4 ~ "minor injury rest", 
-  x < 4 & x > 1 ~ "couple extra days rest",
-  x == 1 ~ "sit out one game",
-  x ==0 ~ "no load manage",
+  x >= 10 ~ "extended injury rest (10+)",
+  x < 10 & x >= 4 ~ "minor injury rest (4-9)", 
+  x < 4 & x > 1 ~ "2-3 extra days rest",
+  x == 1 ~ "1 game load manage",
+  x == 0 ~ "no load manage",
 )
 
-check$type_of_rest <- ordered(check$type_of_rest, levels = c("extended injury rest",
-                                                             "minor injury rest",
-                                                             "couple extra days rest",
-                                                             "sit out one game",
+check$type_of_rest <- ordered(check$type_of_rest, levels = c("extended injury rest (10+)",
+                                                             "minor injury rest (4-9)",
+                                                             "2-3 extra days rest",
+                                                             "1 game load manage",
                                                              "no load manage"))
-nums <- c(1:524)
-check$count <- nums
+#games <- c(1:576)
+#check$game <- games
 
 ggplot(data = filter(check, ratioPIE < 0.6)) +
-  geom_point(aes(x = count, y = ratioPIE, color = type_of_rest), alpha = 0.7) +
-  geom_hline(yintercept = 0.1 , linetype = "dashed") +
+  geom_point(aes(x = game, y = ratioPIE, color = type_of_rest, shape = w_l), alpha = 0.7) +
+  geom_hline(yintercept = 0.15 , linetype = "dashed") +
   geom_vline(xintercept = 408, linetype = "dashed", color = "gray") +
   geom_vline(xintercept = 468, linetype = "dashed", color = "gray") +
-  scale_color_manual(values=c("red", "yellow", "purple", "blue", "gray")) + 
+  scale_color_manual(values=c("red", "orange", "purple", "blue", "gray")) + 
   labs(title = "Kawhi's PIE in Games Following Different Periods of  Rest") + 
   ylab("Player Impact Estimate") +
-  xlab("Game Date") +
+  xlab("Point in Kawhi's Career") +
   theme(axis.text.x=element_blank(),
         panel.grid.major=element_blank(),
         panel.grid.minor=element_blank(),
         axis.ticks=element_blank(),
         plot.title = element_text(size = 20),
         text = element_text(size = 14),
-        legend.position = "bottom")
+        legend.position = "bottom") +
+  annotate("text", x = 1, y = -0.1, label = "Spurs") +
+  annotate("text", x = 435, y = -0.1, label = "Raptors") +
+  annotate("text", x = 530, y = -0.1, label = "Clippers")
 ```
+
 
 ---
 
@@ -645,7 +649,7 @@ the team strength as possible.
 
 ## Modeling Team Strength 
 
-- Net season rating is very powerful
+- Season net rating is very powerful
 
 ```{r}
 
@@ -671,7 +675,7 @@ the team strength as possible.
 ]
 ---
 
-### Rest, 3 in 4 and 3 hours back were significant!
+### Rest, 3 in 4, and 3 hours back were significant
  <font size="5"> $gameNetRatingResidual$ = $\beta_0$ + $\beta_1$ $restDiff$ + $\beta_2$ $travel3HoursBack$ + $\beta_3$ $third GameFourDays$ </font>
 ```{r Linear Model, echo=FALSE, fig.align = "center", fig.height = 5.5, fig.width = 12}
 summ <- summary(lm(game_net_rating ~ net_rating_diff + three_in_four 
@@ -707,7 +711,7 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 ```
 
 ---
-### Further work
+### Further Work
 * Develop a mapping of fatigue to performance
 <br>
 * Generalize load management as a strategy for more players
@@ -715,7 +719,7 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 * Design a stronger proxy for team strength
 
 ---
-## Relevance to stakeholders
+## Relevance to Stakeholders
 **NBA Teams**
 - Allocation of resources
 - Load management
