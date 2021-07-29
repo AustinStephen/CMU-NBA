@@ -186,7 +186,7 @@ together <- together %>% ungroup()%>%
          "wind_15","wind_20", "wind_25", "wind_30", "wind_35", "wind_40")
 
 write.csv(together,
-          "data/proxy_team_strength/clean_team_strength_columns.csv",
+          "data/proxy_team_strength/full_team_strength_columns.csv",
           row.names = FALSE)
 
 ## dropping tmp datasets 
