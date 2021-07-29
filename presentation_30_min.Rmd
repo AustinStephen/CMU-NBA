@@ -33,7 +33,7 @@ library(airball)
 library(gridExtra)
 library(png)
 library(grid)
-library(ggimage)
+#library(ggimage)
 library(gt)
 
 ```
@@ -70,22 +70,22 @@ athletic performance and player availability"
 --
 
 ```{r Map, echo = FALSE, fig.height= 5, fig.width=12}
-states <- map_data("state")
-ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group = group), fill = "white", color = "gray") +
-  coord_fixed(1.3) +
-  geom_image(data = coords_and_distance, aes(x = Longitude, y = Latitude, image = logo, size = I(img_size))) +
-  theme(axis.line=element_blank(),axis.text.x=element_blank(),
-        axis.text.y=element_blank(), axis.ticks=element_blank(),
-        axis.title.x=element_blank(),
-        axis.title.y=element_blank(),
-        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
-        panel.grid.minor=element_blank(),plot.background=element_blank(),
-        legend.position = "bottom")
+# states <- map_data("state")
+# ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group = group), fill = "white", color = "gray") +
+#   coord_fixed(1.3) +
+#   geom_image(data = coords_and_distance, aes(x = Longitude, y = Latitude, image = logo, size = I(img_size))) +
+#   theme(axis.line=element_blank(),axis.text.x=element_blank(),
+#         axis.text.y=element_blank(), axis.ticks=element_blank(),
+#         axis.title.x=element_blank(),
+#         axis.title.y=element_blank(),
+#         panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+#         panel.grid.minor=element_blank(),plot.background=element_blank(),
+#         legend.position = "bottom")
 ```
 
 ---
 ### Timezones and circadian rhythm
-```{r Flight Paths, echo = FALSE, fig.height = 7, fig.width=10}
+```{r Flight Paths, echo = FALSE, fig.height = 6.5, fig.width=10}
 nba_travel_plot(data = travel1415,
                 season = 2015,
                 team = c("Portland Trail Blazers","Denver Nuggets", "Cleveland Cavaliers", "Boston Celtics"),
@@ -243,7 +243,7 @@ No correlation between fg percentage and distance a team travels.
 
 - p-value 0.402
 
-```{r fig.height =4,fig.align = "center", include =TRUE}
+```{r fig.height =4,fig.align = "center", fig.width = 8, include =TRUE}
 gbg_player_w_distance <- read_csv(
  "./data/in_game_distance_data/in_game_dist_box_join.csv") %>% filter(min >12)
 
@@ -280,7 +280,7 @@ dispel any relationships.
 
 - p-value 0.498  
 
-```{r fig.height = 4,fig.align = "center", fig.width = 7, include = TRUE}
+```{r fig.height = 4,fig.align = "center", fig.width = 8, include = TRUE}
 
 gbg_player_w_distance <- read_csv(
  "./data/in_game_distance_data/in_game_dist_box_join.csv") %>% filter(min >12)
@@ -310,10 +310,10 @@ gbg_player_w_distance %>%
 
 ### Post distance overload regress
 
-- Increased volume in prior games does not provide evidence of players  
-<br>
+- Increased volume in prior games does not provide evidence of fatigue  
 
-```{r fig.height=4, fig.align = "center", fig.width = 7, include = TRUE}
+
+```{r fig.height= 4.75, fig.align = "center", fig.width = 9, include = TRUE}
 gbg_player_w_distance <- read_csv(
   "./data/in_game_distance_data/in_game_dist_box_join.csv")
 
@@ -371,6 +371,7 @@ ggplot(aes(x = diff_sn_avg_wind_5_dist,y = diff_from_sn_avg_dist))+
   labs(y = "Distance in Game",
        x = "Distance Traveled in 5 Prior Days",
        title = "Distance Deviation From Season Average")+
+  theme_bw()+
   theme(panel.background = element_rect(fill ="burlywood"),
         panel.grid.major = element_blank(),
         plot.title = element_text(size = 20),
@@ -408,6 +409,7 @@ ggplot(aes(x = diff_sn_avg_wind_5_speed,y = diff_from_sn_avg_speed))+
   labs(y = "Current game",
        x = "Last 5 days",
        title = "Min Adjusted Distance Deviation From Season Avg")+
+  theme_bw()+
   theme(panel.background = element_rect(fill ="burlywood"),
         panel.grid.major = element_blank(),
         plot.title = element_text(size = 20),
@@ -417,6 +419,9 @@ ggplot(aes(x = diff_sn_avg_wind_5_speed,y = diff_from_sn_avg_speed))+
 
 ```
 
+???
+This visual is the same relationship as the last one with only the x-axis adjusted 
+for playtime. This indicated there is no regression associated with more distance.
 
 ---
 
@@ -425,21 +430,20 @@ ggplot(aes(x = diff_sn_avg_wind_5_speed,y = diff_from_sn_avg_speed))+
 - Cannot draw conclusions across multiple seasons  
 
 
-
-```{r dist_t_test, echo = FALSE, fig.height= 7, fig.width=14}
+```{r dist_t_test, echo = FALSE, fig.height= 6.5, fig.width=14}
 together_final <- read.csv("./data1/final_together.csv")
 dist_table <- read.csv("./data1/distance_t_test_table.csv")
 
 ggplot(data = dist_table) +
   geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
   geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
-  scale_color_manual(name="game type",labels=c("2nd game of B2B", "All other games"), values=c("blue", "brown")) +
+  scale_color_manual(name="Game Type",labels=c("True", "False"), values=c("blue", "brown")) +
   #geom_text_repel(aes(label=p), size = 2.5) + 
   geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
   geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error, ymax = b2b_mean + 2*standard_error), color = "blue", width = 0.2) +
   xlab("Season") +
   ylab("Mean Distance") +
-  labs(title = "Difference of Means between 2nd game of a back to back and all other games", color = "legend") +
+  labs(title = "Difference of Means 2nd Game of a Back to Back and Other Games", color = "legend") +
   theme(panel.background = element_rect(fill = "burlywood"),
         panel.grid.major=element_blank())  +
   theme(legend.position = "right", axis.text = element_text(size = 14), axis.title = element_text(size = 20)) +
@@ -450,25 +454,25 @@ ggplot(data = dist_table) +
 
 ---
 
-## In-Game Speed
+### In-game speed back to back
 
 - Cannot draw conclusions across multiple seasons  
 
 
-```{r speed_t-test, echo = FALSE, fig.height=7, fig.width=14}
+```{r speed_t-test, echo = FALSE, fig.height=6.5, fig.width=14}
 speed_table <- read_csv("./data1/speed_t_test_table.csv")
 
 ggplot(data = speed_table) +
   geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
   geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
-  scale_color_manual(name="game type",labels=c("2nd game of B2B", "All other games"), values=c("blue", "brown")) +
+  scale_color_manual(name="Game Type",labels=c("True", "Flase"), values=c("blue", "brown")) +
   #scale_color_identity(guide = "legend") +
   #geom_text_repel(aes(label=p), size = 2.5) + 
   geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
   geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error, ymax = b2b_mean + 2*standard_error), color = "blue", width = 0.2) +
   xlab("Season") +
   ylab("Mean speed") +
-  labs(title = "Difference of Means between 2nd game of a back to back and all other games", colour = "game type") +
+  labs(title = "Difference of Means 2nd Game of a Back to Back and Other Games", colour = "game type") +
   theme(panel.background = element_rect(fill = "burlywood"),
         panel.grid.major=element_blank())  +
   theme(legend.position = "right", axis.text = element_text(size = 14), axis.title = element_text(size = 14)) +
@@ -487,14 +491,14 @@ ggplot(data = speed_table) +
 
 x <- check$extra_rest
 check$type_of_rest <- case_when(
-  x >= 10 ~ "extended injury rest",
+  x >= 10 ~ "extended rest",
   x < 10 & x >= 4 ~ "minor injury rest", 
   x < 4 & x > 1 ~ "2-3 extra days rest",
   x == 1 ~ "1 game load manage",
   x == 0 ~ "no load manage",
 )
 
-check$type_of_rest <- ordered(check$type_of_rest, levels = c("extended injury rest",
+check$type_of_rest <- ordered(check$type_of_rest, levels = c("extended rest",
                                                              "minor injury rest",
                                                              "2-3 extra days rest",
                                                              "1 game load manage",
@@ -503,12 +507,14 @@ check$type_of_rest <- ordered(check$type_of_rest, levels = c("extended injury re
 #check$game <- games
 
 ggplot(data = filter(check, ratioPIE < 0.6)) +
-  geom_point(aes(x = game, y = ratioPIE, color = type_of_rest, shape = w_l), alpha = 0.7) +
+  geom_point(aes(x = game, y = ratioPIE, color = type_of_rest, 
+                 shape = w_l), alpha = .7, size =5) +
   geom_hline(yintercept = 0.15 , linetype = "dashed") +
   geom_vline(xintercept = 408, linetype = "dashed", color = "gray") +
   geom_vline(xintercept = 468, linetype = "dashed", color = "gray") +
   scale_color_manual(values=c("red", "orange", "purple", "blue", "gray")) + 
-  labs(title = "Kawhi's PIE in Games Following Different Periods of  Rest") + 
+  labs(title = "Kawhi's PIE in Games Following Different Periods of Rest",
+       col= "Type of Rest", shape = "") + 
   ylab("Player Impact Estimate") +
   xlab("Point in Kawhi's Career") +
   theme(axis.text.x=element_blank(),
@@ -517,10 +523,11 @@ ggplot(data = filter(check, ratioPIE < 0.6)) +
         axis.ticks=element_blank(),
         plot.title = element_text(size = 24),
         text = element_text(size = 18),
-        legend.position = "bottom") +
+        legend.position = "bottom",
+        ) +
   annotate("text", x = 1, y = -0.1, label = "Spurs") +
   annotate("text", x = 435, y = -0.1, label = "Raptors") +
-  annotate("text", x = 530, y = -0.1, label = "Clippers")
+  annotate("text", x = 530, y = -0.1, label = "Clippers") 
 ```
 
 
@@ -528,11 +535,11 @@ ggplot(data = filter(check, ratioPIE < 0.6)) +
 
 ### What does this mean?
 
-- Basketball is complex  
+- Basketball is complex.  
 
-- Evidence indicating teams do a good job making sure their players are recovered.  
+- Evidence indicating players are recovered between games. 
 
-- Intuition may be misguided 
+- Intuition may be misguided. 
 
 
 ???
@@ -646,20 +653,12 @@ have played the game.
 
 2. __Unconstrained:__ All available information about the team not
 incorporated into the response.
-
-
-???
-2 concepts for modeling team strength. 
-
----
-
-### Modeling team strength
-__Unconstrained:__ All available information about the team not
-incorporated into the response.
   - Allows us to build the most accurate picture.
   - Cannot be to predict how much a game will fatigue a team.
 
 ???
+2 concepts for modeling team strength. 
+
 We chose to prioritize the second model because essentially what it would allow us
 to do is decompose the response into its causes and we were interested in identifying
 what effect between game factors had on game outcome in the absence of as much of
@@ -669,11 +668,11 @@ We felt the understanding of fatigue is more valuable.
 
 ---
 
-## Modeling Team Strength 
+### Modeling Team Strength 
 
 - Season net rating is very powerful
 
-```{r fig.height = 5, fig.width = 12, fig.align = "center"}
+```{r fig.height = 5.25, fig.width = 10, fig.align = "center"}
 res <- read_csv("./data/results_model_building.csv")
 
 
@@ -692,12 +691,17 @@ res %>%
                color = "red") + 
   stat_summary(fun.data = mean_se, geom = "errorbar",
                color = "red") +
-  labs(title = "Game net rating difference as response",
+  labs(title = "Game Net Rating Difference as Response",
+       x= "Type of Model",
+       y = "RMSE",
        caption = "t = temporal weighting
        td = temporal weighting and dynamic season avg
        tf = temporal weighting and future games" )+
-  theme(plot.title = element_text(size = 20),
-        text = element_text(size = 14))
+  theme(panel.background = element_rect(fill ="burlywood"),
+        panel.grid.major = element_blank(),
+        plot.title = element_text(size = 22),
+        text = element_text(size = 18),
+        plot.caption = element_text(size=16))
 ```
 
 ???
@@ -739,9 +743,10 @@ windows with temporal weighting and interaction with games played.
 ---
 
 ### Significant schedule induced factors
- <font size="5"> $gameNetRatingResiduals$ = </font>  
+ <font size="5"> <i>gameNetRatingResiduals</i> = </font>  
  <br>
- <font size="5"> $\beta_0$ + $\beta_1$ $restDiff$ + $\beta_2$ $3HrsBack$ + $\beta_3$ $3rdGame4Days$ </font>  
+ <font size="5"> $\beta_0$ + $\beta_1$<i>restDiff</i> + $\beta_2$ <i>3HrsBack</i>
+ + $\beta_3$<i>3rdGame4Days</i> </font>  
  
 ```{r Linear Model, echo=FALSE, fig.align = "center", fig.height = 5.5, fig.width = 12}
 summ <- summary(lm(game_net_rating ~ net_rating_diff + three_in_four 
@@ -753,7 +758,7 @@ coefficients <- c("intercept",
 
 coefficients <- ordered(coefficients, levels = c("intercept",
                                                  "rest_diff","travel_3_hours_back","three_in_four"))
-betas <- as.numeric(summ$coefficients[,1])[c(1,3,4,5)]
+betas <- round(as.numeric(summ$coefficients[,1])[c(1,3,4,5)], digits = 3)
 standard_errors <- as.numeric(summ$coefficients[,2])[c(1,3,4,5)]
 p_values <- as.numeric(summ$coefficients[,4])[c(1,3,4,5)]
 p <- sprintf("p= %s", p_values)
@@ -764,7 +769,7 @@ library(ggrepel)
 
 ggplot(data = table, aes(x = coefficients, y = betas)) +
   geom_point(color = "brown", size = 2) +
-  geom_text_repel(aes(label=p), size = 2.5) + 
+  geom_text_repel(aes(label=betas), size = 5) + 
   geom_errorbar(aes(ymin = betas - 2*standard_errors, ymax = betas + 2*standard_errors), color = "brown", width = 0.2) +
   xlab("Regression Variable") +
   ylab("Coefficient Value") +
@@ -792,14 +797,14 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 ---
 
 ### Relevance to stakeholders
-**NBA Teams**
-- Allocation of resources
-- Load management
+**NBA Teams:**  
+- Allocation of resources  
+- Load management  
 
-**League Office**
-- Schedule design
-- Understanding complexities of player performance
-- Viewership and profit maximization
+**League Office:**  
+- Schedule design  
+- Understanding complexities of player performance  
+- Viewership and profit maximization  
 
 ---
 ## Thanks  
