@@ -1,6 +1,6 @@
 ---
-title: "<span style='font-size: 70px'>Modeling Player Fatigue in the NBA (10) </style>"
-author: "<span style='font-size: 35px'>Austin Stephen, Matthew Yep and Grace Fain </style>"
+title: "<span style='font-size: 70px'>Modeling Player Fatigue in the NBA</style>"
+author: "<span style='font-size: 35px'>Austin Stephen, Matthew Yep, and Grace Fain  Advised by Maksim Horowitz</style>"
 date: "<span style='font-size: 35px'> 7/30/2021 </style>"
 output:
   xaringan::moon_reader:
@@ -308,16 +308,15 @@ game longer.
 
 
 ```{r dist_t_test, echo = FALSE, fig.height= 6.5, fig.width=14}
-together_final <- read.csv("./data1/final_together.csv")
-dist_table <- read.csv("./data1/distance_t_test_table.csv")
+dist_table <- read.csv("./data1/distance_t_test_table_update.csv")
 
 ggplot(data = dist_table) +
   geom_point(aes(x = season, y = other_mean, color = "brown"), size = 2) +
   geom_point(aes(x = season, y = b2b_mean, color = "blue"), size = 2) +
   scale_color_manual(name="Game Type",labels=c("True", "False"), values=c("blue", "brown")) +
   #geom_text_repel(aes(label=p), size = 2.5) + 
-  geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error, ymax = other_mean + 2*standard_error), color = "brown", width = 0.2) +
-  geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error, ymax = b2b_mean + 2*standard_error), color = "blue", width = 0.2) +
+  geom_errorbar(aes(x = season, ymin = other_mean - 2*standard_error_other, ymax = other_mean + 2*standard_error_other), color = "brown", width = 0.2) +
+  geom_errorbar(aes(x = season, ymin = b2b_mean - 2*standard_error_b2b, ymax = b2b_mean + 2*standard_error_b2b), color = "blue", width = 0.2) +
   xlab("Season") +
   ylab("Mean Distance") +
   labs(title = "Difference of Means 2nd Game of a Back to Back and Other Games", color = "legend") +
@@ -330,7 +329,7 @@ ggplot(data = dist_table) +
 
 ---
 
-### Case study: Load Management
+### Case study: load management
 ```{r Kawhi Case Study, echo = FALSE, fig.height = 6.5, fig.width = 14}
 # check$player_rest <- ifelse(check$player_rest == 15, 4, check$player_rest)
 # check$team_rest <- ifelse(check$team_rest == 15, 4, check$team_rest)
@@ -430,6 +429,8 @@ together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
 together_net_Rating_allWindows %>%
   select(c("Date", "visitor", "Opponent", "game_net_rating", "distance_diff","rest_diff","shift", 
            "b2b_2nd", , "net_rating_diff", )) %>%
+  rename(opponent = "Opponent",
+         date = "Date") %>%
   slice(1, 2386, 4200, 8642) %>%
    gt() %>%
    tab_header(
@@ -539,7 +540,6 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 
 **League Office:**  
 - Schedule design  
-- Understanding complexities of player performance  
 - Viewership and profit maximization  
 
 ---
