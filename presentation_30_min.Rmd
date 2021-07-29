@@ -421,9 +421,9 @@ ggplot(aes(x = diff_sn_avg_wind_5_speed,y = diff_from_sn_avg_speed))+
 
 ## In-Game Distance
 
-- Players run less in 2nd games of a back to back
+- Cannot draw conclusions across multiple seasons
 
-```{r dist_t_test, echo = FALSE, fig.height= 5, fig.width=14}
+```{r dist_t_test, echo = FALSE, fig.height= 6.5, fig.width=14}
 together_final <- read.csv("./data1/final_together.csv")
 dist_table <- read.csv("./data1/distance_t_test_table.csv")
 
@@ -439,8 +439,8 @@ ggplot(data = dist_table) +
   labs(title = "Difference of Means between 2nd game of a back to back and all other games", color = "legend") +
   theme(panel.background = element_rect(fill = "burlywood"),
         panel.grid.major=element_blank())  +
-  theme(legend.position = "right", axis.text = element_text(size = 16), axis.title = element_text(size = 22)) +
-  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16), title = element_text(size = 20))
+  theme(legend.position = "right", axis.text = element_text(size = 14), axis.title = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 14), legend.title = element_text(size = 14), title = element_text(size = 20))
 
 ```
 
@@ -449,9 +449,9 @@ ggplot(data = dist_table) +
 
 ## In-Game Speed
 
-- Average Speed is less in the 2nd game of a back to back
+- Cannot draw conclusions across multiple seasons
 
-```{r speed_t-test, echo = FALSE, fig.height=5, fig.width=14}
+```{r speed_t-test, echo = FALSE, fig.height=6.5, fig.width=14}
 speed_table <- read_csv("./data1/speed_t_test_table.csv")
 
 ggplot(data = speed_table) +
@@ -467,8 +467,8 @@ ggplot(data = speed_table) +
   labs(title = "Difference of Means between 2nd game of a back to back and all other games", colour = "game type") +
   theme(panel.background = element_rect(fill = "burlywood"),
         panel.grid.major=element_blank())  +
-  theme(legend.position = "right", axis.text = element_text(size = 16), axis.title = element_text(size = 22)) +
-  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16), title = element_text(size = 20))
+  theme(legend.position = "right", axis.text = element_text(size = 14), axis.title = element_text(size = 14)) +
+  theme(legend.text = element_text(size = 14), legend.title = element_text(size = 14), title = element_text(size = 20))
 
 
 ```
@@ -576,10 +576,10 @@ together_net_Rating_allWindows %>%
 
 ---
 
-### 3 games in 4 days difference of means
+### Game net rating difference of means
 - 2nd games of a back-to-back has a p-value of .776
 
-```{r team_t_test, echo = FALSE, fig.height=5, fig.width= 12}
+```{r team_t_test, echo = FALSE, fig.height=6.5, fig.width= 12}
 team_t_test_info <- read_csv("./data1/team_t_test_info.csv")
 
 #team_t_test_info <- ordered(Test, levels = c("2nd_B2B", "Three_in_Four", "b2b_and3in4", "3hrsBack"))
@@ -599,8 +599,8 @@ ggplot(data = team_t_test_info) +
   labs(title = "Difference of Mean between fatigue related metrics") +
   theme(panel.background = element_rect(fill = "burlywood"),
         panel.grid.major=element_blank())  +
-  theme(legend.position = "right", axis.text = element_text(size = 16), axis.title = element_text(size = 22)) +
-  theme(legend.text = element_text(size = 16), legend.title = element_text(size = 16), title = element_text(size = 20))
+  theme(legend.position = "right", axis.text = element_text(size = 14), axis.title = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 14), legend.title = element_text(size = 14), title = element_text(size = 20))
 
 ```
 
