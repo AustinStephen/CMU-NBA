@@ -623,7 +623,7 @@ res %>%
 The net rating of a game is composed of how the team preformed in that
 given game. If a team won a game with a rating of 10 their opponent had a rating
 of -10. The teams season average net rating difference served as the most simple 
-and nearly the most predictor.  </font>
+and nearly the lowest RMSE.  </font>
 
 ---
 
