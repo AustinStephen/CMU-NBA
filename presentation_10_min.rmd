@@ -161,7 +161,7 @@ rename("Name" = player_name,
  tab_header(
    title = md("**Distance By Player Individual Games**")
 ) %>%
- tab_source_note(md("Data courtesy of nba.com, Second Spectrum, Patrcik Chodowski (NBAr)")) %>%
+ tab_source_note(md("Data courtesy of nba.com, Second Spectrum, Patrick Chodowski (NBAr)")) %>%
 opt_table_outline( style = "solid", width = px(5), color = "#001747")%>%
  tab_options(table.width = pct(80))
 ```
@@ -174,7 +174,7 @@ Player level
 
 ---
 
-### In-game distance and preformance 
+### In-game distance and performance 
 
 - More distance does not correlate with better performance
 
