@@ -84,20 +84,6 @@ ggplot() + geom_polygon(data = states, aes(x=long, y = lat, fill = region, group
 ```
 
 ---
-### Timezones and circadian rhythm
-```{r Flight Paths, echo = FALSE, fig.height = 6.5, fig.width=10}
-nba_travel_plot(data = travel1415,
-                season = 2015,
-                team = c("Portland Trail Blazers","Denver Nuggets", "Cleveland Cavaliers", "Boston Celtics"),
-                city_color = "yellow",
-                plot_background_fill = "black",
-                land_color = "gray",
-                caption_color = "lightblue",
-                ncolumns = 2)
-
-```
-
----
 
 ### Project takeways  
 
@@ -565,6 +551,20 @@ obviously not the case. Rather we are saying it appears the complexity of basket
 and the techniques used by teams to ensure players are ready to play are more
 sophisticated than can be captured by measuring the players work.
 
+
+---
+### Timezones and circadian rhythm
+```{r Flight Paths, echo = FALSE, fig.height = 6.5, fig.width=10}
+nba_travel_plot(data = travel1415,
+                season = 2015,
+                team = c("Portland Trail Blazers","Denver Nuggets", "Cleveland Cavaliers", "Boston Celtics"),
+                city_color = "yellow",
+                plot_background_fill = "black",
+                land_color = "gray",
+                caption_color = "lightblue",
+                ncolumns = 2)
+
+```
 
 ---
 
