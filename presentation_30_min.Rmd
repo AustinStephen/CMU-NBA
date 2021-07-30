@@ -1,6 +1,6 @@
 ---
 title: "<span style='font-size: 70px'>Modeling Player Fatigue in the NBA </style>"
-author: "<span style='font-size: 35px'>Austin Stephen, Matthew Yep and Grace Fain </style>"
+author: "<span style='font-size: 35px'>Austin Stephen, Matthew Yep, and Grace Fain  Advised by Maksim  Horowitz</style>"
 date: "<span style='font-size: 35px'> 7/30/2021 </style>"
 output:
   xaringan::moon_reader:
@@ -483,7 +483,7 @@ ggplot(data = speed_table) +
 ```
 
 ---
-### Case study: Load Management
+### Case study: load management
 ```{r Kawhi Case Study, echo = FALSE, fig.height = 6.5, fig.width = 14}
 # check$player_rest <- ifelse(check$player_rest == 15, 4, check$player_rest)
 # check$team_rest <- ifelse(check$team_rest == 15, 4, check$team_rest)
@@ -644,7 +644,7 @@ which could have introduced latent effects associated with their travel.
 
 ---
 
-### Modeling team strength
+### Types of models for team strength  
 
 1. __Constrained:__ Limited to the information available to a team when they would 
 have played the game.
@@ -666,7 +666,7 @@ We felt the understanding of fatigue is more valuable.
 
 ---
 
-### Modeling Team Strength 
+### Preformance of team strength models  
 
 - Season net rating is very powerful
 
@@ -781,7 +781,7 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 
 ---
 
-### Further work
+### Further work  
 
 * Develop a mapping of fatigue to performance  
 
@@ -790,7 +790,7 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
   + Study effectiveness in the long run    
   
 
-* Design a stronger proxy for team strength
+* Design a stronger proxy for team strength  
 
 ---
 
