@@ -644,15 +644,15 @@ which could have introduced latent effects associated with their travel.
 
 ---
 
-### Types of models for team strength  
+### Types of team strength models
 
 1. __Constrained:__ Limited to the information available to a team when they would 
-have played the game.
+have played the game
 
 2. __Unconstrained:__ All available information about the team not
-incorporated into the response.
-  - Allows us to build the most accurate picture.
-  - Cannot be to predict how much a game will fatigue a team.
+incorporated into the response
+  - Allows us to build the most accurate picture
+  - Cannot be used to predict how much a game will fatigue a team
 
 ???
 2 concepts for modeling team strength. 
@@ -666,7 +666,7 @@ We felt the understanding of fatigue is more valuable.
 
 ---
 
-### Preformance of team strength models  
+### Team strength models preformance
 
 - Season net rating is very powerful
 
@@ -715,13 +715,13 @@ Elastic net a shrinkage method
 
 Window. 
 
-Windows with temporal weighting. 
+Windows with temporal weighting 
 
-windows with temporal weighting and interaction with games played.
+windows with temporal weighting and interaction with games played
 
 
 ---
-##Linear Model Results
+### Linear Model Results
 #### Many of our travel and scheduling metrics had insignificant effects on game net rating...
 .pull-left[
 * Distance traveled
@@ -779,6 +779,18 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
   )
 ```
 
+
+---
+
+### Relevance to stakeholders
+**NBA Teams:**
+- Allocation of resources  
+- Load management  
+
+**League Office:**
+- Schedule design  
+- Viewership and profit maximization  
+
 ---
 
 ### Further work  
@@ -792,18 +804,7 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 
 * Design a stronger proxy for team strength  
 
----
-
-### Relevance to stakeholders
-**NBA Teams:**  
-- Allocation of resources  
-- Load management  
-
-**League Office:**  
-- Schedule design  
-- Understanding complexities of player performance  
-- Viewership and profit maximization  
-
+* Use the bubble season as a holdout set
 ---
 ## Thanks  
 **Advisor:**  
