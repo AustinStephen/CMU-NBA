@@ -12,6 +12,8 @@ library(dplyr)
 library(readr)
 library(future)
 
+
+
 # Team Box Scores By Game -------------------------------------------------
 
 
@@ -36,7 +38,7 @@ plan(multiprocess)
 
 accumlating_players_box <- c()
 
-for(year in 2015){
+for(year in 2017){
   
   ## Printing progress
   print(paste("getting",year))
@@ -47,6 +49,7 @@ for(year in 2015){
   end <- max(schedule$idGame)
   
   ## getting start to end for 
+  print("getting box scores (lord help us)")
   season <- box_scores(
     box_score_types = c("Traditional"),
     game_ids = c(start:end),
@@ -62,7 +65,7 @@ for(year in 2015){
 
 ## write to csv
 write.csv(accumlating_players_box,
-          "../data/box_scores/box_scores_game_by_game_player_2014_15.csv",
+          "data/box_scores/box_scores_game_by_game_player_2016_17.csv",
           row.names = FALSE)
 
 
@@ -97,7 +100,7 @@ for(year in 2013:2015){
 
 ## write to csv
 write.csv(accumlating_players_box,
-          "/data/box_scores_game_by_game_player_2016_20.csv",
+          "data/box_scores_game_by_game_player_2016_20.csv",
           row.names = FALSE)
 
 # Season box scores -------------------------------------------------------

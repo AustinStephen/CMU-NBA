@@ -121,47 +121,6 @@ write.csv(gbg_player_w_distance,
 
 
 
-# Last 5 days summary -----------------------------------------------------
-
-tmp <- gbg_player_w_distance %>%
-  group_by(player_id) %>%
-  mutate(total = cumsum(dist_miles)) %>%
-  mutate(current_pos = row_number()) %>%
-  mutate(total_5 = 
-           total - ifelse(current_pos < 6, total,total - total[current_pos -5])) %>%
-  select(player_id, date, dist_miles, total, total_5, current_pos )
-
-
-accumulate_5_day_summaries <- c()
-sum_n_days <- function(n,data){
-  
-  for(day in data$date){
-    print(paste(day,player_id,sep=" "))
-    subset_days <- data %>% filter(date %in% c(seq(day-n,day-1,1)))
-  
-    total_dist_for_window <- subset_days %>% group_by(player_id) %>%
-      summarise(total = sum(dist_miles), date = day)
-    
-    accumulate_5_day_summaries <- rbind(accumulate_5_day_summaries,
-                                        total_dist_for_window )
-  }
-  
-}
-
- 
-gbg_player_w_distance <- merge(
-  accumulate_5_day_summaries,
-  accumulate_5_day_summaries,
-  by.x= c("player_id","date"),
-  by.y= c("player_id","date"))
-
-
-write.csv(gbg_player_w_distance, 
-          "data/in_game_distance_data/in_game_dist_prev_games_sum.csv",
-          row.names = FALSE)
-
-
-
 
 
 
