@@ -28,15 +28,15 @@ player_Window_dist_daily_2014_15 <- read_csv(
   select("player_id","date","dist_5dayWindow","dist_3dayWindow","dist_7dayWindow",
          "dist_10dayWindow")
 
-layer_Window_speed_daily_2014_15 <- read_csv(
+player_Window_speed_daily_2014_15 <- read_csv(
   "../data/in_game_distance_data/player_Window_speed_daily_2014_15.csv") %>%
   select("player_id","date","speed_5dayWindow","speed_7dayWindow")
 
 player_Window_dist_daily_2014_15$date <- as.Date(
   player_Window_dist_daily_2014_15$date, "%m/%d/%Y")
 
-layer_Window_speed_daily_2014_15$date <- as.Date(
-  layer_Window_speed_daily_2014_15$date, "%m/%d/%Y")
+player_Window_speed_daily_2014_15$date <- as.Date(
+  player_Window_speed_daily_2014_15$date, "%m/%d/%Y")
 
 
 ## removing all instances where player played less than 15 seconds because 
@@ -51,7 +51,7 @@ gbg_player_w_distance <- merge(x = gbg_player_w_distance,
                                by.y = c("player_id","date" ))
 
 gbg_player_w_distance <- merge(x = gbg_player_w_distance,
-                               y = layer_Window_speed_daily_2014_15,
+                               y = player_Window_speed_daily_2014_15,
                                by.x =  c("player_id","date" ),
                                by.y = c("player_id","date" ))
 

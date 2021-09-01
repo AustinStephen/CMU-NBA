@@ -114,6 +114,7 @@ rm(bx_14_15, bx_15_16, bx_16_17, sn_14_15, sn_15_16, sn_16_17, schedules,
 # Adding difference from season avg cols ----------------------------------
 
 gbg_player_w_distance <- gbg_player_w_distance %>%
+  filter(!is.na(dist_miles)) %>%
   group_by(player_id) %>% mutate(
     ftpct = ifelse(fta > 0,(ftm / fta), NA),
     avg_dist_miles_sn = mean(dist_miles),
@@ -207,10 +208,6 @@ summary(model)
 gbg_12_plus_min_filt <-  gbg_12_plus_min %>%
   filter(fga > 0 )
 
-gbg_12_plus_min_filt %>%
-  ggplot(aes(x=diff_from_sn_avg_fgpct, y = diff_from_sn_avg_speed_off ))+
-  geom_point(alpha = .05)+
-  geom_smooth(method="lm")
 
 model <- lm(diff_from_sn_avg_fgpct ~ diff_from_sn_avg_speed_off, 
             data = gbg_12_plus_min_filt )
@@ -334,6 +331,22 @@ summary(model)
 # (26033 observations deleted due to missingness)
 # Multiple R-squared:  7.249e-09,	Adjusted R-squared:  -2.304e-05 
 # F-statistic: 0.0003145 on 1 and 43394 DF,  p-value: 0.9859
+
+model <- lm(diff_from_sn_avg_ftpct ~ diff_from_sn_avg_speed_off, 
+            data = gbg_4_plus_min)
+summary(model)
+
+# Coefficients:
+#   Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)                -0.004434   0.001272  -3.486  0.00049 ***
+#   diff_from_sn_avg_speed_off  0.001155   0.004069   0.284  0.77656    
+# ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# Residual standard error: 0.2666 on 44283 degrees of freedom
+# (29674 observations deleted due to missingness)
+# Multiple R-squared:  1.819e-06,	Adjusted R-squared:  -2.076e-05 
+# F-statistic: 0.08055 on 1 and 44283 DF,  p-value: 0.7766
 
 
 # fg3 pct -----------------------------------------------------------------
@@ -601,113 +614,4 @@ summary(model)
 # F-statistic: 10.84 on 1 and 73711 DF,  p-value: 0.000996
 
 
-
-# Table generation --------------------------------------------------------
-name <- c("points", "points","fg_pct", "fg_pct", "fg3_pct", "fg3_pct", "turnovers",
-          "turnovers","off_rebound", "off_rebound", "def_rebound", "def_rebound",
-          "ft_pct", "ft_pct", "steals","steals")
-min_played <- rep(c(4,12),8)
-
-n <- c(73959,64527,72639,64527,73959,64527, 47020, 51100, 73959, 64527, 73959,
-         64527, 73959, 64527, 73959, 64527)
-
-coeff_val <- c(0.14210, 0.61772, 0.0130508, 0.024494, -7.703e-05, 0.001163, 0.001034,
-           0.0004391, -0.025066, 0.032852, -0.100168, -0.046087, -0.122862, 
-           0.028470, 0.049214, 0.135970)
-
-p_val <- c(0.0112, 2.74e-16, 8.39e-09, 2e-16, 0.98585, 0.7986, 0.795, 0.924,
-           0.196, 0.191, 9.02e-08, 0.0565 , 0.00031, 0.513, 0.000996,2.65e-12) 
-
-adj_r_sq <- c( 7.376e-05 ,0.001024, 0.0004443, 0.001379, -2.304e-05, -2.23e-05,
-               -1.828e-05, -2.11e-05, 9.096e-06, 1.106e-05, 0.000374, 4.094e-05,
-               0.0001629, -8.888e-06, 0.0001334, 0.000744)
-
-table <- data.frame(name, min_played, n,coeff_val, p_val, adj_r_sq)
-table$coeff_val <- round(table$coeff_val, 4)
-table_4 <- table%>% filter(min_played == 4) %>% select(-min_played)
-table_12 <- table%>% filter(min_played == 12) %>% select(-min_played)
-
-table_4 <- table_4 %>% rename("p-value"= p_val,
-                              "coeff value" = coeff_val,
-                               "adj r-squared" = adj_r_sq)
-
-table_12 <- table_12 %>% rename("p-value"= p_val,
-                                "coeff value" = coeff_val,
-                                "adj r-squared" = adj_r_sq)
-library(gt)
-
-res_4 <- table_4 %>%
-gt(rowname_col = "name") %>%
-  tab_header(
-    title = md("**Work and Player Perfromance**"),
-    subtitle = md("Only players in the game for >4 min")
-  ) %>% 
-  opt_table_lines(extent = "default") %>%
-  tab_options(
-    column_labels.border.top.color = "white",
-    column_labels.border.top.width = px(3),
-    column_labels.border.bottom.color = "black",
-    table_body.hlines.color = "white",
-    table.border.bottom.color = "white",
-    table.border.bottom.width = px(3)
-  ) %>% 
-    cols_align(align = "left",
-               columns = c(2,4)) %>% 
-  tab_style(
-    style = list(
-      cell_fill(color = "grey")
-    ),
-    locations = cells_body(
-      rows = c(2,4,6,8))
-  )%>%
-  tab_footnote(
-    footnote = "one field goal had to be attempted to get included",
-    locations = cells_stub(
-      rows = "fg_pct")
-  ) %>%
-  tab_footnote(
-    footnote = "one 3-point field goal had to be attempted to get included",
-    locations = cells_stub(
-      rows = "fg3_pct")
-  )
-
-
-res_12 <- table_12 %>%
-  gt(rowname_col = "name") %>%
-  tab_header(
-    title = md("**Work and Player Perfromance**"),
-    subtitle = md("Only players in the game for >12 min")
-  ) %>% 
-  opt_table_lines(extent = "default") %>%
-  tab_options(
-    column_labels.border.top.color = "white",
-    column_labels.border.top.width = px(3),
-    column_labels.border.bottom.color = "black",
-    table_body.hlines.color = "white",
-    table.border.bottom.color = "white",
-    table.border.bottom.width = px(3)
-  ) %>% 
-  cols_align(align = "left",
-             columns = c(2,4)) %>% 
-  tab_style(
-    style = list(
-      cell_fill(color = "grey")
-    ),
-    locations = cells_body(
-      rows = c(2,4,6,8))
-  ) %>%
-  tab_footnote(
-    footnote = "one field goal had to be attempted to get included",
-    locations = cells_stub(
-      rows = "fg_pct")
-    ) %>%
-  tab_footnote(
-    footnote = "one 3-point field goal had to be attempted to get included",
-    locations = cells_stub(
-      rows = "fg3_pct")
-  )
-
-library(webshot)
-gtsave(res_4,"work_and_player_perfromance_4min.png",path= "./Paper/")
-gtsave(res_12,"work_and_player_perfromance_12min.png",path= "./Paper/")
 
