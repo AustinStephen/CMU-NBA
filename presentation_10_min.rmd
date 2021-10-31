@@ -57,7 +57,7 @@ style_mono_accent(base_color = "#374052",
 --
 <span> 1.</span> Fairness and strategic advantage
 
-<img src="./images/Motivation.PNG" alt="Not found" width="90%" />
+<img src="/images/Motivation.PNG" alt="Not found" width="90%" />
 
 
 ???
