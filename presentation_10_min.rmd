@@ -57,7 +57,7 @@ style_mono_accent(base_color = "#374052",
 --
 <span> 1.</span> Fairness and strategic advantage
 
-<img src="/images/Motivation.PNG" alt="Not found" width="90%" />
+<img src="./images/Motivation.PNG" alt="Not found" width="90%" />
 
 
 ???
@@ -68,7 +68,7 @@ Media is full of things like this and it makes sense why.
 
 <span> 1.</span> Fairness and strategic advantage
 
-<img src="./images/Map.PNG" alt="Not found" width="90%" />
+<img src="./images/Map.png" alt="Not found" width="90%" />
 
 
 ???
