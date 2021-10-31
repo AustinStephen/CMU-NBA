@@ -68,7 +68,7 @@ Media is full of things like this and it makes sense why.
 
 <span> 1.</span> Fairness and strategic advantage
 
-<img src="./images/map.PNG" alt="Not found" width="90%" />
+<img src="./images/Map.PNG" alt="Not found" width="90%" />
 
 
 ???
@@ -407,6 +407,22 @@ That said, we aren't trying to tell you players don't ever get tired because tha
 obviously not the case. Rather we are saying it appears the complexity of basketball
 and the techniques used by teams to ensure players are ready to play are more
 sophisticated than can be captured by measuring the players work.
+
+
+---
+
+### Timezones and circadian rhythm
+```{r Flight Paths, echo = FALSE, fig.height = 6.5, fig.width=10}
+nba_travel_plot(data = travel1415,
+                season = 2015,
+                team = c("Portland Trail Blazers","Denver Nuggets", "Cleveland Cavaliers", "Boston Celtics"),
+                city_color = "yellow",
+                plot_background_fill = "black",
+                land_color = "gray",
+                caption_color = "lightblue",
+                ncolumns = 2)
+
+```
 
 
 ---
