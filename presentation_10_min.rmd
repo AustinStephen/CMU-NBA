@@ -427,7 +427,7 @@ nba_travel_plot(data = travel1415,
 
 ---
 
-### Taking a look at cross game fatigue
+### Taking a look at structural fatigue
 ``` {r Cross Game Data, echo = FALSE, fig.height = 6.5, fig.width = 12}
 together_net_Rating_allWindows <- together_net_Rating_allWindows %>%
   select(-c(fgm:opp_blk)) %>%
@@ -534,9 +534,6 @@ ggplot(data = table, aes(x = coefficients, y = betas)) +
 ---
 
 ### Further work
-
-* Develop a mapping of fatigue to performance  
-
 
 * Generalize load management to more players
   + Study effectiveness in the long run    
